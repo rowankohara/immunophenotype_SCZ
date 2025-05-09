@@ -6,3 +6,6 @@
 venv/
 *.swp
 .Rproj
+.rds
+.txt
+.csv
