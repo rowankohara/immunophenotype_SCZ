@@ -1,0 +1,11 @@
+.Rhistory
+.RData
+.Rproj.user/
+.Ruserdata
+.Rprofile
+venv/
+*.swp
+.Rproj
+.rds
+.txt
+.csv
