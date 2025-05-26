@@ -1,5 +1,5 @@
 # Rowan K. O'Hara-Payne
-# 5/5/2025
+# 5/5/2025 
 # conda activate /autofs/projects-t3/idea/rowan.ohara/software/conda_pkg/rnaseq
 # Kmeans clustering of the differentially expressed genes
 
@@ -12,7 +12,7 @@ library(impute)
 library(pheatmap)
 
 # read in pseudobulk data
-elist <- read.table('dkelly_singlets.pseudobulk.rds')
+elist <- readRDS('dkelly_singlets.pseudobulk.rds')
 str(elist)  # list of cell types with 
 celltypes <- names(elist)
 explist <- vector("list", length(celltypes))
@@ -86,22 +86,40 @@ modules <- data.frame(
   module = km$cluster
 )
 
+# add cluster labels to matrix
+module_labels <- km$cluster
+names(module_labels) <- rownames(logfc_mat_imputed)
+
+module_centroids <- as.data.frame(logfc_mat_imputed) %>%
+  mutate(Module = factor(module_labels)) %>%
+  group_by(Module) %>%
+  summarise(across(everything(), mean)) %>%
+  column_to_rownames("Module")
+
+# calculate distance and hierarchical clustering
+dist_mat <- dist(module_centroids)
+hc_modules <- hclust(dist_mat, method = "ward.D2")
+
+# order modules based on the dendrogram
+ordered_modules <- hc_modules$labels[hc_modules$order]
+
+# order genes based on hierarchical module clustering
+ordered_genes <- rownames(logfc_mat_imputed)[order(factor(km$cluster, levels = ordered_modules))]
+annotation_row <- data.frame(Module = factor(km$cluster, levels = ordered_modules))
+rownames(annotation_row) <- rownames(logfc_mat_imputed)
+
 
 ##  plot heatmap ----
 
-# order rows by cluster
-ordered_genes <- rownames(logfc_mat_imputed)[order(km$cluster)]
-annotation_row <- data.frame(Module = factor(km$cluster))
-rownames(annotation_row) <- rownames(logfc_mat_imputed)
-
 # plot
 pdf("plots/kmeans_heatmap_Tregs.pdf")
-pheatmap(logfc_mat_imputed[ordered_genes, ],
-         cluster_rows = FALSE,
-         cluster_cols = TRUE,
-         annotation_row = annotation_row,
-         show_rownames = FALSE,
-         main = "K-means Modules Across Contrasts")
+pheatmap(as.matrix(module_centroids),
+         cluster_rows = hc_modules,
+         cluster_cols = FALSE,  # keep contrast order fixed
+         show_rownames = TRUE,
+         show_colnames = TRUE,
+         main = "Hierarchical Clustering of K-means Modules",
+         color = colorRampPalette(c("blue", "white", "red"))(100))
 dev.off()
 
 write.csv(modules, "gene_modules.csv", row.names = FALSE)
