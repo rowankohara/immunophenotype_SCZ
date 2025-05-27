@@ -9,6 +9,7 @@ library(Seurat)
 library(dplyr)
 library(edgeR)
 library(ggplot2)
+library(pheatmap)
 
 # read in Seurat object
 obj <- readRDS('dkelly_singlets.postqc.azimuth_celltypes.rds')
@@ -115,40 +116,67 @@ res_contrast$cell_type <- rownames(res_contrast)
 res_all <- bind_rows(res_all, res_contrast)
 
 # fix celltype names
-#res_all$cell_type <- gsub("...\\d", "", res_all$cell_type)
+res_all$cell_type <- stringr::str_remove(res_all$cell_type, "\\.\\.\\.[0-9]+")
+write.csv(res_all, "DAseq_edgeR_results_allcomparisons.csv", row.names=F)
+
 
 # Plots ----
 
 ## volcano plot ----
+
+# classify significance and direction
+volcano_df <- res_all %>%
+  mutate(
+    direction = case_when(
+      logFC > 0 ~ "Higher in Group 1",
+      logFC < 0 ~ "Lower in Group 1",
+      TRUE ~ "No Change"
+    )
+  )
+
 pdf("plots/DAseq_volcano.pdf")
-ggplot(res_all, aes(x = logFC, y = -log10(FDR), label = cell_type, color = comparison)) +
-  geom_point() +
-  ggrepel::geom_text_repel(data = subset(res_all, FDR < 0.05)) +
+ggplot(volcano_df, aes(x = logFC, y = -log10(FDR), color = direction)) +
+  geom_jitter(size = 2.5, alpha = 0.8) +
+  scale_color_manual(values = c("Higher in Group 1" = "firebrick",
+                                "Lower in Group 1" = "dodgerblue",
+                                "No Change" = "gray80")) +
+  #geom_vline(xintercept = c(-1, 1), linetype = "dashed", color = "black") +
+  #geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "black") +
   facet_wrap(~comparison) +
-  theme_bw() +
-  labs(title = "DA of Cell Types Across Groups",
-       x = "logFC", y = "-log10(FDR)")
+  theme_bw(base_size = 12) +
+  labs(
+    title = "Volcano Plots of Cell Type DA Across Comparisons",
+    x = "log2 Fold Change",
+    y = "-log10(FDR)",
+    color = "Direction"
+  )
 dev.off()
 
 
 ## heatmap ----
+
+# pivot to wide format to have a matrix of logFCs; row = cell type, col = contrast
 lfc_matrix <- res_all %>%
   select(cell_type, logFC, comparison) %>%
-  pivot_wider(names_from = comparison, values_from = logFC) %>%
-  column_to_rownames("cell_type") %>%
+  tidyr::pivot_wider(names_from = comparison, values_from = logFC) %>%
+  tibble::column_to_rownames("cell_type") %>%
   as.matrix()
 
-# filling NAs with zero to allow visualization
-lfc_matrix_filled <- lfc_matrix
-lfc_matrix_filled[is.na(lfc_matrix_filled)] <- 0
-
 pdf("plots/DAseq_heatmap.pdf")
-pheatmap(lfc_matrix_filled,
+pheatmap(lfc_matrix,
          cluster_rows = TRUE,
          cluster_cols = FALSE,
          color = colorRampPalette(c("blue", "white", "red"))(100),
-         main = "logFC of Cell Types (All Comparisons, NA=0)")
+         main = "logFC of Cell Types")
 dev.off()
+
+# none at FDR < 0.05
+sig_celltypes <- res_all %>%
+  filter(FDR < 0.05) %>%
+  pull(cell_type) %>%
+  unique()
+
+lfc_matrix_sig <- lfc_matrix[rownames(lfc_matrix) %in% sig_celltypes, ]
 
 
 ## boxplots ----
@@ -162,6 +190,7 @@ prop_df <- counts_table %>%
          prop = count / total) %>%
   ungroup()
 
+# add sample meta data
 prop_df <- left_join(prop_df, sample_metadata, by = "sample")
 
 pdf("plots/DAseq_boxplots.pdf")
@@ -182,39 +211,26 @@ ggplot(prop_treg, aes(x = Group, y = prop, fill = Group)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 dev.off()
 
+pdf("plots/celltype_prop_DAseq.pdf")
+ggplot(prop_df, aes(x = cell_type, y = prop, fill = Group)) +
+  geom_boxplot() +
+  theme_bw() +
+  labs(y = "Cell Type Proportion", x = "Cell Type") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+dev.off()
 
-# compute proportions manually for plotting
-counts_table$sample <- gsub("_*", "", counts_table$sample)
-plot_df <- as.data.frame(counts_table) %>%
-  rename(sample = Var1, cell_type = Var2, count = Freq) %>%
-  group_by(sample) %>%
-  mutate(prop = count / sum(count))
-plot_df$sample <- substring(plot_df$sample, 1, 7)
-plot_df <- left_join(plot_df, meta_filtered, by = join_by("sample" == "MPRCID"))
 
-plot_df <- as.data.frame(counts_table) %>%
-  rename(sample = Var1, cell_type = Var2, count = Freq) %>%
-  group_by(sample) %>%
-  mutate(prop = count / sum(count)) %>%
-  left_join(meta_filtered, by = join_by("sample" == "MPRCID"))
+## bar plot ----
 
-# plot using ggplot2
+# bar plot of cell type proportions for each sample
 pdf("plots/celltype_sample_DAseq.pdf")
-ggplot(plot_df, aes(x = sample, y = prop, fill = cell_type)) +
+ggplot(prop_df, aes(x = sample, y = prop, fill = cell_type)) +
   geom_bar(stat = "identity") +
   theme_bw() +
   labs(x = "Sample", y = "Proportion of Cells", fill = "Cell Type") +
   scale_y_continuous(labels = scales::percent_format()) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   facet_grid(. ~ Group, scales = "free_x", space = "free_x")
-dev.off()
-
-pdf("plots/celltype_prop_DAseq.pdf")
-ggplot(plot_df, aes(x = cell_type, y = prop, fill = Group)) +
-  geom_boxplot() +
-  theme_bw() +
-  labs(y = "Cell Type Proportion", x = "Cell Type") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 dev.off()
 
 
