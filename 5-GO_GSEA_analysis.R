@@ -82,11 +82,32 @@ for (ct in celltypes) {
       top_gsea <- gsea %>% arrange(padj) %>% head(20)
       gsea_file <- paste0("plots/", gsub(" ", "_", ct), "_module_", mod, "_GSEA.pdf")
       pdf(gsea_file)
-      print(ggplot(top_gsea, aes(reorder(pathway, NES), NES, fill = NES)) +
+      ggplot(top_gsea, aes(reorder(pathway, NES), NES, fill = NES)) +
               geom_col(show.legend = FALSE) +
               coord_flip() +
-              labs(title = paste("GSEA -", ct, "Module", mod), x = "Pathway", y = "NES"))
+              labs(title = paste("GSEA -", ct, "Module", mod), x = "Pathway", y = "NES")
       dev.off()
+    }
+
+    if (nrow(gsea) > 0) {
+	# save table of top pathways
+  	top_pathways <- gsea %>%
+    		arrange(padj) %>%
+    		head(10)
+
+  	# write CSV
+  	write.csv(top_pathways, file = paste0("gsea_", module_id, ".csv"), row.names = FALSE)
+
+  	# plot top pathways
+  	plot_file <- paste0("plots/gsea_dotplot_", module_id, ".pdf")
+  	pdf(plot_file, width = 8, height = 6)
+  	ggplot(top_pathways, aes(x = reorder(pathway, NES), y = NES, color = padj)) +
+    		geom_point(size = 3) +
+    		coord_flip() +
+    		scale_color_gradient(low = "red", high = "blue") +
+    		labs(title = paste("GSEA -", module_id), x = "Pathway", y = "NES") +
+    		theme_bw()
+  	dev.off()
     }
   }
 }
@@ -96,4 +117,101 @@ saveRDS(go_results_all, "go_results_all.rds")
 saveRDS(gsea_results_all, "gsea_results_all.rds")
 
 
+# Summary Results ----
+
+# summarize all GO results
+go_summary <- do.call(rbind, lapply(names(go_results_all), function(key) {
+  go <- go_results_all[[key]]
+  if (is.null(go) || nrow(go) == 0) return(NULL)
+
+  # Split key into cell type and module
+  parts <- strsplit(key, "_")[[1]]
+  celltype <- paste(parts[1:(length(parts) - 1)], collapse = "_")
+  module <- parts[length(parts)]
+
+  go_df <- as.data.frame(go)
+  go_df$Celltype <- celltype
+  go_df$Module <- module
+  go_df
+}))
+
+# reorder columns
+go_summary <- go_summary %>%
+  dplyr::select(Celltype, Module, ID, Description, GeneRatio, BgRatio,
+         pvalue, p.adjust, qvalue, Count, everything())
+
+# save to CSV
+write.csv(go_summary, "GO_enrichment_summary.csv", row.names = FALSE)
+
+# loop through cell types
+for (ct in unique(go_summary$Celltype)) {
+  go_ct <- go_summary %>%
+    filter(Celltype == ct) %>%
+    group_by(Module) %>%
+    slice_min(order_by = p.adjust, n = 3, with_ties = FALSE) %>%
+    ungroup()
+
+  # Skip if no rows
+  if (nrow(go_ct) == 0) {
+    message("Skipping ", ct, " — no GO terms.")
+    next
+  }
+
+  # shorten GO term descriptions for plot
+  go_ct$DescriptionShort <- stringr::str_trunc(go_ct$Description, 60)
+  go_ct$Label <- paste0(go_ct$Module, ": ", go_ct$DescriptionShort)
+
+  # order y-axis
+  go_ct <- go_ct %>%
+    arrange(p.adjust) %>%
+    mutate(Label = factor(Label, levels = rev(unique(Label))))
+
+  # define file path
+  dotplot_file <- paste0("plots/", gsub(" ", "_", ct), "_go_summary_dotplot.pdf")
+
+  # open PDF and print plot
+  pdf(dotplot_file)
+  print(ggplot(go_ct, aes(x = -log10(p.adjust), y = Label, size = Count, color = factor(Module))) +
+      geom_point(alpha = 0.8) +
+      theme_bw() +
+      theme(axis.text.y = element_text(size = 7)) +
+      labs(x = "-log10 Adjusted P-value",
+           y = "GO Term",
+           title = paste("Top GO Terms for", ct),
+           color = "Module",
+           size = "Gene Count"))
+  dev.off()
+}
+
+# dot plot
+pdf("plots/go_summary_dotplot.pdf")
+ggplot(top_go, aes(x = -log10(p.adjust), y = Label, size = Count, color = Module)) +
+  geom_point(alpha = 0.8) +
+  theme_bw() +
+  theme(axis.text.y = element_text(size = 7)) +
+  labs(x = "-log10 Adjusted P-value", y = "GO Term",
+       title = "Top Enriched GO Terms by Cell Type and Module",
+       color = "Module", size = "Gene Count")
+dev.off()
+
+# Example for one cell type and module
+example_go <- go_summary %>% filter(Celltype == "Treg", Module == "8") %>%
+  slice_min(p.adjust, n = 10)
+
+# box plot
+pdf("plots/go_summary_barplot_Tregs8.pdf")
+ggplot(example_go, aes(x = reorder(Description, p.adjust), y = -log10(p.adjust), fill = Count)) +
+  geom_col() +
+  coord_flip() +
+  theme_minimal() +
+  labs(title = "Top 10 GO BP terms (Tregs Module 8)",
+       x = "GO Term", y = "-log10 Adjusted p-value")
+dev.off()
+
+# enrichment map
+go_enriched <- go_results_all[["Treg_8"]]
+go_enriched <- pairwise_termsim(go_enriched)  # compute term similarity
+pdf("plots/go_summary_enrichmentmap_Tregs8.pdf")
+emapplot(go_enriched, showCategory = 30)
+dev.off()
 
