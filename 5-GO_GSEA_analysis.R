@@ -67,48 +67,60 @@ for (ct in celltypes) {
 
     # GSEA
     gene_ranks <- dge_ct %>%
+      filter(Symbol %in% genes) %>%
+      mutate(logFC = as.numeric(logFC)) %>%
       group_by(Symbol) %>%
       summarise(score = mean(logFC, na.rm = TRUE)) %>%
+      filter(!is.na(score)) %>%
       deframe()
     gene_ranks <- sort(gene_ranks, decreasing = TRUE)
+    
+    common_genes <- intersect(names(gene_ranks), unique(unlist(hallmark_sets)))
+    gene_ranks <- gene_ranks[common_genes]
 
     gsea <- fgsea(pathways = hallmark_sets,
-                  stats = gene_ranks,
-                  nperm = 1000)
+                  stats = gene_ranks)
 
     gsea_results_all[[paste(ct, mod, sep = "_")]] <- gsea
 
     if (!is.null(gsea) && nrow(gsea) > 0) {
+      message("Running GSEA plot")
       top_gsea <- gsea %>% arrange(padj) %>% head(20)
       gsea_file <- paste0("plots/", gsub(" ", "_", ct), "_module_", mod, "_GSEA.pdf")
       pdf(gsea_file)
-      ggplot(top_gsea, aes(reorder(pathway, NES), NES, fill = NES)) +
+      print(ggplot(top_gsea, aes(reorder(pathway, NES), NES, fill = NES)) +
               geom_col(show.legend = FALSE) +
               coord_flip() +
-              labs(title = paste("GSEA -", ct, "Module", mod), x = "Pathway", y = "NES")
+              labs(title = paste("GSEA -", ct, "Module", mod), x = "Pathway", y = "NES"))
       dev.off()
     }
 
     if (nrow(gsea) > 0) {
+	message("Making GSEA summary table")
 	# save table of top pathways
   	top_pathways <- gsea %>%
     		arrange(padj) %>%
     		head(10)
+	
+	top_pathways_clean <- top_pathways %>%
+  		mutate(leadingEdge = sapply(leadingEdge, paste, collapse = ";"))
 
   	# write CSV
-  	write.csv(top_pathways, file = paste0("gsea_", module_id, ".csv"), row.names = FALSE)
+  	write.csv(top_pathways_clean, file = paste0("gsea_", gsub(" ", "_", ct), "_", mod, ".csv"), row.names = FALSE)
 
   	# plot top pathways
-  	plot_file <- paste0("plots/gsea_dotplot_", module_id, ".pdf")
+  	plot_file <- paste0("plots/gsea_dotplot_", gsub(" ", "_", ct), "_", mod, ".pdf")
   	pdf(plot_file, width = 8, height = 6)
-  	ggplot(top_pathways, aes(x = reorder(pathway, NES), y = NES, color = padj)) +
+  	print(ggplot(top_pathways, aes(x = reorder(pathway, NES), y = NES, color = padj)) +
     		geom_point(size = 3) +
     		coord_flip() +
     		scale_color_gradient(low = "red", high = "blue") +
-    		labs(title = paste("GSEA -", module_id), x = "Pathway", y = "NES") +
-    		theme_bw()
+    		labs(title = paste("GSEA -", mod), x = "Pathway", y = "NES") +
+    		theme_bw())
   	dev.off()
     }
+
+    message("GSEA Results: ", nrow(gsea))
   }
 }
 
