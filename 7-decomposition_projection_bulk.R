@@ -51,15 +51,16 @@ params@sparseOptimization <- TRUE
 
 result <- CoGAPS(logCPM_shifted, params = params)
 
+saveRDS(result, "bulk_CoGAPS_results_Pan.rds")
 
 ## visualization ----
 
 # ow samples = SCZ, YD samples = HC
 samples <- colnames(logCPM_shifted)
-scz <- grep("^ow", samples)
+scz <- grepl("^ow", samples)
 meta <- data.frame(sample = samples, temp = scz)
 meta <- meta %>%
-		mutate(group = if_else(temp == T, "SCZ", "HC") %>%
+		mutate(group = if_else(temp == TRUE, "SCZ", "HC") %>%
 	       		select(-temp)
 rownames(meta) <- samples
 
@@ -81,8 +82,8 @@ P_long <- P_df %>%
   )
 
 # plot
-pdf("./plots/CoGAPS_bulk_5patterns_boxplot.pdf")
-ggplot(P_melt, aes(x = Group, y = Activity, fill = Group)) +
+pdf("plots/CoGAPS_bulk_5patterns_boxplot.pdf")
+ggplot(P_long, aes(x = Group, y = Activity, fill = Group)) +
   geom_boxplot(outlier.shape = NA, alpha = 0.7) +
   geom_jitter(width = 0.2, size = 1) +
   facet_wrap(~ Pattern, scales = "free_y") +
@@ -98,7 +99,7 @@ top_per_pattern <- lapply(unique(markers), function(p) {
 top_genes_all <- unique(unlist(top_per_pattern))
 
 # heatmap of A matrix (gene loadings)
-pdf("./plots/CoGAPS_bulk_5patterns_heatmap.pdf")
+pdf("plots/CoGAPS_bulk_5patterns_heatmap.pdf")
 pheatmap(A[top_genes_all, ], cluster_rows = TRUE, cluster_cols = TRUE,
          scale = "row", main = "Top CoGAPS Marker Genes per Pattern")
 dev.off()
