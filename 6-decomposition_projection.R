@@ -145,40 +145,31 @@ combDat <- PrepSCTIntegration(object.list = combDat, anchor.features = features)
 
 All.anchors <- FindIntegrationAnchors(object.list = combDat, normalization.method = "SCT",anchor.features = features,reduction='cca') #,reference=refInd #,reference=ctrlInd
 
-All.integrated <- IntegrateData(anchorset = All.anchors, normalization.method = "SCT")
-
-#saveRDS(All.integrated,file=paste('./SeuratObj/',IntName,'_integrated_V5.rds',sep=''),compress=TRUE) 
+All.integrated <- IntegrateData(anchorset = All.anchors, normalization.method = "SCT") 
 
 
 All.integrated <- ScaleData(All.integrated, features = rownames(All.integrated))
-
-
 All.integrated <- RunPCA(All.integrated, verbose = FALSE)
 All.integrated <- RunUMAP(All.integrated, reduction = "pca", dims = 1:30,reduction.name='umap.integrated')
-
 All.integrated <- FindNeighbors(All.integrated, dims = 1:30, verbose = FALSE)
 All.integrated <- FindClusters(All.integrated, verbose = FALSE, resolution=0.5)
-
-
 
 DefaultAssay(All.integrated) <- "RNA"
 
 All.integrated[['RNA']] = JoinLayers(All.integrated[['RNA']])
-
 All.integrated <- NormalizeData(All.integrated, assay = "RNA") ## adds data
-
 All.integrated <- ScaleData(All.integrated, features = rownames(All.integrated), assay = "RNA")
 
-saveRDS(All.integrated,file=paste('./SeuratObj/',IntName,'_integrated_V5.rds',sep=''),compress=TRUE)
+saveRDS(All.integrated,file=paste(IntName,'_integrated_V5.rds',sep=''),compress=TRUE)
 
 
 # plots
-subplots(All.integrated,colName='celltype',filename='./plots/integrated_CCA_Ref_celltype.pdf',raster=TRUE,reduction='umap.integrated')
+subplots(All.integrated,colName='celltype',filename=paste0('plots/', IntName, 'integrated_celltype.pdf'),raster=TRUE,reduction='umap.integrated')
 
 
-subplots(All.integrated,colName='study',filename='./plots/integrated_CCA_Ref_study.pdf',raster=TRUE,reduction='umap.integrated')
+subplots(All.integrated,colName='study',filename=paste0('plots/', IntName, 'integrated_study.pdf'),raster=TRUE,reduction='umap.integrated')
 
-pdf(file=paste("./plots/",IntName,"_Check_Clustering_V5.pdf",sep=''),width=12,height=8)
+pdf(file=paste("plots/",IntName,"_Check_Clustering_V5.pdf",sep=''),width=12,height=8)
 for(k in PrintColCat){
 	print(DimPlot(All.integrated, reduction = "umap.integrated", group.by = k, label = TRUE, repel = TRUE,order=TRUE) + NoLegend() )
 }
