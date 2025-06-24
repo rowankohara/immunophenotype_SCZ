@@ -6,6 +6,10 @@
 
 
 # Read in libraries and data ----
+
+# set library path
+.libPaths("/autofs/projects-t3/idea/rowan.ohara/software/conda_pkg/rnaseq/lib/R/library")
+
 library(dplyr)
 library(tibble)
 library(tidyr)
@@ -15,8 +19,6 @@ library(ggplot2)
 library(fgsea)
 library(msigdbr)
 library(enrichplot)
-library(ggpubr)
-
 
 # load modules and DGE results
 modules_df <- read.csv("/local/projects/idea/rohara/immunophenotype_SCZ/gene_modules_all_celltypes.csv")

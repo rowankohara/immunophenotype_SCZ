@@ -13,7 +13,7 @@ library(fgsea)
 library(msigdbr)
 library(pheatmap)
 
-pan_counts <- read.table(file="GSE243841_cleaned_counts.tsv", sep="\t", header=T)
+pan_counts <- read.table(file="/local/projects/idea/rohara/immunophenotype_SCZ/GSE243841_cleaned_counts.tsv", sep="\t", header=T)
 
 
 ## data wrangling ----
@@ -45,13 +45,13 @@ min_val <- min(logCPM)
 logCPM_shifted <- logCPM - min_val  # now minimum value is 0
 
 params <- new("CogapsParams")
-params@nPatterns <- 5  # trying 5, 10, 15
+params@nPatterns <- 30  # trying 5, 10, 15
 params@nIterations <- 20000
 params@sparseOptimization <- TRUE
 
 result <- CoGAPS(logCPM_shifted, params = params)
 
-saveRDS(result, "bulk_CoGAPS_results_Pan.rds")
+saveRDS(result, "/local/projects/idea/rohara/immunophenotype_SCZ/bulk_CoGAPS_30results_Pan.rds")
 
 ## visualization ----
 
@@ -60,18 +60,18 @@ samples <- colnames(logCPM_shifted)
 scz <- grepl("^ow", samples)
 meta <- data.frame(sample = samples, temp = scz)
 meta <- meta %>%
-		mutate(group = if_else(temp == TRUE, "SCZ", "HC") %>%
+		mutate(group = if_else(temp == TRUE, "SCZ", "HC")) %>%
 	       		select(-temp)
 rownames(meta) <- samples
 
 # extract CoGAPS results
-A <- amplitudeMatrix(result)  # genes × patterns
-P <- patternMatrix(result)    # patterns × samples
+P <- result@sampleFactors  # samples × patterns
+A <- result@featureLoadings    # genes × patterns
 
 # prepare P matrix for plotting
-P_df <- as.data.frame(t(P))  # samples × patterns
-P_df$Sample <- rownames(P_df)
-P_df <- merge(P_df, meta, by.x = "Sample", by.y = "sample")
+P_df <- as.data.frame(P)
+P_df$sample <- rownames(P_df)
+P_df <- merge(P_df, meta, by = "sample")
 
 # reshape df from wide to long format for ggplot
 P_long <- P_df %>%
@@ -82,8 +82,8 @@ P_long <- P_df %>%
   )
 
 # plot
-pdf("plots/CoGAPS_bulk_5patterns_boxplot.pdf")
-ggplot(P_long, aes(x = Group, y = Activity, fill = Group)) +
+pdf("/local/projects/idea/rohara/immunophenotype_SCZ/plots/CoGAPS_bulk_30patterns_boxplot.pdf")
+ggplot(P_long, aes(x = group, y = Activity, fill = group)) +
   geom_boxplot(outlier.shape = NA, alpha = 0.7) +
   geom_jitter(width = 0.2, size = 1) +
   facet_wrap(~ Pattern, scales = "free_y") +
@@ -92,14 +92,22 @@ ggplot(P_long, aes(x = Group, y = Activity, fill = Group)) +
 dev.off()
 
 # get top 10 marker genes per pattern
-top_per_pattern <- lapply(unique(markers), function(p) {
-  g <- names(which(markers == p))
-  g[order(A[g, p], decreasing = TRUE)][1:10]
+markers <- patternMarkers(result, threshold = "cut")  # returns a named vector of pattern assignment per gene
+top_genes <- names(markers[markers == 3])
+head(sort(A[top_genes, 3], decreasing = TRUE), 10)
+top_per_pattern <- lapply(seq_along(markers$PatternMarkers), function(p) {
+  top_genes <- markers$PatternMarkers[[p]]
+  # Sort these genes by their weight in pattern p
+  top_genes <- top_genes[order(A[top_genes, p], decreasing = TRUE)]
+  head(top_genes, 10)
 })
+names(top_per_pattern) <- paste0("Pattern_", seq_along(top_per_pattern))
+
+# combine top marker genes from all patterns
 top_genes_all <- unique(unlist(top_per_pattern))
 
 # heatmap of A matrix (gene loadings)
-pdf("plots/CoGAPS_bulk_5patterns_heatmap.pdf")
+pdf("/local/projects/idea/rohara/immunophenotype_SCZ/plots/CoGAPS_bulk_30patterns_heatmap.pdf")
 pheatmap(A[top_genes_all, ], cluster_rows = TRUE, cluster_cols = TRUE,
          scale = "row", main = "Top CoGAPS Marker Genes per Pattern")
 dev.off()
