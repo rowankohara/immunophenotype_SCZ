@@ -140,12 +140,12 @@ for (i in 1:length(combDat)) {
   DefaultAssay(combDat[[i]]) <- "SCT"
 }
 
-features <- SelectIntegrationFeatures(object.list = combDat, nfeatures = 3000)
+features <- SelectIntegrationFeatures(object.list = combDat, nfeatures = 2000)
 combDat <- PrepSCTIntegration(object.list = combDat, anchor.features = features)
 
-All.anchors <- FindIntegrationAnchors(object.list = combDat, normalization.method = "SCT",anchor.features = features,reduction='cca') #,reference=refInd #,reference=ctrlInd
+All.anchors <- FindIntegrationAnchors(object.list = combDat, normalization.method = "SCT",anchor.features = features,reduction='rpca', k.anchor=15) #,reference=refInd #,reference=ctrlInd
 
-All.integrated <- IntegrateData(anchorset = All.anchors, normalization.method = "SCT") 
+All.integrated <- IntegrateData(anchorset = All.anchors, normalization.method = "SCT", k.weight=20) 
 
 
 All.integrated <- ScaleData(All.integrated, features = rownames(All.integrated))
