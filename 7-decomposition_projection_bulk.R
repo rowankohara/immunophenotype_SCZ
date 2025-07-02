@@ -168,13 +168,13 @@ write.csv(fgsea_export, "fgsea_results_all_30patterns_Pan.csv", row.names = FALS
 
 
 ## visualization ----
-fgsea_sig <- fgsea_combined %>%
-  filter(padj < 0.05)
 
-top_terms <- fgsea_sig %>%
+top_terms <- fgsea_combined %>%
+  filter(padj < 0.05) %>%
   group_by(pattern) %>%
-  slice_min(order_by = padj, n = 5) %>%
-  ungroup()
+  arrange(desc(abs(NES))) %>%
+  distinct(pathway, .keep_all = TRUE) %>%
+  slice_head(n = 5)
 
 ### heatmap ----
 # pivot wider: rows = pathways, columns = patterns
