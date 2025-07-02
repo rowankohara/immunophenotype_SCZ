@@ -12,6 +12,8 @@ library(projectR)
 library(fgsea)
 library(msigdbr)
 library(pheatmap)
+library(org.Hs.eg.db)
+library(AnnotationDbi)
 
 pan_counts <- read.table(file="/local/projects/idea/rohara/immunophenotype_SCZ/GSE243841_cleaned_counts.tsv", sep="\t", header=T)
 
@@ -93,8 +95,6 @@ dev.off()
 
 # get top 10 marker genes per pattern
 markers <- patternMarkers(result, threshold = "cut")  # returns a named vector of pattern assignment per gene
-top_genes <- names(markers[markers == 3])
-head(sort(A[top_genes, 3], decreasing = TRUE), 10)
 top_per_pattern <- lapply(seq_along(markers$PatternMarkers), function(p) {
   top_genes <- markers$PatternMarkers[[p]]
   # Sort these genes by their weight in pattern p
@@ -102,6 +102,15 @@ top_per_pattern <- lapply(seq_along(markers$PatternMarkers), function(p) {
   head(top_genes, 10)
 })
 names(top_per_pattern) <- paste0("Pattern_", seq_along(top_per_pattern))
+
+top_long <- do.call(rbind, lapply(names(top_per_pattern), function(pat) {
+  data.frame(
+    Pattern = pat,
+    Rank = seq_along(top_per_pattern[[pat]]),
+    Gene = top_per_pattern[[pat]]
+  )
+}))
+write.csv(top_long, file = "top_marker_genes_long_30Pan.csv", row.names = FALSE)
 
 # combine top marker genes from all patterns
 top_genes_all <- unique(unlist(top_per_pattern))
@@ -111,5 +120,96 @@ pdf("/local/projects/idea/rohara/immunophenotype_SCZ/plots/CoGAPS_bulk_30pattern
 pheatmap(A[top_genes_all, ], cluster_rows = TRUE, cluster_cols = TRUE,
          scale = "row", main = "Top CoGAPS Marker Genes per Pattern")
 dev.off()
+
+
+# Pattern Interpretation ----
+
+# clean Ensembl IDs (remove version numbers)
+genes <- rownames(A)
+genes_clean <- sub("\\.\\d+$", "", genes)
+
+# map Ensembl → Symbol
+gene_map <- mapIds(
+  org.Hs.eg.db,
+  keys = genes_clean,
+  column = "SYMBOL",
+  keytype = "ENSEMBL",
+  multiVals = "first"
+)
+
+# filter matrix to mapped genes only
+A_mapped <- A[!is.na(gene_map), ]
+rownames(A_mapped) <- gene_map[!is.na(gene_map)]
+
+# get gene sets
+genesets <- msigdbr(species = "Homo sapiens", category = "C5", subcategory = "GO:BP")
+gmt_list <- split(genesets$gene_symbol, genesets$gs_name)
+
+# run fgsea
+fgsea_results_list <- lapply(1:ncol(A_mapped), function(pat_id) {
+  gene_ranks <- A_mapped[, pat_id]
+  names(gene_ranks) <- rownames(A_mapped)
+  gene_ranks <- sort(gene_ranks, decreasing = TRUE)
+
+  fgseaRes <- fgsea(
+    pathways = gmt_list,
+    stats = gene_ranks,
+    nperm = 1000
+  )
+
+  fgseaRes$pattern <- paste0("Pattern_", pat_id)
+  return(fgseaRes)
+})
+
+# combine into one data.frame
+fgsea_combined <- bind_rows(fgsea_results_list)
+fgsea_export <- fgsea_combined %>% select(-leadingEdge)
+write.csv(fgsea_export, "fgsea_results_all_30patterns_Pan.csv", row.names = FALSE)
+
+
+## visualization ----
+fgsea_sig <- fgsea_combined %>%
+  filter(padj < 0.05)
+
+top_terms <- fgsea_sig %>%
+  group_by(pattern) %>%
+  slice_min(order_by = padj, n = 5) %>%
+  ungroup()
+
+### heatmap ----
+# pivot wider: rows = pathways, columns = patterns
+heatmap_df <- top_terms %>%
+  select(pathway, pattern, NES) %>%
+  pivot_wider(names_from = pattern, values_from = NES)
+
+heatmap_matrix <- as.matrix(heatmap_df[,-1])
+rownames(heatmap_matrix) <- heatmap_df$pathway
+heatmap_matrix_clean <- heatmap_matrix[complete.cases(heatmap_matrix), ]
+
+pdf("/local/projects/idea/rohara/immunophenotype_SCZ/plots/gsea_30patterns_heatmap_Pan.pdf")
+pheatmap(
+  mat = heatmap_matrix_clean,
+  scale = "none",
+  cluster_rows = TRUE,
+  cluster_cols = TRUE,
+  main = "Top Enriched Pathways per Pattern (NES)",
+  fontsize_row = 8
+)
+dev.off()
+
+### bubble plot ----
+top_terms_plot <- top_terms %>%
+  mutate(log10padj = -log10(padj))
+
+pdf("/local/projects/idea/rohara/immunophenotype_SCZ/plots/gsea_30patterns_bubble_Pan.pdf")
+ggplot(top_terms_plot, aes(x = pattern, y = pathway)) +
+  geom_point(aes(size = log10padj, color = NES)) +
+  scale_color_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0) +
+  theme_bw() +
+  labs(title = "Top Enriched Pathways by Pattern",
+       x = "Pattern", y = "Pathway",
+       size = "-log10(padj)", color = "NES")
+dev.off()
+
 
 
