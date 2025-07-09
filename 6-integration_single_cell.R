@@ -10,13 +10,8 @@ library(Seurat)
 library(future)
 library(SeuratDisk)
 library(glmGamPoi)
-
+library(harmony)
 library(tidyverse)
-#library(Seurat)
-#library(CoGAPS)
-#library(projectR)
-#library(fgsea)
-#library(msigdbr)
 
 # plot function
 subplots <- function(sobj,colName,filename,raster=FALSE,legend=TRUE,reduction){
@@ -101,6 +96,7 @@ kelly_counts$condition <- kelly_counts$Group
 kelly_counts$sample_age <- kelly_counts$Age
 kelly_counts@meta.data$sample_sex[kelly_counts@meta.data$sample_sex == "Female"] <- "F"
 kelly_counts@meta.data$sample_sex[kelly_counts@meta.data$sample_sex == "Male"] <- "M"
+kelly_counts$clusters <- kelly_counts$seurat_clusters
 
 # summarize to one row per sample
 sample_metadata <- kelly_counts@meta.data %>%
@@ -109,9 +105,12 @@ sample_metadata <- kelly_counts@meta.data %>%
 
 
 # Integration ----
-kellyCD <- SplitObject(object = kelly_counts , split.by = "sample")
-kornbergCD <- SplitObject(object = kornberg_counts , split.by = "sample")
-combDat <- c(kellyCD,kornbergCD)
+combDat <- merge(kelly_counts, kornberg_counts, add.cell.ids = c("kelly", "kornberg"))
+combDat <- NormalizeData(combDat)
+combDat <- FindVariableFeatures(combDat)
+combDat <- ScaleData(combDat)
+combDat <- RunPCA(combDat)
+combDat <- RunHarmony(combDat, group.by.vars = "study")
 
 IntName <- 'Kelly_Kornberg'
 PrintColCat <- c('sample','celltype','condition')
