@@ -15,10 +15,30 @@ library(pheatmap)
 library(org.Hs.eg.db)
 library(AnnotationDbi)
 
-pan_counts <- read.table(file="/local/projects/idea/rohara/immunophenotype_SCZ/GSE243841_cleaned_counts.tsv", sep="\t", header=T)
-
-
 ## data wrangling ----
+
+# Pan et al. GEO data
+# https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE243841
+raw_counts <- read_tsv("GSE243841_raw_counts_all.txt", comment = "#")
+
+# Pan data
+pan_counts <- raw_counts %>%
+  select(-Chr, -Start, -End, -Strand, -Length)
+
+# clean sample column names (remove "./BAM/" and "_sorted.bam")
+clean_names <- colnames(pan_counts)[-1] %>%
+  str_replace_all("\\./BAM/", "") %>%
+  str_replace_all("_sorted.bam", "")
+colnames(pan_counts)[-1] <- clean_names
+
+# remove rows where Geneid has merged info (i.e., rows with ";" in Geneid)
+pan_counts <- pan_counts %>%
+  filter(!str_detect(Geneid, ";"))
+
+# save cleaned matrix (optional)
+write_tsv(pan_counts, "GSE243841_cleaned_counts.tsv")
+
+#pan_counts <- read.table(file="/local/projects/idea/rohara/immunophenotype_SCZ/GSE243841_cleaned_counts.tsv", sep="\t", header=T)
 
 # check if Pan data is normalized
 rownames(pan_counts) <- pan_counts$Geneid  # set rownames to gene ids
