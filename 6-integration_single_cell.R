@@ -29,10 +29,6 @@ subplots <- function(sobj,colName,filename,raster=FALSE,legend=TRUE,reduction){
 	dev.off()
 }
 
-# Pan et al. GEO data
-# https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE243841
-raw_counts <- read_tsv("GSE243841_raw_counts_all.txt", comment = "#")
-
 # Kornberg et al. GEO data
 # https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE252762
 kornberg_counts <- readRDS("GSE252762_kornberg_han_celiac_dataset_fig1-2.RDS")
@@ -47,23 +43,6 @@ meta <- read.csv('/local/projects/idea/sament2/dkelly_tcell/dge/sample_metadata.
 
 
 # Data Cleaning & Wrangling ----
-
-# Pan data
-pan_counts <- raw_counts %>%
-  select(-Chr, -Start, -End, -Strand, -Length)
-
-# clean sample column names (remove "./BAM/" and "_sorted.bam")
-clean_names <- colnames(pan_counts)[-1] %>%
-  str_replace_all("\\./BAM/", "") %>%
-  str_replace_all("_sorted.bam", "")
-colnames(pan_counts)[-1] <- clean_names
-
-# remove rows where Geneid has merged info (i.e., rows with ";" in Geneid)
-pan_counts <- pan_counts %>%
-  filter(!str_detect(Geneid, ";"))
-
-# save cleaned matrix (optional)
-write_tsv(pan_counts, "GSE243841_cleaned_counts.tsv")
 
 # Kelly data
 # create an empty data frame to store cell-level metadata
@@ -117,49 +96,49 @@ PrintColCat <- c('sample','celltype','condition')
 PrintColCont <- c('nCount_RNA','nFeature_RNA','percent.mt')
 
 
-for(i in 1:length(combDat)){
-	if(i==1){
-    		cellCounts = ncol(combDat[[i]])
-	} else {
-    		cellCounts = c(cellCounts,ncol(combDat[[i]]))
-	}	
-}
+#for(i in 1:length(combDat)){
+#	if(i==1){
+#    		cellCounts = ncol(combDat[[i]])
+#	} else {
+#    		cellCounts = c(cellCounts,ncol(combDat[[i]]))
+#	}	
+#}
 
 
-options(future.globals.maxSize = 240000 * 1024^2)
+#options(future.globals.maxSize = 240000 * 1024^2)
 
 if(length(which(cellCounts<=100))>0){
     combDat <- combDat[-which(cellCounts<=100)]
 } 
 
-for (i in 1:length(combDat)) {
-  combDat[[i]] <- SCTransform(combDat[[i]], verbose = FALSE)
-}
-for (i in 1:length(combDat)) {
-  DefaultAssay(combDat[[i]]) <- "SCT"
-}
+#for (i in 1:length(combDat)) {
+#  combDat[[i]] <- SCTransform(combDat[[i]], verbose = FALSE)
+#}
+#for (i in 1:length(combDat)) {
+#  DefaultAssay(combDat[[i]]) <- "SCT"
+#}
 
-features <- SelectIntegrationFeatures(object.list = combDat, nfeatures = 2000)
-combDat <- PrepSCTIntegration(object.list = combDat, anchor.features = features)
+#features <- SelectIntegrationFeatures(object.list = combDat, nfeatures = 2000)
+#combDat <- PrepSCTIntegration(object.list = combDat, anchor.features = features)
 
-All.anchors <- FindIntegrationAnchors(object.list = combDat, normalization.method = "SCT",anchor.features = features,reduction='rpca', k.anchor=15) #,reference=refInd #,reference=ctrlInd
+#All.anchors <- FindIntegrationAnchors(object.list = combDat, normalization.method = "SCT",anchor.features = features,reduction='rpca', k.anchor=15) #,reference=refInd #,reference=ctrlInd
 
-All.integrated <- IntegrateData(anchorset = All.anchors, normalization.method = "SCT", k.weight=20) 
+#All.integrated <- IntegrateData(anchorset = All.anchors, normalization.method = "SCT", k.weight=20) 
 
 
-All.integrated <- ScaleData(All.integrated, features = rownames(All.integrated))
-All.integrated <- RunPCA(All.integrated, verbose = FALSE)
-All.integrated <- RunUMAP(All.integrated, reduction = "pca", dims = 1:30,reduction.name='umap.integrated')
-All.integrated <- FindNeighbors(All.integrated, dims = 1:30, verbose = FALSE)
-All.integrated <- FindClusters(All.integrated, verbose = FALSE, resolution=0.5)
+#All.integrated <- ScaleData(All.integrated, features = rownames(All.integrated))
+#All.integrated <- RunPCA(All.integrated, verbose = FALSE)
+#All.integrated <- RunUMAP(All.integrated, reduction = "pca", dims = 1:30,reduction.name='umap.integrated')
+#All.integrated <- FindNeighbors(All.integrated, dims = 1:30, verbose = FALSE)
+#All.integrated <- FindClusters(All.integrated, verbose = FALSE, resolution=0.5)
 
-DefaultAssay(All.integrated) <- "RNA"
+DefaultAssay(combDat) <- "RNA"
 
-All.integrated[['RNA']] = JoinLayers(All.integrated[['RNA']])
-All.integrated <- NormalizeData(All.integrated, assay = "RNA") ## adds data
-All.integrated <- ScaleData(All.integrated, features = rownames(All.integrated), assay = "RNA")
+#All.integrated[['RNA']] = JoinLayers(All.integrated[['RNA']])
+#All.integrated <- NormalizeData(All.integrated, assay = "RNA") ## adds data
+#All.integrated <- ScaleData(All.integrated, features = rownames(All.integrated), assay = "RNA")
 
-saveRDS(All.integrated,file=paste(IntName,'_integrated_V5.rds',sep=''),compress=TRUE)
+saveRDS(combDat, file = paste(IntName,'_integrated_harmony_V5.rds', sep=''), compress=TRUE)
 
 
 # plots
