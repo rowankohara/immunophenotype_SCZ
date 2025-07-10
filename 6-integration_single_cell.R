@@ -90,11 +90,21 @@ combDat <- FindVariableFeatures(combDat)
 combDat <- ScaleData(combDat)
 combDat <- RunPCA(combDat)
 combDat <- RunHarmony(combDat, group.by.vars = "study")
+combDat <- RunUMAP(combDat, reduction = "harmony", dims = 1:30)
+combDat <- FindNeighbors(combDat, reduction = "harmony", dims = 1:30)
+combDat <- FindClusters(combDat, resolution = 0.5)
 
 IntName <- 'Kelly_Kornberg'
 PrintColCat <- c('sample','celltype','condition')
 PrintColCont <- c('nCount_RNA','nFeature_RNA','percent.mt')
 
+pdf(file=paste("plots/",IntName,"_study.pdf",sep=''))
+DimPlot(combDat, group.by = "study")         # view study of origin
+dev.off()
+
+pdf(file=paste("plots/",IntName,"_clusters.pdf",sep=''))
+DimPlot(combDat, group.by = "seurat_clusters")  # view clusters
+dev.off()
 
 #for(i in 1:length(combDat)){
 #	if(i==1){
@@ -142,17 +152,17 @@ saveRDS(combDat, file = paste(IntName,'_integrated_harmony_V5.rds', sep=''), com
 
 
 # plots
-subplots(All.integrated,colName='celltype',filename=paste0('plots/', IntName, 'integrated_celltype.pdf'),raster=TRUE,reduction='umap.integrated')
+subplots(combDat,colName='celltype',filename=paste0('plots/', IntName, 'integrated_celltype.pdf'),raster=TRUE,reduction='umap.integrated')
 
 
-subplots(All.integrated,colName='study',filename=paste0('plots/', IntName, 'integrated_study.pdf'),raster=TRUE,reduction='umap.integrated')
+subplots(combDat,colName='study',filename=paste0('plots/', IntName, 'integrated_study.pdf'),raster=TRUE,reduction='umap.integrated')
 
 pdf(file=paste("plots/",IntName,"_Check_Clustering_V5.pdf",sep=''),width=12,height=8)
 for(k in PrintColCat){
-	print(DimPlot(All.integrated, reduction = "umap.integrated", group.by = k, label = TRUE, repel = TRUE,order=TRUE) + NoLegend() )
+	print(DimPlot(combDat, reduction = "umap.integrated", group.by = k, label = TRUE, repel = TRUE,order=TRUE) + NoLegend() )
 }
 for(m in PrintColCont){
-	print(FeaturePlot(All.integrated, features = m, reduction = "umap.integrated", pt.size = 0.2))
+	print(FeaturePlot(combDat, features = m, reduction = "umap.integrated", pt.size = 0.2))
 }
 dev.off()
 
