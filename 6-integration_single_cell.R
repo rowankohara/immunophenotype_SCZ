@@ -103,69 +103,23 @@ DimPlot(combDat, group.by = "study")         # view study of origin
 dev.off()
 
 pdf(file=paste("plots/",IntName,"_clusters.pdf",sep=''))
-DimPlot(combDat, group.by = "seurat_clusters")  # view clusters
+DimPlot(combDat, label = T, group.by = "seurat_clusters")  # view clusters
 dev.off()
 
-#for(i in 1:length(combDat)){
-#	if(i==1){
-#    		cellCounts = ncol(combDat[[i]])
-#	} else {
-#    		cellCounts = c(cellCounts,ncol(combDat[[i]]))
-#	}	
-#}
+pdf(file=paste("plots/",IntName,"_celltype.pdf",sep=''), width=12,height=8)
+DimPlot(combDat, label = T, group.by = "celltype")  # view celltype
+dev.off()
 
+pdf(file=paste("plots/",IntName,"_nCount_RNA.pdf",sep=''))
+VlnPlot(obj, group.by = 'sample', split.by = 'doublet_finder',
+	features = 'nCount_RNA',
+	combine = FALSE, pt.size = 0)  # nCount_RNA
+dev.off()
 
-#options(future.globals.maxSize = 240000 * 1024^2)
-
-if(length(which(cellCounts<=100))>0){
-    combDat <- combDat[-which(cellCounts<=100)]
-} 
-
-#for (i in 1:length(combDat)) {
-#  combDat[[i]] <- SCTransform(combDat[[i]], verbose = FALSE)
-#}
-#for (i in 1:length(combDat)) {
-#  DefaultAssay(combDat[[i]]) <- "SCT"
-#}
-
-#features <- SelectIntegrationFeatures(object.list = combDat, nfeatures = 2000)
-#combDat <- PrepSCTIntegration(object.list = combDat, anchor.features = features)
-
-#All.anchors <- FindIntegrationAnchors(object.list = combDat, normalization.method = "SCT",anchor.features = features,reduction='rpca', k.anchor=15) #,reference=refInd #,reference=ctrlInd
-
-#All.integrated <- IntegrateData(anchorset = All.anchors, normalization.method = "SCT", k.weight=20) 
-
-
-#All.integrated <- ScaleData(All.integrated, features = rownames(All.integrated))
-#All.integrated <- RunPCA(All.integrated, verbose = FALSE)
-#All.integrated <- RunUMAP(All.integrated, reduction = "pca", dims = 1:30,reduction.name='umap.integrated')
-#All.integrated <- FindNeighbors(All.integrated, dims = 1:30, verbose = FALSE)
-#All.integrated <- FindClusters(All.integrated, verbose = FALSE, resolution=0.5)
 
 DefaultAssay(combDat) <- "RNA"
 
-#All.integrated[['RNA']] = JoinLayers(All.integrated[['RNA']])
-#All.integrated <- NormalizeData(All.integrated, assay = "RNA") ## adds data
-#All.integrated <- ScaleData(All.integrated, features = rownames(All.integrated), assay = "RNA")
 
 saveRDS(combDat, file = paste(IntName,'_integrated_harmony_V5.rds', sep=''), compress=TRUE)
-
-
-# plots
-subplots(combDat,colName='celltype',filename=paste0('plots/', IntName, 'integrated_celltype.pdf'),raster=TRUE,reduction='umap.integrated')
-
-
-subplots(combDat,colName='study',filename=paste0('plots/', IntName, 'integrated_study.pdf'),raster=TRUE,reduction='umap.integrated')
-
-pdf(file=paste("plots/",IntName,"_Check_Clustering_V5.pdf",sep=''),width=12,height=8)
-for(k in PrintColCat){
-	print(DimPlot(combDat, reduction = "umap.integrated", group.by = k, label = TRUE, repel = TRUE,order=TRUE) + NoLegend() )
-}
-for(m in PrintColCont){
-	print(FeaturePlot(combDat, features = m, reduction = "umap.integrated", pt.size = 0.2))
-}
-dev.off()
-
-
 
 
