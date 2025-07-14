@@ -83,43 +83,74 @@ sample_metadata <- kelly_counts@meta.data %>%
   distinct()
 
 
-# Integration ----
-combDat <- merge(kelly_counts, kornberg_counts, add.cell.ids = c("kelly", "kornberg"))
-combDat <- NormalizeData(combDat)
-combDat <- FindVariableFeatures(combDat)
-combDat <- ScaleData(combDat)
-combDat <- RunPCA(combDat)
-combDat <- RunHarmony(combDat, group.by.vars = "study")
-combDat <- RunUMAP(combDat, reduction = "harmony", dims = 1:30)
-combDat <- FindNeighbors(combDat, reduction = "harmony", dims = 1:30)
-combDat <- FindClusters(combDat, resolution = 0.5)
+# Harmony Integration ----
+#combDat <- merge(kelly_counts, kornberg_counts, add.cell.ids = c("kelly", "kornberg"))
+#combDat <- NormalizeData(combDat)
+#combDat <- FindVariableFeatures(combDat)
+#combDat <- ScaleData(combDat)
+#combDat <- RunPCA(combDat)
+#combDat <- RunHarmony(combDat, group.by.vars = "study")
+#combDat <- RunUMAP(combDat, reduction = "harmony", dims = 1:30)
+#combDat <- FindNeighbors(combDat, reduction = "harmony", dims = 1:30)
+#combDat <- FindClusters(combDat, resolution = 0.5)
 
 IntName <- 'Kelly_Kornberg'
 PrintColCat <- c('sample','celltype','condition')
 PrintColCont <- c('nCount_RNA','nFeature_RNA','percent.mt')
 
-pdf(file=paste("plots/",IntName,"_study.pdf",sep=''))
-DimPlot(combDat, group.by = "study")         # view study of origin
-dev.off()
+#pdf(file=paste("plots/",IntName,"_study.pdf",sep=''))
+#DimPlot(combDat, group.by = "study")         # view study of origin
+#dev.off()
 
-pdf(file=paste("plots/",IntName,"_clusters.pdf",sep=''))
-DimPlot(combDat, label = T, group.by = "seurat_clusters")  # view clusters
-dev.off()
+#pdf(file=paste("plots/",IntName,"_clusters.pdf",sep=''))
+#DimPlot(combDat, label = T, group.by = "seurat_clusters")  # view clusters
+#dev.off()
 
-pdf(file=paste("plots/",IntName,"_celltype.pdf",sep=''), width=12,height=8)
-DimPlot(combDat, label = T, group.by = "celltype")  # view celltype
-dev.off()
+#pdf(file=paste("plots/",IntName,"_celltype.pdf",sep=''), width=12,height=8)
+#DimPlot(combDat, label = T, group.by = "celltype")  # view celltype
+#dev.off()
 
-pdf(file=paste("plots/",IntName,"_nCount_RNA.pdf",sep=''))
-VlnPlot(obj, group.by = 'sample', split.by = 'doublet_finder',
-	features = 'nCount_RNA',
-	combine = FALSE, pt.size = 0)  # nCount_RNA
-dev.off()
-
-
-DefaultAssay(combDat) <- "RNA"
+#pdf(file=paste("plots/",IntName,"_nCount_RNA.pdf",sep=''))
+#VlnPlot(obj, group.by = 'sample', split.by = 'doublet_finder',
+	#features = 'nCount_RNA',
+	#combine = FALSE, pt.size = 0)  # nCount_RNA
+#dev.off()
 
 
-saveRDS(combDat, file = paste(IntName,'_integrated_harmony_V5.rds', sep=''), compress=TRUE)
+#DefaultAssay(combDat) <- "RNA"
+
+
+#saveRDS(combDat, file = paste(IntName,'_integrated_harmony_V5.rds', sep=''), compress=TRUE)
+
+
+
+# Integration ----
+
+
+options(future.globals.maxSize = 240000 * 1024^2)
+
+features <- SelectIntegrationFeatures(object.list = combDat, nfeatures = 2000)
+combDat <- PrepSCTIntegration(object.list = combDat, anchor.features = features)
+
+All.anchors <- FindIntegrationAnchors(object.list = combDat, normalization.method = "SCT",anchor.features = features,reduction='rpca', k.anchor=15) #,reference=refInd #,reference=ctrlInd
+All.integrated <- IntegrateData(anchorset = All.anchors, normalization.method = "SCT", k.weight=20)
+
+#saveRDS(All.integrated,file=paste('./SeuratObj/',IntName,'_integrated_V5.rds',sep=''),compress=TRUE)
+
+
+All.integrated <- ScaleData(All.integrated, features = rownames(All.integrated))
+All.integrated <- RunPCA(All.integrated, verbose = FALSE)
+All.integrated <- RunUMAP(All.integrated, reduction = "pca", dims = 1:30,reduction.name='umap.integrated'
+All.integrated <- FindNeighbors(All.integrated, dims = 1:30, verbose = FALSE)
+All.integrated <- FindClusters(All.integrated, verbose = FALSE, resolution=0.5)
+
+DefaultAssay(All.integrated) <- "RNA"
+
+All.integrated[['RNA']] = JoinLayers(All.integrated[['RNA']])
+All.integrated <- NormalizeData(All.integrated, assay = "RNA") ## adds data
+All.integrated <- ScaleData(All.integrated, features = rownames(All.integrated), assay = "RNA")
+
+saveRDS(All.integrated, 'Kelly_Kornberg_integrated_V5.rds', compress=TRUE)
+
 
 
