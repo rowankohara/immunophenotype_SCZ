@@ -5,20 +5,21 @@
 
 
 # Read in libraries and data ----
+args <- commandArgs(trailingOnly = TRUE)
+input_file <- args[1]
+output_file <- args[2]
+
 library(CoGAPS)
 library(Seurat)
 
-combDat <- readRDS("/autofs/projects-t2/idea/rohara/immunophenotype_SCZ/Kelly_Kornberg_integrated_harmony_V5.rds")
-
-DefaultAssay(combDat) <- "RNA"
+obj <- readRDS(input_file)
 
 
 # Find variable genes ----
+obj <- FindVariableFeatures(obj, selection.method = "vst", nfeatures = 3000)
+hvg <- VariableFeatures(obj)
 
-combDat <- FindVariableFeatures(combDat, selection.method = "vst", nfeatures = 3000)
-hvg <- VariableFeatures(combDat)
-
-expr_mat <- GetAssayData(combDat[["RNA"]], layer = "data")  # log-normalized
+expr_mat <- GetAssayData(obj[["RNA"]], layer = "data")  # log-normalized
 expr_mat <- expr_mat[hvg, ]                          # subset to HVGs
 expr_mat <- as.matrix(expr_mat)
 
@@ -41,4 +42,6 @@ params <- setDistributedParams(params, nSets=1)
 
 xxCoGAPS <- CoGAPS(data=expr_mat, params=params, geneNames=genes, sampleNames=cells, messages=TRUE, transposeData=FALSE, nPatterns=30, nIterations=10000, nThreads=16)
 
-save(xxCoGAPS, '/autofs/projects-t2/idea/rohara/immunophenotype_SCZ/Kelly_Kornberg_CoGAPS_30Pat.rda')
+output_file <- paste0("/autofs/projects-t2/idea/rohara/immunophenotype_SCZ/", output_file, "CoGAPS_30Pat.rds")
+
+save(xxCoGAPS, output_file)
