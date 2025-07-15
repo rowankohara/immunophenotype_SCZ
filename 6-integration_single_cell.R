@@ -127,6 +127,12 @@ PrintColCont <- c('nCount_RNA','nFeature_RNA','percent.mt')
 # Integration ----
 
 
+kellyCD <- SplitObject(object = kelly_counts , split.by = "sample")
+
+kornbergCD <- SplitObject(object = kornberg_counts , split.by = "sample")
+
+combDat <- c(kellyCD,kornbergCD)
+
 options(future.globals.maxSize = 240000 * 1024^2)
 
 features <- SelectIntegrationFeatures(object.list = combDat, nfeatures = 2000)
