@@ -154,28 +154,52 @@ for (i in 1:length(combDat)) {
   DefaultAssay(combDat[[i]]) <- "SCT"
 }
 
-features <- SelectIntegrationFeatures(object.list = combDat, nfeatures = 2000)
-combDat <- PrepSCTIntegration(object.list = combDat, anchor.features = features, assay = "SCT")
-
-All.anchors <- FindIntegrationAnchors(object.list = combDat, normalization.method = "SCT",anchor.features = features,reduction='rpca', k.anchor=15) #,reference=refInd #,reference=ctrlInd
-All.integrated <- IntegrateData(anchorset = All.anchors, normalization.method = "SCT", k.weight=20)
-
+#features <- SelectIntegrationFeatures(object.list = combDat, nfeatures = 2000)
+#combDat <- PrepSCTIntegration(object.list = combDat, anchor.features = features, assay = "SCT")
+#All.anchors <- FindIntegrationAnchors(object.list = combDat, normalization.method = "SCT",anchor.features = features,reduction='rpca', k.anchor=15) #,reference=refInd #,reference=ctrlInd
+#All.integrated <- IntegrateData(anchorset = All.anchors, normalization.method = "SCT", k.weight=20)
 #saveRDS(All.integrated,file=paste('./SeuratObj/',IntName,'_integrated_V5.rds',sep=''),compress=TRUE)
 
+# sort samples by sample quality
+sample_qc <- data.frame(
+  sample = names(combDat),
+  nCells = sapply(combDat, ncol),
+  median_nFeature = sapply(combDat, function(x) median(x$nFeature_RNA, na.rm = TRUE)),
+  median_percent_mt = sapply(combDat, function(x) median(x$percent.mt, na.rm = TRUE)),
+  study = sapply(combDat, function(x) unique(x$study))  # or 'dataset', 'batch', etc.
+)
 
-All.integrated <- ScaleData(All.integrated, features = rownames(All.integrated))
+# chose samples based on their quality, balancing for study and condition
+ref.samples <- c("M021407_M_53yo_SCZ", "M093914_F_36yo_HC", "M031465_M_53yo_SCZ", "PCD 5", "GFD 11", "CONTROL 16")
+ref.idx <- match(ref.samples, names(combDat))
+table(unlist(lapply(combDat[ref.idx], function(x) unique(x$celltype))))
+
+
+All.integrated <- IntegrateLayers(
+  object.list     = combDat,
+  method          = "SCTIntegration",
+  reference       = ref.idx,
+  normalization.method = "SCT",
+  k.anchor        = 15,       # Adjust as needed
+  k.weight        = 20,       # Safe for large datasets
+  features        = 1500      # Lower = smaller memory
+)
+
 All.integrated <- RunPCA(All.integrated, verbose = FALSE)
 All.integrated <- RunUMAP(All.integrated, reduction = "pca", dims = 1:30,reduction.name='umap.integrated'
 All.integrated <- FindNeighbors(All.integrated, dims = 1:30, verbose = FALSE)
 All.integrated <- FindClusters(All.integrated, verbose = FALSE, resolution=0.5)
 
 DefaultAssay(All.integrated) <- "RNA"
-
 All.integrated[['RNA']] = JoinLayers(All.integrated[['RNA']])
 All.integrated <- NormalizeData(All.integrated, assay = "RNA") ## adds data
 All.integrated <- ScaleData(All.integrated, features = rownames(All.integrated), assay = "RNA")
 
 saveRDS(All.integrated, 'Kelly_Kornberg_integrated_V5.rds', compress=TRUE)
 
+
+# Decomposition ----
+
+expr <- GetAssayData(All.integrated, assay = "RNA", slot = "data")
 
 
