@@ -133,10 +133,29 @@ kornbergCD <- SplitObject(object = kornberg_counts , split.by = "sample")
 
 combDat <- c(kellyCD,kornbergCD)
 
+for(i in 1:length(combDat)){
+	if(i==1){
+    		cellCounts = ncol(combDat[[i]])
+	} else {
+    		cellCounts = c(cellCounts,ncol(combDat[[i]]))
+	}	
+}
+
 options(future.globals.maxSize = 240000 * 1024^2)
 
+if(length(which(cellCounts<=100))>0){
+    combDat <- combDat[-which(cellCounts<=100)]
+}
+
+for (i in 1:length(combDat)) {
+  combDat[[i]] <- SCTransform(combDat[[i]], verbose = FALSE)
+}
+for (i in 1:length(combDat)) {
+  DefaultAssay(combDat[[i]]) <- "SCT"
+}
+
 features <- SelectIntegrationFeatures(object.list = combDat, nfeatures = 2000)
-combDat <- PrepSCTIntegration(object.list = combDat, anchor.features = features)
+combDat <- PrepSCTIntegration(object.list = combDat, anchor.features = features, assay = "SCT")
 
 All.anchors <- FindIntegrationAnchors(object.list = combDat, normalization.method = "SCT",anchor.features = features,reduction='rpca', k.anchor=15) #,reference=refInd #,reference=ctrlInd
 All.integrated <- IntegrateData(anchorset = All.anchors, normalization.method = "SCT", k.weight=20)
