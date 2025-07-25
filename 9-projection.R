@@ -21,10 +21,40 @@ library(tidyverse)
 kelly <- readRDS("/local/projects/idea/rohara/immunophenotype_SCZ/kellyCoGAPS_30Pat.rds")
 kelly <- kelly@featureLoadings
 
+kelly_counts <- readRDS("/local/projects/idea/rohara/immunophenotype_SCZ/dkelly_singlets.postqc.azimuth_celltypes.rds")
+kelly_counts$celltype <- kelly_counts$predicted.celltype.l2
+kelly_counts_exp <- kelly_counts[["RNA"]]$data
+kelly_meta <- kelly_counts@meta.data
+kelly_meta$bulk <- paste(kelly_meta$celltype, kelly_meta$sample, sep="_")
+kelly_pseudo <- rowsum(as.matrix(kelly_counts_exp), group = kelly_meta$bulk)
+
 # Kornberg data
 kornberg <- readRDS("/local/projects/idea/rohara/immunophenotype_SCZ/kornbergCoGAPS_30Pat.rds")
 kornberg <- kornberg@featureLoadings
 
+# read in Kornberg Seurat object and add Azimuth celltype predictions
+kornberg_counts <- readRDS("/local/projects/idea/rohara/immunophenotype_SCZ/GSE252762_kornberg_han_celiac_dataset_fig1-2.RDS")
+kornberg_counts[['percent.mt']] <- PercentageFeatureSet(kornberg_counts, pattern = '^MT-')
+kornberg_counts <- subset(kornberg_counts, nCount_RNA < 10000 & nCount_RNA > 500 & percent.mt < 15)
+
+
+predictions <- read.delim("/local/projects/idea/rohara/immunophenotype_SCZ/azimuth_pred.tsv", row.names = 1)
+kornberg_counts <- AddMetaData(
+        object = kornberg_counts,
+        metadata = predictions)
+
+kornberg_counts$celltype <- kornberg_counts$predicted.celltype.l2
+kornberg_counts_exp <- kornberg_counts[["RNA"]]$data
+
+genes_used <- rownames(kelly)
+genes_present <- intersect(genes_used, rownames(kornberg_counts_exp))
+kornberg_counts_exp <- kornberg_counts_exp[genes_present, , drop = FALSE]
+kornberg_counts_mat <- as.matrix(kornberg_counts_exp)
+
+genes_used <- rownames(kornberg)
+genes_present <- intersect(genes_used, rownames(kelly_counts_exp))
+kelly_counts_exp <- kelly_counts_exp[genes_present, , drop = FALSE]
+kelly_counts_mat <- as.matrix(kelly_counts_exp)
 
 # read in bulk datasets
 
@@ -84,11 +114,11 @@ write.csv(kornberg_glahn_proj, file="/local/projects/idea/rohara/immunophenotype
 ## project single cell onto single cell ----
 
 # project Kelly patterns onto Kornberg data (gluten intolerance)
-kelly_kornberg_proj <- projectR(data=kornberg, loadings=kelly)
+kelly_kornberg_proj <- projectR(data=kornberg_counts_mat, loadings=kelly)
 write.csv(kelly_kornberg_proj, file="/local/projects/idea/rohara/immunophenotype_SCZ/kelly_kornberg_proj.csv")
 
 # project Kornberg patterns onto Kelly data (schizophrenia and gluten intolerance immunophenotype)
-kornberg_kelly_proj <- projectR(data=kelly, loadings=kornberg)
+kornberg_kelly_proj <- projectR(data=kelly_counts_mat, loadings=kornberg)
 write.csv(kornberg_kelly_proj, file="/local/projects/idea/rohara/immunophenotype_SCZ/kornberg_kelly_proj.csv")
 
 
@@ -115,7 +145,7 @@ sex_df$predicted_sex <- ifelse(
   sex_df$XIST > 1 & rowMeans(sex_df[, male_markers]) < 1, "Female", "Male"
 )
 pan_meta <- cbind(pan_meta, sex_df$predicted_sex)
-colnames(pan_meta) <- c("group", "sex")
+colnames(pan_meta) <- c("sample", "group", "sex")
 
 pdf("/local/projects/idea/rohara/immunophenotype_SCZ/plots/kelly_pan_proj_heatmap.pdf")
 pheatmap(kelly_pan_proj, 
@@ -161,10 +191,9 @@ dev.off()
 
 
 # Kornberg meta data
-kornberg_seurat <- readRDS("GSE252762_kornberg_han_celiac_dataset_fig1-2.RDS")
-kornberg_meta <- as.data.frame(kornberg_seurat@meta.data)
+kornberg_meta <- as.data.frame(kornberg_counts@meta.data)
 kornberg_meta <- kornberg_meta[!duplicated(kornberg_meta$sample), ] %>%
-			select(sample, general_condition, condition, sample_age, sample_sex)
+			select(sample, general_condition, condition, sample_age, sample_sex, celltype)
 rownames(kornberg_meta) <- kornberg_meta$sample
 
 
