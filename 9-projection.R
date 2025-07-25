@@ -23,10 +23,9 @@ kelly <- kelly@featureLoadings
 
 kelly_counts <- readRDS("/local/projects/idea/rohara/immunophenotype_SCZ/dkelly_singlets.postqc.azimuth_celltypes.rds")
 kelly_counts$celltype <- kelly_counts$predicted.celltype.l2
-kelly_counts_exp <- kelly_counts[["RNA"]]$data
-kelly_meta <- kelly_counts@meta.data
-kelly_meta$bulk <- paste(kelly_meta$celltype, kelly_meta$sample, sep="_")
-kelly_pseudo <- rowsum(as.matrix(kelly_counts_exp), group = kelly_meta$bulk)
+kelly_counts$pseudobulk_id <- paste(gsub("_", "-", kelly_meta$sample), kelly_meta$celltype, sep="_")
+kelly_pseudo <- AverageExpression(kelly_counts, group.by = c("sample", "celltype"), slot = "data")
+kelly_pseudo_mat <- as.matrix(kelly_pseudo$RNA)
 
 # Kornberg data
 kornberg <- readRDS("/local/projects/idea/rohara/immunophenotype_SCZ/kornbergCoGAPS_30Pat.rds")
@@ -44,17 +43,10 @@ kornberg_counts <- AddMetaData(
         metadata = predictions)
 
 kornberg_counts$celltype <- kornberg_counts$predicted.celltype.l2
-kornberg_counts_exp <- kornberg_counts[["RNA"]]$data
+kornberg_counts$pseudobulk_id <- paste(gsub("_", "-", kornberg_counts$sample), kornberg_counts$celltype, sep="_")
+kornberg_pseudo <- AverageExpression(kornberg_counts, group.by = c("sample", "celltype"), slot = "data")
+kornberg_pseudo_mat <- as.matrix(kornberg_pseudo$RNA)
 
-genes_used <- rownames(kelly)
-genes_present <- intersect(genes_used, rownames(kornberg_counts_exp))
-kornberg_counts_exp <- kornberg_counts_exp[genes_present, , drop = FALSE]
-kornberg_counts_mat <- as.matrix(kornberg_counts_exp)
-
-genes_used <- rownames(kornberg)
-genes_present <- intersect(genes_used, rownames(kelly_counts_exp))
-kelly_counts_exp <- kelly_counts_exp[genes_present, , drop = FALSE]
-kelly_counts_mat <- as.matrix(kelly_counts_exp)
 
 # read in bulk datasets
 
@@ -114,11 +106,11 @@ write.csv(kornberg_glahn_proj, file="/local/projects/idea/rohara/immunophenotype
 ## project single cell onto single cell ----
 
 # project Kelly patterns onto Kornberg data (gluten intolerance)
-kelly_kornberg_proj <- projectR(data=kornberg_counts_mat, loadings=kelly)
+kelly_kornberg_proj <- projectR(data=kornberg_pseudo_mat, loadings=kelly)
 write.csv(kelly_kornberg_proj, file="/local/projects/idea/rohara/immunophenotype_SCZ/kelly_kornberg_proj.csv")
 
 # project Kornberg patterns onto Kelly data (schizophrenia and gluten intolerance immunophenotype)
-kornberg_kelly_proj <- projectR(data=kelly_counts_mat, loadings=kornberg)
+kornberg_kelly_proj <- projectR(data=kelly_pseudo_mat, loadings=kornberg)
 write.csv(kornberg_kelly_proj, file="/local/projects/idea/rohara/immunophenotype_SCZ/kornberg_kelly_proj.csv")
 
 
