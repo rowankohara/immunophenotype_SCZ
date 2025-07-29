@@ -23,7 +23,7 @@ kelly <- kelly@featureLoadings
 
 kelly_counts <- readRDS("/local/projects/idea/rohara/immunophenotype_SCZ/dkelly_singlets.postqc.azimuth_celltypes.rds")
 kelly_counts$celltype <- kelly_counts$predicted.celltype.l2
-kelly_counts$pseudobulk_id <- paste(gsub("_", "-", kelly_meta$sample), kelly_meta$celltype, sep="_")
+kelly_counts$pseudobulk_id <- paste(gsub("_", "-", kelly_counts$sample), kelly_countsc$celltype, sep="_")
 kelly_pseudo <- AverageExpression(kelly_counts, group.by = c("sample", "celltype"), slot = "data")
 kelly_pseudo_mat <- as.matrix(kelly_pseudo$RNA)
 
@@ -184,10 +184,48 @@ dev.off()
 
 # Kornberg meta data
 kornberg_meta <- as.data.frame(kornberg_counts@meta.data)
-kornberg_meta <- kornberg_meta[!duplicated(kornberg_meta$sample), ] %>%
-			select(sample, general_condition, condition, sample_age, sample_sex, celltype)
-rownames(kornberg_meta) <- kornberg_meta$sample
+kornberg_meta <- kornberg_meta[!duplicated(kornberg_meta$pseudobulk_id), ] %>%
+			select(pseudobulk_id, sample, general_condition, condition, sample_age, sample_sex, celltype)
+rownames(kornberg_meta) <- kornberg_meta$pseudobulk_id
+kornberg_group <- kornberg_meta$general_condition
 
+pdf("/local/projects/idea/rohara/immunophenotype_SCZ/plots/kelly_kornberg_proj_heatmap.pdf")
+pheatmap(kelly_kornberg_proj,
+         scale = "row",
+         main = "Kelly Projection onto Kornberg",
+	 show_colnames = FALSE)
+dev.off()
+
+# Kelly meta data
+kelly_meta <- as.data.frame(kelly_counts@meta.data)
+MPRCID <- gsub( '\\_(.*)' , '' , kelly_meta$sample )
+meta <- read.csv('/local/projects/idea/sament2/dkelly_tcell/dge/sample_metadata.csv')
+sample_ids <- unique(kelly_meta$sample)
+# match each MPRCID to a sample ID that is a prefix of it
+meta$sample <- sapply(meta$MPRCID, function(id) {
+  match <- sample_ids[startsWith(sample_ids, id)]
+  if (length(match) > 0) match[1] else NA
+})
+kelly_meta <- left_join(kelly_meta, meta, by = "sample")
+kelly_meta$group <- kelly_meta$Group
+kelly_meta$sample_sex <- kelly_meta$Sex
+kelly_meta$sample_age <- kelly_meta$Age
+kelly_meta <- kelly_meta[!duplicated(kelly_meta$pseudobulk_id), ] %>%
+                        select(pseudobulk_id, sample, group, sample_age, sample_sex, celltype)
+rownames(kelly_meta) <- kelly_meta$pseudobulk_id
+kelly_meta <- kelly_meta %>%
+		mutate(sample_sex = factor(sample_sex),
+		       sample_sex = recode(sample_sex,
+					   "Male" = "M",
+					   "Female" = "F"))
+kelly_group <- kelly_meta$group
+
+pdf("/local/projects/idea/rohara/immunophenotype_SCZ/plots/kornberg_kelly_proj_heatmap.pdf")
+pheatmap(kornberg_kelly_proj,
+         scale = "row",
+         main = "Kornberg Projection onto Kelly",
+	 show_colnames = FALSE)
+dev.off()
 
 
 # Statistical Modeling ----
@@ -209,13 +247,22 @@ kornberg_glahn_data <- merge(kornberg_glahn_data, glahn_meta, by = "row.names")
 rownames(kornberg_glahn_data) <- kornberg_glahn_data$Row.names
 kornberg_glahn_data <- kornberg_glahn_data[ , -1]
 
+kelly_kornberg_data <- t(kelly_kornberg_proj)
+kelly_kornberg_data <- merge(kelly_kornberg_data, kornberg_meta, by = "row.names")
+rownames(kelly_kornberg_data) <- kelly_kornberg_data$Row.names
+kelly_kornberg_data <- kelly_kornberg_data[ , -1]
 
-lm_results <- lapply(colnames(t(kelly_glahn_proj)), function(pat) {
-  formula <- as.formula(paste(pat, "~ group + sex + age"))
-  lm(formula, data = kelly_glahn_data)
+kornberg_kelly_data <- t(kornberg_kelly_proj)
+kornberg_kelly_data <- merge(kornberg_kelly_data, kelly_meta, by = "row.names")
+rownames(kornberg_kelly_data) <- kornberg_kelly_data$Row.names
+kornberg_kelly_data <- kornberg_kelly_data[ , -1]
+
+lm_results <- lapply(colnames(t(kornberg_kelly_proj)), function(pat) {
+  formula <- as.formula(paste(pat, "~ group + sample_sex + sample_age + celltype"))
+  lm(formula, data = kornberg_kelly_data)
 })
 
-names(lm_results) <- colnames(t(kelly_glahn_proj))
+names(lm_results) <- colnames(t(kornberg_kelly_proj))
 
 extract_coefs <- function(model, pattern_name) {
   coefs <- summary(model)$coefficients
@@ -236,8 +283,24 @@ extract_coefs <- function(model, pattern_name) {
   )
 }
 
+extract_lm_results <- function(lm_list) {
+  # lm_list: a named or unnamed list of lm objects
+  do.call(rbind, lapply(seq_along(lm_list), function(i) {
+    lm_model <- lm_list[[i]]
+    coef_summary <- summary(lm_model)$coefficients
+    df <- as.data.frame(coef_summary)
+    df$term <- rownames(df)
+    df$model <- if (!is.null(names(lm_list))) names(lm_list)[i] else paste0("model_", i)
+    df <- df[, c("model", "term", "Estimate", "Std. Error", "t value", "Pr(>|t|)")]
+    rownames(df) <- NULL
+    return(df)
+  }))
+}
+
+results_df <- extract_lm_results(lm_results)
+
 results_df <- do.call(rbind, Map(extract_coefs, lm_results, names(lm_results)))
-write.csv(results_df, "/local/projects/idea/rohara/immunophenotype_SCZ/kelly_pan_proj_model_results.csv", row.names = FALSE)
+write.csv(results_df, "/local/projects/idea/rohara/immunophenotype_SCZ/kornberg_kelly_proj_model_results.csv", row.names = FALSE)
 
 
 beta_df <- data.frame(
