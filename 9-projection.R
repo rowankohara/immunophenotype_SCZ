@@ -322,3 +322,13 @@ dev.off()
 
 
 
+# check patterns
+kelly <- readRDS("/local/projects/idea/rohara/immunophenotype_SCZ/kellyCoGAPS_30Pat.rds")
+kelly <- kelly@featureLoadings
+kelly_kornberg_proj <- read.csv("/local/projects/idea/rohara/immunophenotype_SCZ/kelly_kornberg_proj.csv")
+
+
+
+
+
+
