@@ -55,8 +55,9 @@ library(tidyverse)
 library(pheatmap)
 
 # Kelly data wrangling
-kelly <- readRDS("/local/projects/idea/rohara/immunophenotype_SCZ/kellyCoGAPS_30Pat.rds")
-kelly <- kelly@sampleFactors
+results_kelly <- readRDS("/local/projects/idea/rohara/immunophenotype_SCZ/kellyCoGAPS_30Pat.rds")
+P_kelly <- results_kelly@sampleFactors
+A_kelly <- results_kelly@featureLoadings
 
 kelly_counts <- readRDS("/local/projects/idea/rohara/immunophenotype_SCZ/dkelly_singlets.postqc.azimuth_celltypes.rds")
 kelly_meta <- as.data.frame(kelly_counts@meta.data)
@@ -71,13 +72,14 @@ meta$sample <- sapply(meta$MPRCID, function(id) {
 })
 kelly_meta <- left_join(kelly_meta, meta, by = "sample")
 rownames(kelly_meta) <- kelly_meta$cell_id
-kelly <- merge(kelly, kelly_meta, by = "row.names")
+kelly <- merge(P_kelly, kelly_meta, by = "row.names")
 rownames(kelly) <- kelly$cell_id
 kelly <- kelly[ , -1]
 
 # Kornberg data wrangling
-kornberg <- readRDS("/local/projects/idea/rohara/immunophenotype_SCZ/kornbergCoGAPS_30Pat.rds")
-kornberg <- kornberg@sampleFactors
+results_kornberg <- readRDS("/local/projects/idea/rohara/immunophenotype_SCZ/kornbergCoGAPS_30Pat.rds")
+P_kornberg <- results_kornberg@sampleFactors
+A_kornberg <- results_kornberg@featureLoadings
 
 kornberg_counts <- readRDS("/local/projects/idea/rohara/immunophenotype_SCZ/GSE252762_kornberg_han_celiac_dataset_fig1-2.RDS")
 kornberg_counts[['percent.mt']] <- PercentageFeatureSet(kornberg_counts, pattern = '^MT-')
@@ -86,7 +88,7 @@ predictions <- read.delim("/local/projects/idea/rohara/immunophenotype_SCZ/azimu
 kornberg_counts <- AddMetaData(
         object = kornberg_counts,
         metadata = predictions)
-kornberg <- merge(kornberg, kornberg_counts@meta.data, by = "row.names")
+kornberg <- merge(P_kornberg, kornberg_counts@meta.data, by = "row.names")
 rownames(kornberg) <- kornberg$Row.names
 kornberg <- kornberg[ , -1]
 
@@ -198,7 +200,86 @@ ggplot(beta_df, aes(x = Pattern, y = Beta, fill = P < 0.05)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 dev.off()
 
+# get top markers per pattern
+markers <- patternMarkers(results_kornberg, threshold = "cut")  # returns a named vector of pattern assignment per gene
+top_per_pattern <- lapply(seq_along(markers$PatternMarkers), function(p) {
+  top_genes <- markers$PatternMarkers[[p]]
+  # Sort these genes by their weight in pattern p
+  top_genes <- top_genes[order(A_kornberg[top_genes, p], decreasing = TRUE)]
+  head(top_genes, 10)
+})
+names(top_per_pattern) <- paste0("Pattern_", seq_along(top_per_pattern))
+
+top_long <- do.call(rbind, lapply(names(top_per_pattern), function(pat) {
+  data.frame(
+    Pattern = pat,
+    Rank = seq_along(top_per_pattern[[pat]]),
+    Gene = top_per_pattern[[pat]]
+  )
+}))
+write.csv(top_long, file = "top_marker_genes_long_30Kornberg.csv", row.names = FALSE)
 
 
+# gsea
+library(fgsea)
+library(msigdbr)
 
+genesets <- msigdbr(species = "Homo sapiens", category = "C5", subcategory = "GO:BP")
+gmt_list <- split(genesets$gene_symbol, genesets$gs_name)
+
+# run fgsea
+fgsea_results_list <- lapply(1:ncol(A_kornberg), function(pat_id) {
+  gene_ranks <- A_kelly[, pat_id]
+  names(gene_ranks) <- rownames(A_kornberg)
+  gene_ranks <- sort(gene_ranks, decreasing = TRUE)
+
+  fgseaRes <- fgsea(
+    pathways = gmt_list,
+    stats = gene_ranks,
+    nperm = 1000
+  )
+
+  fgseaRes$pattern <- paste0("Pattern_", pat_id)
+  return(fgseaRes)
+})
+
+# combine into one data.frame
+fgsea_combined <- bind_rows(fgsea_results_list)
+fgsea_export <- fgsea_combined %>% select(-leadingEdge)
+write.csv(fgsea_export, "fgsea_results_all_30patterns_Kornberg.csv", row.names = FALSE)
+
+
+## visualization ----
+
+top_gsea <- fgsea_combined %>%
+  group_by(pattern) %>%
+  arrange(padj) %>%
+  slice_head(n = 10) %>%
+  ungroup()
+
+plot_gsea_pattern <- function(df, pattern_id, wrap_width=40) {
+  df_pattern <- df %>% 
+	  	filter(pattern == pattern_id) %>%
+    		mutate(pathway = gsub("_", " ", substring(tolower(pathway), 6, nchar(pathway))),
+			   pathway_wrapped = str_wrap(pathway, width = wrap_width))
+
+  ggplot(df_pattern, aes(x = reorder(pathway_wrapped, NES), y = NES, fill = NES)) +
+    geom_bar(stat = "identity") +
+    coord_flip() +
+    scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0) +
+    labs(title = paste("GSEA for ", pattern_id),
+         x = "Pathway",
+         y = "Normalized Enrichment Score (NES)") +
+    theme_minimal()
+}
+
+unique_patterns <- unique(top_gsea$pattern)
+
+pdf("/local/projects/idea/rohara/immunophenotype_SCZ/plots/gsea_by_pattern_Kornberg.pdf", width = 8, height = 6)
+
+for (p in unique_patterns) {
+  print(plot_gsea_pattern(top_gsea, p))
+}
+
+dev.off()
 
