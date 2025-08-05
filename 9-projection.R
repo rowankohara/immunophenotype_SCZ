@@ -23,7 +23,7 @@ kelly <- kelly@featureLoadings
 
 kelly_counts <- readRDS("/local/projects/idea/rohara/immunophenotype_SCZ/dkelly_singlets.postqc.azimuth_celltypes.rds")
 kelly_counts$celltype <- kelly_counts$predicted.celltype.l2
-kelly_counts$pseudobulk_id <- paste(gsub("_", "-", kelly_counts$sample), kelly_countsc$celltype, sep="_")
+kelly_counts$pseudobulk_id <- paste(gsub("_", "-", kelly_counts$sample), kelly_counts$celltype, sep="_")
 kelly_pseudo <- AverageExpression(kelly_counts, group.by = c("sample", "celltype"), slot = "data")
 kelly_pseudo_mat <- as.matrix(kelly_pseudo$RNA)
 
@@ -324,11 +324,42 @@ dev.off()
 
 # check patterns
 kelly <- readRDS("/local/projects/idea/rohara/immunophenotype_SCZ/kellyCoGAPS_30Pat.rds")
-kelly <- kelly@featureLoadings
-kelly_kornberg_proj <- read.csv("/local/projects/idea/rohara/immunophenotype_SCZ/kelly_kornberg_proj.csv")
+A <- kelly@featureLoadings
+P <- kelly@sampleFactors
+P_long <- as.data.frame(kelly) %>%
+		pivot_longer(
+    		cols = starts_with("Pattern"),
+    		names_to = "Pattern",
+    		values_to = "Activity"
+  	)
+P_long$celltype <- factor(P_long$predicted.celltype.l2, levels = unique(P_long$predicted.celltype.l2))
+P_long$method <- "CoGAPS"
 
+proj_long <- as.data.frame(t(kelly_kornberg_proj)) %>%
+                rownames_to_column("sample_celltype") %>%
+		pivot_longer(
+                cols = starts_with("Pattern"),
+                names_to = "Pattern",
+                values_to = "Activity"
+        )
+proj_long$celltype <- str_extract(proj_long$sample_celltype, "(?<=_).*")
+proj_long$celltype <- factor(proj_long$celltype, levels = unique(proj_long$celltype))
+proj_long$method <- "projectR"
 
+combined <- bind_rows(P_long, proj_long)
 
+pdf("pattern_violin_CoGAPS_proj_comparison.pdf", width = 12, height = 6)
+for (pattern in unique(combined$Pattern)) {
+  print(
+    ggplot(subset(combined, Pattern == pattern), aes(x = celltype, y = Activity, fill = method)) +
+      geom_violin(scale = "width", trim = FALSE, position = position_dodge(0.8)) +
+      theme_minimal() +
+      labs(title = paste("Comparison for:", pattern), y = "Acivity Score", x = "Cell Type") +
+      scale_fill_manual(values = c("CoGAPS" = "skyblue", "projectR" = "tomato")) +
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+  )
+}
+dev.off()
 
 
 
