@@ -13,6 +13,7 @@ library(org.Hs.eg.db)
 library(AnnotationDbi)
 library(edgeR)
 library(tidyverse)
+library(lme4)
 
 
 # read in CoGAPS results from single cell datasets
@@ -106,8 +107,12 @@ write.csv(kornberg_glahn_proj, file="/local/projects/idea/rohara/immunophenotype
 ## project single cell onto single cell ----
 
 # project Kelly patterns onto Kornberg data (gluten intolerance)
-kelly_kornberg_proj <- projectR(data=kornberg_pseudo_mat, loadings=kelly)
+kelly_kornberg_proj <- projectR(data=kornberg_pseudo_mat, loadings=kelly) # pseudobulked
 write.csv(kelly_kornberg_proj, file="/local/projects/idea/rohara/immunophenotype_SCZ/kelly_kornberg_proj.csv")
+
+kornberg_rna <- LayerData(object = kornberg_counts, assay = "RNA", layer = "data")
+kelly_kornberg_proj <- projectR(data=as.matrix(kornberg_rna), loadings = kelly)
+write.csv(kelly_kornberg_proj, file="/local/projects/idea/rohara/immunophenotype_SCZ/kelly_kornberg_proj_sc.csv", rownames = T)
 
 # project Kornberg patterns onto Kelly data (schizophrenia and gluten intolerance immunophenotype)
 kornberg_kelly_proj <- projectR(data=kelly_pseudo_mat, loadings=kornberg)
@@ -184,9 +189,17 @@ dev.off()
 
 # Kornberg meta data
 kornberg_meta <- as.data.frame(kornberg_counts@meta.data)
+
+# for pseudobulked
 kornberg_meta <- kornberg_meta[!duplicated(kornberg_meta$pseudobulk_id), ] %>%
 			select(pseudobulk_id, sample, general_condition, condition, sample_age, sample_sex, celltype)
 rownames(kornberg_meta) <- kornberg_meta$pseudobulk_id
+
+# not pseudobulked
+kornberg_meta$cell_id <- rownames(kornberg_meta)
+kornberg_meta$group <- kornberg_meta$general_condition
+kornberg_meta <- kornberg_meta %>% select(cell_id, sample, group, condition, sample_age, sample_sex, celltype)
+
 kornberg_group <- kornberg_meta$general_condition
 
 pdf("/local/projects/idea/rohara/immunophenotype_SCZ/plots/kelly_kornberg_proj_heatmap.pdf")
@@ -210,9 +223,16 @@ kelly_meta <- left_join(kelly_meta, meta, by = "sample")
 kelly_meta$group <- kelly_meta$Group
 kelly_meta$sample_sex <- kelly_meta$Sex
 kelly_meta$sample_age <- kelly_meta$Age
+
+# for pseudobulked
 kelly_meta <- kelly_meta[!duplicated(kelly_meta$pseudobulk_id), ] %>%
                         select(pseudobulk_id, sample, group, sample_age, sample_sex, celltype)
 rownames(kelly_meta) <- kelly_meta$pseudobulk_id
+
+# not pseudobulked
+kelly_meta$cell_id <- kelly_meta$bc_wells
+kelly_meta <- kelly_meta %>% select(cell_id, sample, group, sample_age, sample_sex, celltype) 
+
 kelly_meta <- kelly_meta %>%
 		mutate(sample_sex = factor(sample_sex),
 		       sample_sex = recode(sample_sex,
@@ -258,7 +278,7 @@ rownames(kornberg_kelly_data) <- kornberg_kelly_data$Row.names
 kornberg_kelly_data <- kornberg_kelly_data[ , -1]
 
 lm_results <- lapply(colnames(t(kornberg_kelly_proj)), function(pat) {
-  formula <- as.formula(paste(pat, "~ group + sample_sex + sample_age + celltype"))
+  formula <- as.formula(paste(pat, "~ group + celltype + sample_sex + sample_age"))
   lm(formula, data = kornberg_kelly_data)
 })
 
@@ -303,6 +323,8 @@ results_df <- do.call(rbind, Map(extract_coefs, lm_results, names(lm_results)))
 write.csv(results_df, "/local/projects/idea/rohara/immunophenotype_SCZ/kornberg_kelly_proj_model_results.csv", row.names = FALSE)
 
 
+
+
 beta_df <- data.frame(
   Pattern = colnames(t(kelly_glahn_proj)),
   Beta = sapply(lm_results, function(x) coef(summary(x))["groupPSY", "Estimate"]),
@@ -332,34 +354,85 @@ P_long <- as.data.frame(kelly) %>%
     		names_to = "Pattern",
     		values_to = "Activity"
   	)
-P_long$celltype <- factor(P_long$predicted.celltype.l2, levels = unique(P_long$predicted.celltype.l2))
-P_long$method <- "CoGAPS"
+kelly_df <- as.data.frame(P) %>%
+  mutate(cell_id = rownames(.)) %>%
+  pivot_longer(cols = starts_with("Pattern"), names_to = "Pattern", values_to = "Score") %>%
+  left_join(kelly_meta, by = "cell_id") %>%
+  mutate(Dataset = "Kelly")
+kelly_df$celltype <- factor(kelly_df$celltype, levels = unique(kelly_df$celltype))
+kelly_df$sample <- factor(kelly_df$sample, levels = unique(kelly_df$sample))
+kelly_df$group <- factor(kelly_df$group, levels = unique(kelly_df$group))
 
-proj_long <- as.data.frame(t(kelly_kornberg_proj)) %>%
-                rownames_to_column("sample_celltype") %>%
-		pivot_longer(
-                cols = starts_with("Pattern"),
-                names_to = "Pattern",
-                values_to = "Activity"
-        )
-proj_long$celltype <- str_extract(proj_long$sample_celltype, "(?<=_).*")
-proj_long$celltype <- factor(proj_long$celltype, levels = unique(proj_long$celltype))
-proj_long$method <- "projectR"
+kornberg_df <- kelly_kornberg_data %>%
+  pivot_longer(cols = starts_with("Pattern"), names_to = "Pattern", values_to = "Score") %>%
+  mutate(Dataset = "Kornberg")
+kornberg_df$celltype <- factor(kornberg_df$celltype, levels = unique(kornberg_df$celltype))
+kornberg_df$sample <- factor(kornberg_df$sample, levels = unique(kornberg_df$sample))
+kornberg_df$group <- factor(kornberg_df$group, levels = unique(kornberg_df$group))
 
-combined <- bind_rows(P_long, proj_long)
+combined <- bind_rows(kelly_df, kornberg_df)
+combined$Dataset <- factor(combined$Dataset, levels = unique(combined$Dataset))
+sorted_levels <- sort(levels(combined$celltype))
+combined$celltype <- factor(combined$celltype, levels = sorted_levels)
 
 pdf("pattern_violin_CoGAPS_proj_comparison.pdf", width = 12, height = 6)
 for (pattern in unique(combined$Pattern)) {
   print(
-    ggplot(subset(combined, Pattern == pattern), aes(x = celltype, y = Activity, fill = method)) +
+    ggplot(subset(combined, Pattern == pattern), aes(x = celltype, y = Score, fill = Dataset)) +
       geom_violin(scale = "width", trim = FALSE, position = position_dodge(0.8)) +
       theme_minimal() +
       labs(title = paste("Comparison for:", pattern), y = "Acivity Score", x = "Cell Type") +
-      scale_fill_manual(values = c("CoGAPS" = "skyblue", "projectR" = "tomato")) +
+      scale_fill_manual(values = c("Kelly" = "tomato", "Kornberg" = "skyblue")) +
       theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
   )
 }
 dev.off()
 
+
+# redo modeling
+
+kelly_model <- kelly_df %>%
+	pivot_wider(names_from = "Pattern", values_from = "Score")
+kornberg_model <- kornberg_df %>%
+	pivot_wider(names_from = "Pattern", values_from = "Score")
+patterns <- colnames(kelly_model)[8:37]
+
+lm_results <- lapply(patterns, function(pat) {
+  formula <- as.formula(paste(pat, "~ group * celltype + sample_sex + sample_age + ( 1 | sample)"))
+  lmer(formula, data = kornberg_model)
+})
+
+names(lm_results) <- patterns
+
+extract_lmer_results <- function(models) {
+  # --- Fixed effects ---
+  fixed_list <- lapply(seq_along(models), function(i) {
+    m <- models[[i]]
+    s <- summary(m)
+    fe <- as.data.frame(s$coefficients)
+    fe$term <- rownames(fe)
+    fe$pattern <- names(models)[i]
+    rownames(fe) <- NULL
+    fe
+  })
+  fixed_df <- do.call(rbind, fixed_list)
+  
+  # --- Random effects (variance components) ---
+  random_list <- lapply(seq_along(models), function(i) {
+    m <- models[[i]]
+    vc <- as.data.frame(VarCorr(m))
+    vc$pattern <- names(models)[i]
+    vc
+  })
+  random_df <- do.call(rbind, random_list)
+  
+  return(list(fixed = fixed_df, random = random_df))
+}
+
+results <- extract_lmer_results(lm_results)
+
+# Save separately
+write.csv(results$fixed, "kornberg_lmer_fixed_effects.csv", row.names = FALSE)
+write.csv(results$random, "kornberg_lmer_random_effects.csv", row.names = FALSE)
 
 
