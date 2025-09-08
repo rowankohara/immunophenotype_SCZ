@@ -14,13 +14,14 @@ library(AnnotationDbi)
 library(edgeR)
 library(tidyverse)
 library(lme4)
+library(lmerTest)
+library(emmeans)
 
 
 # read in CoGAPS results from single cell datasets
 
 # Kelly data
 kelly <- readRDS("/local/projects/idea/rohara/immunophenotype_SCZ/kellyCoGAPS_30Pat.rds")
-kelly <- kelly@featureLoadings
 
 kelly_counts <- readRDS("/local/projects/idea/rohara/immunophenotype_SCZ/dkelly_singlets.postqc.azimuth_celltypes.rds")
 kelly_counts$celltype <- kelly_counts$predicted.celltype.l2
@@ -30,7 +31,6 @@ kelly_pseudo_mat <- as.matrix(kelly_pseudo$RNA)
 
 # Kornberg data
 kornberg <- readRDS("/local/projects/idea/rohara/immunophenotype_SCZ/kornbergCoGAPS_30Pat.rds")
-kornberg <- kornberg@featureLoadings
 
 # read in Kornberg Seurat object and add Azimuth celltype predictions
 kornberg_counts <- readRDS("/local/projects/idea/rohara/immunophenotype_SCZ/GSE252762_kornberg_han_celiac_dataset_fig1-2.RDS")
@@ -113,6 +113,10 @@ write.csv(kelly_kornberg_proj, file="/local/projects/idea/rohara/immunophenotype
 kornberg_rna <- LayerData(object = kornberg_counts, assay = "RNA", layer = "data")
 kelly_kornberg_proj <- projectR(data=as.matrix(kornberg_rna), loadings = kelly)
 write.csv(kelly_kornberg_proj, file="/local/projects/idea/rohara/immunophenotype_SCZ/kelly_kornberg_proj_sc.csv", rownames = T)
+
+# project Kelly patterns onto pseudobulked Kelly data for sanity check
+kelly_kelly_proj <- projectR(data=kelly_pseudo_mat, loadings=kelly@featureLoadings) # pseudobulked
+write.csv(kelly_kelly_proj, file="/local/projects/idea/rohara/immunophenotype_SCZ/kelly_kelly_pseudo_proj.csv")
 
 # project Kornberg patterns onto Kelly data (schizophrenia and gluten intolerance immunophenotype)
 kornberg_kelly_proj <- projectR(data=kelly_pseudo_mat, loadings=kornberg)
@@ -345,10 +349,9 @@ dev.off()
 
 
 # check patterns
-kelly <- readRDS("/local/projects/idea/rohara/immunophenotype_SCZ/kellyCoGAPS_30Pat.rds")
 A <- kelly@featureLoadings
 P <- kelly@sampleFactors
-P_long <- as.data.frame(kelly) %>%
+P_long <- as.data.frame(P) %>%
 		pivot_longer(
     		cols = starts_with("Pattern"),
     		names_to = "Pattern",
@@ -369,6 +372,7 @@ kornberg_df <- kelly_kornberg_data %>%
 kornberg_df$celltype <- factor(kornberg_df$celltype, levels = unique(kornberg_df$celltype))
 kornberg_df$sample <- factor(kornberg_df$sample, levels = unique(kornberg_df$sample))
 kornberg_df$group <- factor(kornberg_df$group, levels = unique(kornberg_df$group))
+kornberg_df$sample_sex <- factor(kornberg_df$sample_sex, levels = unique(kornberg_df$sample_sex))
 
 combined <- bind_rows(kelly_df, kornberg_df)
 combined$Dataset <- factor(combined$Dataset, levels = unique(combined$Dataset))
@@ -404,6 +408,7 @@ lm_results <- lapply(patterns, function(pat) {
 
 names(lm_results) <- patterns
 
+
 extract_lmer_results <- function(models) {
   # --- Fixed effects ---
   fixed_list <- lapply(seq_along(models), function(i) {
@@ -429,10 +434,114 @@ extract_lmer_results <- function(models) {
   return(list(fixed = fixed_df, random = random_df))
 }
 
+extract_all_results <- function(models) {
+  results_list <- lapply(seq_along(models), function(i) {
+    m <- models[[i]]
+    model_name <- names(models)[i]
+    
+    ## Fixed effects
+    fe <- coef(summary(m))
+    fe_df <- data.frame(
+      term = rownames(fe),
+      estimate = fe[, "Estimate"],
+      std_error = fe[, "Std. Error"],
+      df = fe[, "df"],
+      t_value = fe[, "t value"],
+      p_value = fe[, "Pr(>|t|)"],
+      effect_type = "fixed",
+      pattern = model_name,
+      row.names = NULL
+    )
+    
+    ## Random effects
+    re <- ranef(m, condVar = TRUE)
+    re_list <- lapply(names(re), function(fac) {
+      re_df <- as.data.frame(re[[fac]])
+      re_df$grouping_factor = fac
+      re_df
+    })
+    re_df <- do.call(rbind, re_list)
+    re_df$effect_type <- "random"
+    re_df$pattern <- model_name
+    
+    ## emmeans contrasts
+    emm <- emmeans(m, ~ group | celltype)
+    contr <- contrast(emm, method = "pairwise", by = "celltype")
+    contr_df <- as.data.frame(contr)
+    contr_df$effect_type <- "emmeans_contrast"
+    contr_df$pattern <- model_name
+    
+    ## Bind all together (keep same columns)
+    combined <- list(
+      fe_df,
+      re_df,
+      contr_df
+    )
+    do.call(plyr::rbind.fill, combined)  # allows different columns
+  })
+  
+  results_df <- do.call(rbind, results_list)
+  rownames(results_df) <- NULL
+  return(results_df)
+}
+
+
+extract_random_var <- function(models) {
+  res_list <- lapply(seq_along(models), function(i) {
+    m <- models[[i]]
+    name <- names(models)[i]
+    
+    vc <- as.data.frame(VarCorr(m))
+    vc$pattern <- name
+    
+    # Add ICC
+    donor_var <- vc$vcov[vc$grp == "sample"]  # replace with your grouping factor name
+    resid_var <- vc$vcov[vc$grp == "Residual"]
+    vc$icc <- if (!is.na(donor_var) && !is.na(resid_var)) {
+      donor_var / (donor_var + resid_var)
+    } else {
+      NA
+    }
+    
+    vc
+  })
+  
+  do.call(rbind, res_list)
+}
+
+
 results <- extract_lmer_results(lm_results)
+all_results <- extract_all_results(lm_results)
+random_variances <- extract_random_var(lm_results)
 
 # Save separately
 write.csv(results$fixed, "kornberg_lmer_fixed_effects.csv", row.names = FALSE)
 write.csv(results$random, "kornberg_lmer_random_effects.csv", row.names = FALSE)
+write.csv(all_results, "kornberg_full_model_results.csv", row.names = FALSE)
+write.csv(random_variances, "kornbberg_random_effect_variances.csv", row.names = FALSE)
+
+
+# make violin plots by sample from the Kelly sc projection onto pseudobulked Kelly
+
+# convert to tibble, keeping pattern/sample labels
+proj_df <- kelly_kelly_proj %>%
+  as.data.frame() %>%
+  rownames_to_column("Pattern") %>%
+  pivot_longer(
+    -Pattern,
+    names_to = "pseudobulk_id",
+    values_to = "score"
+  ) %>%
+  mutate(dataset = "pseudobulk")
+ kelly_meta$sample <- gsub("_", "-", kelly_meta$sample)
+ kelly_meta$pseudobulk_id <- paste(kelly_meta$sample, kelly_meta$celltype, sep="_")
+
+# join with your metadata (assume sample_metadata has Sample + Group columns)
+proj_df <- proj_df %>%
+  left_join(kelly_meta, by = "pseudobulk_id")
+
+
+P$cell_id <- rownames(P)
+sc_df <- merge(P, kelly_meta, by = "cell_id")  # ran into memory limit error when ran this
 
 
