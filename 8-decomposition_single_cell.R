@@ -76,6 +76,9 @@ kelly <- merge(P_kelly, kelly_meta, by = "row.names")
 rownames(kelly) <- kelly$cell_id
 kelly <- kelly[ , -1]
 
+kelly$Group <- relevel(factor(kelly$Group), ref = "SCZ High")
+kelly$predicted.celltype.l2 <- relevel(factor(kelly$predicted.celltype.l2), ref = "CD4 Naive")
+
 # Kornberg data wrangling
 results_kornberg <- readRDS("/local/projects/idea/rohara/immunophenotype_SCZ/kornbergCoGAPS_30Pat.rds")
 P_kornberg <- results_kornberg@sampleFactors
@@ -116,7 +119,7 @@ extract_lm_results <- function(lm_list) {
 
 results_df <- extract_lm_results(lm_results)
 
-write.csv(results_df, "/local/projects/idea/rohara/immunophenotype_SCZ/kornberg_proj_model_results.csv", row.names = FALSE)
+write.csv(results_df, "/local/projects/idea/rohara/immunophenotype_SCZ/kelly_proj_model_results.csv", row.names = FALSE)
 
 # plot
 P <- kelly[ , c(1:30, 62)]
@@ -195,8 +198,6 @@ ggplot(beta_df, aes(x = Pattern, y = Beta, fill = P < 0.05)) +
   scale_fill_manual(values = c("FALSE" = "#999999", "TRUE" = "#f9421b")) +
   theme_minimal() +
   labs(title = "Kelly Pattern Betas by Group Contrast",
-       y = "Beta",
-       fill = "P < 0.05") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 dev.off()
 
@@ -228,16 +229,21 @@ genesets <- msigdbr(species = "Homo sapiens", category = "C5", subcategory = "GO
 gmt_list <- split(genesets$gene_symbol, genesets$gs_name)
 
 # run fgsea
-fgsea_results_list <- lapply(1:ncol(A_kornberg), function(pat_id) {
+fgsea_results_list <- lapply(1:ncol(A_kelly), function(pat_id) {
   gene_ranks <- A_kelly[, pat_id]
-  names(gene_ranks) <- rownames(A_kornberg)
+  names(gene_ranks) <- rownames(A_kelly)
   gene_ranks <- sort(gene_ranks, decreasing = TRUE)
 
   fgseaRes <- fgsea(
     pathways = gmt_list,
     stats = gene_ranks,
-    nperm = 1000
+    nperm = 1000,
+    minSize = 15,       # filter out very small pathways
+    maxSize = 500       # filter out very large pathways
   )
+
+  # keep only positive NES
+  fgseaRes <- fgseaRes %>% filter(NES > 0)
 
   fgseaRes$pattern <- paste0("Pattern_", pat_id)
   return(fgseaRes)
@@ -246,10 +252,41 @@ fgsea_results_list <- lapply(1:ncol(A_kornberg), function(pat_id) {
 # combine into one data.frame
 fgsea_combined <- bind_rows(fgsea_results_list)
 fgsea_export <- fgsea_combined %>% select(-leadingEdge)
-write.csv(fgsea_export, "fgsea_results_all_30patterns_Kornberg.csv", row.names = FALSE)
+write.csv(fgsea_export, "fgsea_results_all_30patterns_Kelly.csv", row.names = FALSE)
 
 
 ## visualization ----
+
+top_terms <- fgsea_combined %>%
+  filter(pval < 0.001) %>%
+  group_by(pattern) %>%
+  arrange(desc(abs(NES))) %>%
+  distinct(pathway, .keep_all = TRUE) %>%
+  slice_head(n = 5)
+
+### heatmap ----
+# pivot wider: rows = pathways, columns = patterns
+heatmap_df <- top_terms %>%
+  select(pathway, pattern, NES) %>%
+  pivot_wider(names_from = pattern, values_from = NES)
+
+heatmap_matrix <- as.matrix(heatmap_df[,-1]
+
+### bubble plot ----
+top_terms_plot <- top_terms %>%
+  mutate(log10padj = -log10(padj))
+
+pdf("/local/projects/idea/rohara/immunophenotype_SCZ/plots/gsea_30patterns_bubble_Kelly.pdf")
+ggplot(top_terms_plot, aes(x = pattern, y = pathway)) +
+  geom_point(aes(size = log10padj, color = NES)) +
+  scale_color_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0) +
+  theme_bw() +
+  labs(title = "Top Enriched Pathways by Pattern",
+       x = "Pattern", y = "Pathway",
+       size = "-log10(padj)", color = "NES")
+dev.off()
+
+
 
 top_gsea <- fgsea_combined %>%
   group_by(pattern) %>%
@@ -258,7 +295,7 @@ top_gsea <- fgsea_combined %>%
   ungroup()
 
 plot_gsea_pattern <- function(df, pattern_id, wrap_width=40) {
-  df_pattern <- df %>% 
+  df_pattern <- df %>%
 	  	filter(pattern == pattern_id) %>%
     		mutate(pathway = gsub("_", " ", substring(tolower(pathway), 6, nchar(pathway))),
 			   pathway_wrapped = str_wrap(pathway, width = wrap_width))
@@ -275,11 +312,10 @@ plot_gsea_pattern <- function(df, pattern_id, wrap_width=40) {
 
 unique_patterns <- unique(top_gsea$pattern)
 
-pdf("/local/projects/idea/rohara/immunophenotype_SCZ/plots/gsea_by_pattern_Kornberg.pdf", width = 8, height = 6)
+pdf("/local/projects/idea/rohara/immunophenotype_SCZ/plots/gsea_by_pattern_Kelly.pdf", width = 8, height = 6)
 
 for (p in unique_patterns) {
   print(plot_gsea_pattern(top_gsea, p))
 }
 
 dev.off()
-
