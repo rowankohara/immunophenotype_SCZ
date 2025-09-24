@@ -538,10 +538,36 @@ proj_df <- kelly_kelly_proj %>%
 
 # join with your metadata (assume sample_metadata has Sample + Group columns)
 proj_df <- proj_df %>%
-  left_join(kelly_meta, by = "pseudobulk_id")
+  left_join(kelly_meta, by = "pseudobulk_id", multiple = "first")
 
 
-P$cell_id <- rownames(P)
+P$cell_id <- rownames(P)  # make sure P is a data frame
 sc_df <- merge(P, kelly_meta, by = "cell_id")  # ran into memory limit error when ran this
+sc_df <- sc_df %>%
+	pivot_longer(cols = starts_with("Pattern"),
+		     names_to = "Pattern",
+		     values_to = "score")
+sc_df$dataset <- "single cell"
+
+plot_df <- bind_rows(
+  sc_df %>% select(sample, Pattern, score, dataset),
+  proj_df %>% select(sample, Pattern, score, dataset)
+)
+
+pdf("plots/kelly_sc_proj_pattern_violin.pdf", width=10, height=6)
+for (pat in colnames(P)[1:30]) {
+	plot_df2 <- plot_df %>% filter(Pattern == pat)
+	p <- plot_df2 %>%
+  		ggplot(aes(x = sample, y = score, fill = dataset)) +
+  		geom_violin(position = position_dodge(width = 0.8), trim = FALSE) +
+  		theme_classic() +
+  		theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  		labs(y = "Pattern activity",
+		       x = "Samples",
+		       title = paste(pat))
+	print(p)
+
+}
+dev.off()
 
 
