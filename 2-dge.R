@@ -218,3 +218,124 @@ text( x = sel$logFC - 0.1 ,
 abline( h = 2 , v = c(-.5,.5) , lty = 2 )
 dev.off()
 
+
+# Redo with l3 celltype ----
+
+# read in Seurat object, get RNA counts, set Idents to L3 cell type
+obj <- readRDS("kelly_postqc_celltypes_meta.rds")
+DefaultAssay(obj) = 'RNA'
+counts <- GetAssayData(obj, layer = "counts")
+Idents(obj) <- obj$predicted.celltype.l3
+
+
+# look at the summary counts for each cell type
+meta_df <- obj@meta.data %>% 
+	mutate(celltype = as.character(predicted.celltype.l3), sample = as.character(sample), group = as.character(Group))
+cell_counts <- meta_df %>% 
+	group_by(celltype, sample, group) %>% 
+	summarize(cells = n(), .groups = "drop")
+summary_per_ct <- cell_counts %>% 
+	group_by(celltype) %>% 
+	summarize(total_cells = sum(cells), n_samples_total = n_distinct(sample), median_cells_per_sample = median(cells), p25_cells_per_sample = quantile(cells, .25), p75_cells_per_sample = quantile(cells, .75)) %>% 
+	arrange(desc(total_cells))
+print(summary_per_ct)
+
+
+# filter cell types to make sure they have at least 100 total cells, 4 samples represented, and 2 samples per group
+min_total_cells <- 100
+min_samples_total <- 6
+min_samples_per_group <- 2
+ct_group_summary <- cell_counts %>%
+  group_by(celltype, group) %>%
+  summarise(n_samples = n_distinct(sample), .groups = "drop") %>%
+  tidyr::pivot_wider(names_from = group, values_from = n_samples, values_fill = 0)
+ct_ok <- summary_per_ct %>%
+  left_join(ct_group_summary %>% 
+	    group_by(celltype) %>% 
+	    summarize(across(everything(), ~sum(.x))), by = "celltype")
+write.csv(ct_ok, file="cell_counts_summary_per_sample.csv")
+keep_cts <- summary_per_ct %>%
+  filter(total_cells >= min_total_cells,
+         n_samples_total >= min_samples_total) %>%
+  pull(celltype)
+
+
+# filter out samples for a cell type if they have fewer than 10 cells
+min_cells_per_sample <- 10
+samples_to_use <- cell_counts %>%
+  filter(cells >= min_cells_per_sample) %>%
+  group_by(celltype) %>%
+  summarize(samples = list(unique(sample)), .groups = "drop")
+
+
+samples_to_use_list <- setNames(samples_to_use$samples, samples_to_use$celltype)
+samples_to_use_list <- samples_to_use_list[keep_cts]
+
+
+make_pseudobulk_for_celltype <- function(ct, samples_keep) {
+	# filter for cell type
+	cells_ct <- rownames(meta_df)[meta_df$celltype == ct]
+	if (length(cells_ct) == 0) return(NULL)
+
+	# subset to cells from samples that have at least 10 cells for that cell type
+	cells_keep <- cells_ct[meta_df[cells_ct, "sample"] %in% samples_keep]
+	if (length(cells_keep) == 0) return(NULL)
+
+	# subset counts to those cells
+	mat <- counts[, cells_keep, drop = FALSE]  # genes x cells
+
+	# get sample vector aligned to columns
+	sample_vec <- meta_df[cells_keep, "sample"]
+
+	# sum counts per sample, convert to simple matrix
+	if (is(mat, "dgCMatrix")) mat_dense <- as.matrix(mat) else mat_dense <- mat
+	pseudobulk <- t(rowsum(t(mat_dense), group = sample_vec))
+	
+	# order columns
+	pseudobulk <- pseudobulk[, sort(colnames(pseudobulk)), drop = FALSE]
+	return(pseudobulk)
+}
+
+
+celltypes_available <- names(samples_to_use_list)
+pseudobulk_list <- list()
+
+# filter for cell types that pass our thresholds
+for (ct in celltypes_available) {
+	pb <- make_pseudobulk_for_celltype(ct, samples_to_use_list[[ct]])
+	if (!is.null(pb)) pseudobulk_list[[ct]] <- pb
+}
+
+# go through pseudobulk and get the sample names and groups
+ct_summary <- lapply(names(pseudobulk_list), function(ct) {
+			samp_names <- colnames(pseudobulk_list[[ct]])
+			gr <- unique(meta_df[samp_names, "group"])
+			per_group <- meta_df[samp_names, ] %>%
+				as.data.frame() %>%
+				group_by(group) %>%
+				summarize(n = n_distinct(sample), .groups = "drop")
+			tibble(celltype = ct,
+				total_samples = length(samp_names),
+				per_group = list(per_group))
+		}) %>% bind_rows()
+
+
+keep_celltypes <- c()
+# filter for cell types that have two samples for each group (HC, SCZ Low, SCZ High) to make comparison easy
+for (i in seq_len(nrow(ct_summary))) {
+	ct <- ct_summary$celltype[i]
+	total_samps <- ct_summary$total_samples[i]
+	per_group_df <- ct_summary$per_group[[i]]
+
+	n_groups_meeting <- sum(per_group_df$n >= min_samples_per_group)
+
+	if(total_samps >= min_samples_total && n_groups_meeting >= 2) {
+		keep_celltypes <- c(keep_celltypes, ct)
+	}
+}
+
+pseudobulk_list <- pseudobulk_list[keep_celltypes]
+
+
+
+
