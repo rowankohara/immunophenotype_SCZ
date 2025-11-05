@@ -230,7 +230,11 @@ Idents(obj) <- obj$predicted.celltype.l3
 
 # look at the summary counts for each cell type
 meta_df <- obj@meta.data %>% 
-	mutate(celltype = as.character(predicted.celltype.l3), sample = as.character(sample), group = as.character(Group))
+	mutate(celltype = as.character(predicted.celltype.l3), 
+	       sample = as.character(sample), 
+	       group = as.character(Group),
+	       sex = as.factor(Sex),
+	       age = as.numeric(Age))
 cell_counts <- meta_df %>% 
 	group_by(celltype, sample, group) %>% 
 	summarize(cells = n(), .groups = "drop")
@@ -306,11 +310,17 @@ for (ct in celltypes_available) {
 	if (!is.null(pb)) pseudobulk_list[[ct]] <- pb
 }
 
+sample_table <- meta_df %>%
+        as.data.frame() %>%
+        distinct(sample, group, age, sex) %>%
+        arrange(group)
+rownames(sample_table) <- sample_table$sample
+
 # go through pseudobulk and get the sample names and groups
 ct_summary <- lapply(names(pseudobulk_list), function(ct) {
 			samp_names <- colnames(pseudobulk_list[[ct]])
-			gr <- unique(meta_df[samp_names, "group"])
-			per_group <- meta_df[samp_names, ] %>%
+			gr <- unique(sample_table[samp_names, "group"])
+			per_group <- sample_table[samp_names, ] %>%
 				as.data.frame() %>%
 				group_by(group) %>%
 				summarize(n = n_distinct(sample), .groups = "drop")
@@ -337,5 +347,68 @@ for (i in seq_len(nrow(ct_summary))) {
 pseudobulk_list <- pseudobulk_list[keep_celltypes]
 
 
+results_list <- list()
+
+for (ct in names(pseudobulk_list)) {
+  message("Running edgeR for: ", ct)
+  pb <- pseudobulk_list[[ct]]   # genes x samples for this ct
+  sample_names <- colnames(pb)
+
+  # use sample metadata for these samples
+  samp_meta_ct <- sample_table %>% filter(sample %in% sample_names) %>%
+    mutate(group = factor(group)) %>%
+    arrange(sample)
+
+  # ensure order matches pb columns
+  samp_meta_ct <- samp_meta_ct[match(sample_names, samp_meta_ct$sample), ]
+
+  # build DGEList
+  y <- DGEList(counts = pb, samples = samp_meta_ct)
+
+  # filter lowly expressed genes (keep genes expressed in at least some samples)
+  keep <- filterByExpr(y, group = y$samples$group, min.count = 3, min.total.count = 15)
+  y <- y[keep, ]
+  y <- calcNormFactors(y)
+
+  # design
+  design <- model.matrix(~ 0 + group + sex + age, data = y$samples)
+  colnames(design) <- c("HC", "SCZ_High", "SCZ_Low", "sexMale", "age")
+
+  # fit
+  y <- estimateDisp(y, design)
+  fit <- glmQLFit(y, design)
+
+  # contrasts
+  groups_present <- colnames(design)[1:3]
+  contrs <- list()
+  if (all(c("SCZ_High","SCZ_Low") %in% groups_present)) {
+    contrs$SCZHigh_vs_SCZLow <- makeContrasts(SCZ_High - SCZ_Low, levels = design)
+  }
+  if (all(c("SCZ_High","HC") %in% groups_present)) {
+    contrs$SCZHigh_vs_HC <- makeContrasts(SCZ_High - HC, levels = design)
+  }
+  if (all(c("SCZ_Low","HC") %in% groups_present)) {
+    contrs$SCZLow_vs_HC <- makeContrasts(SCZ_Low - HC, levels = design)
+  }
+
+  # run tests for each contrast and collect tables
+  res_ct <- list()
+  for (cn in names(contrs)) {
+    qlf <- glmQLFTest(fit, contrast = contrs[[cn]])
+    tab <- topTags(qlf, n = Inf)$table
+    tab <- tab %>%
+      as.data.frame() %>%
+      tibble::rownames_to_column(var = "gene") %>%
+      mutate(contrast = cn, celltype = ct)
+    res_ct[[cn]] <- tab
+  }
+
+  results_list[[ct]] <- bind_rows(res_ct)
+}
+
+# combine all results
+dge_results <- bind_rows(results_list)
+dge_results <- dge_results[order(dge_results$PValue), ]
+write.csv(dge_results, file="kelly_l3_celltypes_edgeR_dge.csv")
 
 
