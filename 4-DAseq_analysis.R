@@ -234,3 +234,69 @@ ggplot(prop_df, aes(x = sample, y = prop, fill = cell_type)) +
 dev.off()
 
 
+
+# Milo Strategy ----
+# using miloR package for differential abundance testing using a K-nearest neighbors algorithm
+# using this vignette for contrasts https://bioconductor.org/packages/release/bioc/vignettes/miloR/inst/doc/milo_contrasts.html
+library(miloR)
+library(Seurat)
+library(tidyverse)
+library(SingleCellExperiment)
+
+obj <- readRDS("kelly_postqc_celltypes_meta.rds")
+obj_sce <- as.SingleCellExperiment(obj)
+obj_milo <- Milo(obj_sce)
+
+# get the UMAP from the single cell experiment object
+reducedDim(obj_milo, "UMAP") <- reducedDim(obj_sce, "UMAP")
+
+pdf("plots/milo_umap_celltype_group.pdf", width=15, height=10)
+DimPlot(obj, reduction="umap", group.by="seurat_clusters", label=TRUE) + ggtitle("Seurat Clusters")
+DimPlot(obj, reduction="umap", group.by="predicted.celltype.l2", label=TRUE) + ggtitle("L2 Azimuth Labels")
+DimPlot(obj, reduction="umap", group.by="Group") + ggtitle("Group")
+dev.off()
+
+obj_milo <- buildGraph(obj_milo, k=80, d=30)
+obj_milo <- makeNhoods(obj_milo, prop = 0.2, k = 80, d=30, refined = TRUE, refinement_scheme="graph")
+
+obj_milo <- countCells(obj_milo, meta.data = data.frame(colData(obj_milo)), samples = "sample")
+
+
+# how many cells are in each neighborhood
+pdf("plots/milo_Nhood_sizes_hist.pdf")
+plotNhoodSizeHist(obj_milo)
+dev.off()
+
+obj_milo$Group <- gsub(" ", "", obj_milo$Group)
+obj_milo$Group <- factor(obj_milo$Group)
+
+obj_design <- data.frame(colData(obj_milo))[, c("sample", "Group")]
+obj_design <- distinct(obj_design)
+rownames(obj_design) <- obj_design$sample
+obj_design <- obj_design[colnames(nhoodCounts(obj_milo)), , drop=FALSE]
+table(obj_design$Group)
+
+# making contrasts between groups
+obj_milo$Group <- gsub(" ", "", obj_milo$Group)
+obj_milo$Group <- factor(obj_milo$Group)
+contrast_all <- c(
+    "GroupSCZHigh - GroupSCZLow",
+    "GroupSCZHigh - GroupHC",
+    "GroupSCZLow - GroupHC"
+)
+model <- model.matrix(~ 0 + Group, data=obj_design)
+mod.contrast <- makeContrasts(contrasts=contrast_all, levels=model)
+
+contrast1.res <- testNhoods(obj_milo, design=~0+ Group, design.df=obj_design, fdr.weighting="graph-overlap", model.contrasts = contrast_all)
+table(contrast1.res$SpatialFDR < 0.1)
+
+contrastHvL <- testNhoods(obj_milo, design=~0+ Group, design.df=obj_design, fdr.weighting="graph-overlap", model.contrasts = c("GroupSCZHigh - GroupSCZLow"))
+
+obj_milo <- buildNhoodGraph(obj_milo)
+
+pdf("plots/milo_results_umap_nhood_graph.pdf", width=30, height=15)
+DimPlot(obj, reduction="umap", group.by="predicted.celltype.l2", label=TRUE) + plotNhoodGraphDA(obj_milo, contrastHvL, alpha=0.3)
+dev.off()
+
+
+
