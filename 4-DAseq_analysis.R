@@ -349,7 +349,7 @@ plot_matrix <- lapply(k_vals, function(k) {
   row_plots
 })
 
-
+# plot a grid of all of the different graphs I made for comparisons
 pdf("plots/milo_k_by_d_grid.pdf", width = 5 * length(d_vals), height = 5 * length(k_vals))
 cowplot::plot_grid(
   plotlist = unlist(plot_matrix, recursive = FALSE),
@@ -360,4 +360,49 @@ cowplot::plot_grid(
 )
 dev.off()
 
+# plot an individual milo graph next to the Azimuth labeled UMAP
+pdf("plots/milo_results_umap_nhood_graph.pdf", width=30, height=15)
+DimPlot(obj, reduction="umap", group.by="predicted.celltype.l2", label=TRUE) + plotNhoodGraphDA(obj_milo, contrastHvL, alpha=0.3)
+dev.off()
+
+
+
+## check if these look right -----
+
+### check neighborhood sizes ----
+nhood_df <- do.call(rbind, lapply(names(results_obj), function(nm) {
+ 	split_matrix <- str_split_fixed(nm, "_", n = 2)
+	k_val <- split_matrix[1, 1]
+	d_val <- split_matrix[1, 2]
+	sizes <- rowSums(results_obj[[nm]]@nhoodCounts)
+  data.frame(k = as.numeric(k_val), d = as.numeric(d_val), size = sizes)
+}))
+
+
+pdf("nhood_size_by_kd.pdf", width=25, height=30)
+ggplot(nhood_df, aes(x = factor(1), y = size)) +
+  geom_violin(fill = "grey80") +
+  geom_boxplot(width = 0.1) +
+  facet_grid(k ~ d, switch = "both") +
+  theme_bw() +
+  theme(
+    strip.background = element_rect(fill = "white"),
+    strip.placement = "outside",
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank()
+  ) +
+  ylab("Neighborhood size")
+dev.off()
+
+### check fraction of significant neighborhoods ----
+sig_table <- results_all %>% group_by(k, d) %>% filter(predicted.celltype.l2 == "CD8 TEM") %>% summarize(mean = mean(FDR < 0.3, na.rm = TRUE))
+
+pdf("plots/frac_sig_CD8TEM_by_k.pdf")
+plot(as.numeric(sig_table$k), sig_table$mean, type='b',
+     xlab="k", ylab="fraction significant in CD8 TEM pop")
+dev.off()
+
+
+### check correlation of logFC across k ----
 
