@@ -250,53 +250,114 @@ obj_milo <- Milo(obj_sce)
 # get the UMAP from the single cell experiment object
 reducedDim(obj_milo, "UMAP") <- reducedDim(obj_sce, "UMAP")
 
+obj_milo$Group <- gsub(" ", "", obj_milo$Group)
+obj_milo$Group <- factor(obj_milo$Group)
+obj_milo$predicted.celltype.l2 <- factor(obj_milo$predicted.celltype.l2)
+
 pdf("plots/milo_umap_celltype_group.pdf", width=15, height=10)
 DimPlot(obj, reduction="umap", group.by="seurat_clusters", label=TRUE) + ggtitle("Seurat Clusters")
 DimPlot(obj, reduction="umap", group.by="predicted.celltype.l2", label=TRUE) + ggtitle("L2 Azimuth Labels")
 DimPlot(obj, reduction="umap", group.by="Group") + ggtitle("Group")
 dev.off()
 
-obj_milo <- buildGraph(obj_milo, k=80, d=30)
-obj_milo <- makeNhoods(obj_milo, prop = 0.2, k = 80, d=30, refined = TRUE, refinement_scheme="graph")
 
-obj_milo <- countCells(obj_milo, meta.data = data.frame(colData(obj_milo)), samples = "sample")
+k_list <- c(80, 70, 60, 50, 40, 30)
+d_list <- c(10, 20, 30, 40, 50)
+
+summary_list <- c()
+plot_list <- c()
+results_obj <- c()
+
+for (k in k_list) {
+	for (d in d_list) {
+		obj_milo_iteration <- obj_milo
+		label <- paste(k, d, sep='_')
+		obj_milo_iteration <- buildGraph(obj_milo_iteration, k = k, d = d)
+		obj_milo_iteration <- makeNhoods(obj_milo_iteration, prop = 0.2, k = k, d = d, refined = TRUE, refinement_scheme="graph")
+
+		obj_milo_iteration <- countCells(obj_milo_iteration, meta.data = data.frame(colData(obj_milo_iteration)), samples = "sample")
 
 
-# how many cells are in each neighborhood
-pdf("plots/milo_Nhood_sizes_hist.pdf")
-plotNhoodSizeHist(obj_milo)
-dev.off()
+		# how many cells are in each neighborhood
+		p1 <- plotNhoodSizeHist(obj_milo_iteration)
 
-obj_milo$Group <- gsub(" ", "", obj_milo$Group)
-obj_milo$Group <- factor(obj_milo$Group)
 
-obj_design <- data.frame(colData(obj_milo))[, c("sample", "Group")]
-obj_design <- distinct(obj_design)
-rownames(obj_design) <- obj_design$sample
-obj_design <- obj_design[colnames(nhoodCounts(obj_milo)), , drop=FALSE]
-table(obj_design$Group)
+		obj_design <- data.frame(colData(obj_milo_iteration))[, c("sample", "Group")]
+		obj_design <- distinct(obj_design)
+		rownames(obj_design) <- obj_design$sample
+		obj_design <- obj_design[colnames(nhoodCounts(obj_milo_iteration)), , drop=FALSE]
+		table(obj_design$Group)
 
-# making contrasts between groups
-obj_milo$Group <- gsub(" ", "", obj_milo$Group)
-obj_milo$Group <- factor(obj_milo$Group)
-contrast_all <- c(
-    "GroupSCZHigh - GroupSCZLow",
-    "GroupSCZHigh - GroupHC",
-    "GroupSCZLow - GroupHC"
-)
-model <- model.matrix(~ 0 + Group, data=obj_design)
-mod.contrast <- makeContrasts(contrasts=contrast_all, levels=model)
+		# making contrasts between groups
+		contrast_all <- c(
+    			"GroupSCZHigh - GroupSCZLow",
+    			"GroupSCZHigh - GroupHC",
+    			"GroupSCZLow - GroupHC"
+		)
+		model <- model.matrix(~ 0 + Group, data=obj_design)
+		mod.contrast <- makeContrasts(contrasts=contrast_all, levels=model)
 
-contrast1.res <- testNhoods(obj_milo, design=~0+ Group, design.df=obj_design, fdr.weighting="graph-overlap", model.contrasts = contrast_all)
-table(contrast1.res$SpatialFDR < 0.1)
+		contrast1.res <- testNhoods(obj_milo_iteration, design=~0+ Group, design.df=obj_design, fdr.weighting="graph-overlap", model.contrasts = contrast_all)
+		table(contrast1.res$SpatialFDR < 0.1)
 
-contrastHvL <- testNhoods(obj_milo, design=~0+ Group, design.df=obj_design, fdr.weighting="graph-overlap", model.contrasts = c("GroupSCZHigh - GroupSCZLow"))
+		contrastHvL <- testNhoods(obj_milo_iteration, design=~0+ Group, design.df=obj_design, fdr.weighting="graph-overlap", model.contrasts = c("GroupSCZHigh - GroupSCZLow"))
+		table(contrastHvL$SpatialFDR < 0.1)
 
-obj_milo <- buildNhoodGraph(obj_milo)
+		obj_milo_iteration <- buildNhoodGraph(obj_milo_iteration)
 
+		p2 <- plotNhoodGraphDA(obj_milo_iteration, contrastHvL, alpha=0.3) + ggtitle(label)
+		plot_list[[label]] <- p1 / p2
+		#plot_list[[label]] <- p2
+
+		results_obj[[label]] <- obj_milo_iteration
+
+		annot_df <- annotateNhoods(obj_milo_iteration, contrastHvL, "predicted.celltype.l2")
+		summary_res <- cbind(k, d, annot_df)
+                summary_list[[label]] <- summary_res
+
+	}
+}
+
+
+# save table
+results_all <- bind_rows(summary_list)
+write_csv(results_all, "milo_results_nhood_summary.csv")
+
+# save objects
+saveRDS(results_obj, "milo_obj_list.RDS")
+
+
+# plot results
 pdf("plots/milo_results_umap_nhood_graph.pdf", width=30, height=15)
-DimPlot(obj, reduction="umap", group.by="predicted.celltype.l2", label=TRUE) + plotNhoodGraphDA(obj_milo, contrastHvL, alpha=0.3)
-dev.off()
+plot_info <- data.frame(
+  name = names(plot_list),
+  k = as.numeric(str_extract(names(plot_list), "^[0-9]+")),
+  d = as.numeric(str_extract(names(plot_list), "(?<=_)[0-9]+"))
+)
 
+plot_info$plot <- plot_list
+
+plot_info <- plot_info[order(plot_info$k, plot_info$d), ]
+
+k_vals <- sort(unique(plot_info$k))
+d_vals <- sort(unique(plot_info$d))
+
+plot_matrix <- lapply(k_vals, function(k) {
+  row_plots <- plot_info$plot[plot_info$k == k]
+  # reorder within row by d
+  row_plots <- row_plots[order(plot_info$d[plot_info$k == k])]
+  row_plots
+})
+
+
+pdf("plots/milo_k_by_d_grid.pdf", width = 5 * length(d_vals), height = 5 * length(k_vals))
+cowplot::plot_grid(
+  plotlist = unlist(plot_matrix, recursive = FALSE),
+  nrow = length(k_vals),
+  ncol = length(d_vals),
+  labels = names(plot_info$plot),
+  label_size = 8
+)
+dev.off()
 
 
