@@ -249,10 +249,28 @@ obj_milo <- Milo(obj_sce)
 
 # get the UMAP from the single cell experiment object
 reducedDim(obj_milo, "UMAP") <- reducedDim(obj_sce, "UMAP")
+reducedDim(obj_milo, "PCA") <- Embeddings(obj, "pca")[, 1:30]
+
+# plot variancce explained by PCs -- will help choose our d parameter
+pdf("plots/elbow_plot_PCs_kelly.pdf")
+ElbowPlot(obj, ndims = 50)
+dev.off()
+
+pca_stdev <- obj[["pca"]]@stdev
+var_explained <- pca_stdev^2 / sum(pca_stdev^2)
+pdf("plots/var_explained_PCs_kelly.pdf")
+plot(var_explained[1:50], type = "b",
+   ylab = "Proportion variance explained",
+   xlab = "PC")
+dev.off()
+
+
 
 obj_milo$Group <- gsub(" ", "", obj_milo$Group)
 obj_milo$Group <- factor(obj_milo$Group)
 obj_milo$predicted.celltype.l2 <- factor(obj_milo$predicted.celltype.l2)
+obj_milo$Sex <- factor(obj_milo$Sex)
+
 
 pdf("plots/milo_umap_celltype_group.pdf", width=15, height=10)
 DimPlot(obj, reduction="umap", group.by="seurat_clusters", label=TRUE) + ggtitle("Seurat Clusters")
@@ -261,8 +279,11 @@ DimPlot(obj, reduction="umap", group.by="Group") + ggtitle("Group")
 dev.off()
 
 
-k_list <- c(80, 70, 60, 50, 40, 30)
-d_list <- c(10, 20, 30, 40, 50)
+#k_list <- c(80, 70, 60, 50, 40, 30)
+#k_list <- c(40, 35, 30, 25, 20)
+k_list <- c(25, 30, 35, 45, 50, 55, 70, 75)
+#d_list <- c(10, 20, 30, 40, 50)
+d_list <- c(20, 30)
 
 summary_list <- c()
 plot_list <- c()
@@ -279,7 +300,7 @@ for (k in k_list) {
 
 
 		# how many cells are in each neighborhood
-		p1 <- plotNhoodSizeHist(obj_milo_iteration)
+		#p1 <- plotNhoodSizeHist(obj_milo_iteration)
 
 
 		obj_design <- data.frame(colData(obj_milo_iteration))[, c("sample", "Group")]
@@ -306,8 +327,8 @@ for (k in k_list) {
 		obj_milo_iteration <- buildNhoodGraph(obj_milo_iteration)
 
 		p2 <- plotNhoodGraphDA(obj_milo_iteration, contrastHvL, alpha=0.3) + ggtitle(label)
-		plot_list[[label]] <- p1 / p2
-		#plot_list[[label]] <- p2
+		#plot_list[[label]] <- p1 / p2
+		plot_list[[label]] <- p2
 
 		results_obj[[label]] <- obj_milo_iteration
 
@@ -328,7 +349,6 @@ saveRDS(results_obj, "milo_obj_list.RDS")
 
 
 # plot results
-pdf("plots/milo_results_umap_nhood_graph.pdf", width=30, height=15)
 plot_info <- data.frame(
   name = names(plot_list),
   k = as.numeric(str_extract(names(plot_list), "^[0-9]+")),
@@ -350,7 +370,7 @@ plot_matrix <- lapply(k_vals, function(k) {
 })
 
 # plot a grid of all of the different graphs I made for comparisons
-pdf("plots/milo_k_by_d_grid.pdf", width = 5 * length(d_vals), height = 5 * length(k_vals))
+pdf("plots/milo_k_by_d_grid3.pdf", width = 5 * length(d_vals), height = 5 * length(k_vals))
 cowplot::plot_grid(
   plotlist = unlist(plot_matrix, recursive = FALSE),
   nrow = length(k_vals),
@@ -379,7 +399,7 @@ nhood_df <- do.call(rbind, lapply(names(results_obj), function(nm) {
 }))
 
 
-pdf("nhood_size_by_kd.pdf", width=25, height=30)
+pdf("plots/nhood_size_by_kd.pdf", width=25, height=30)
 ggplot(nhood_df, aes(x = factor(1), y = size)) +
   geom_violin(fill = "grey80") +
   geom_boxplot(width = 0.1) +
@@ -395,7 +415,7 @@ ggplot(nhood_df, aes(x = factor(1), y = size)) +
   ylab("Neighborhood size")
 dev.off()
 
-### check fraction of significant neighborhoods ----
+### Using conservative parameters to reduce false positives ----
 sig_table <- results_all %>% group_by(k, d) %>% filter(predicted.celltype.l2 == "CD8 TEM") %>% summarize(mean = mean(FDR < 0.3, na.rm = TRUE))
 
 pdf("plots/frac_sig_CD8TEM_by_k.pdf")
@@ -405,4 +425,41 @@ dev.off()
 
 
 ### check correlation of logFC across k ----
+obj_milo_conserv <- buildGraph(obj_milo, k = 45, d = 20)
+obj_milo_conserv <- makeNhoods(obj_milo_conserv, prop = 0.2, k = 45, d = 20, refined = TRUE, refinement_scheme="graph")
+obj_milo_conserv <- countCells(obj_milo_conserv, meta.data = data.frame(colData(obj_milo_conserv)), samples = "sample")
+
+pdf("plots/NHoodSize_milo_conserv.pdf")
+plotNhoodSizeHist(obj_milo_conserv)
+dev.off()
+
+obj_design <- data.frame(colData(obj_milo_conserv))[, c("sample", "Group", "Sex", "Age")]
+obj_design <- distinct(obj_design)
+rownames(obj_design) <- obj_design$sample
+obj_design <- obj_design[colnames(nhoodCounts(obj_milo_conserv)), , drop=FALSE]
+table(obj_design$Group)
+
+
+model <- model.matrix(~ 0 + Group + Sex + Age, data=obj_design)
+contrast_all <- c(
+                        "GroupSCZHigh - GroupSCZLow",
+                        "GroupSCZHigh - GroupHC",
+                        "GroupSCZLow - GroupHC"
+                )
+mod.contrast <- makeContrasts(contrasts=contrast_all, levels=model)
+contrast1.res <- testNhoods(obj_milo_conserv, design=model, design.df=obj_design, fdr.weighting="graph-overlap", model.contrasts = contrast_all)
+contrastHvL <- testNhoods(obj_milo_conserv, design=model, design.df=obj_design, fdr.weighting="graph-overlap", model.contrasts = c("GroupSCZHigh - GroupSCZLow"))
+
+obj_milo_conserv <- buildNhoodGraph(obj_milo_conserv)
+pdf("plots/NhoodGraph_milo_conserv.pdf")
+plotNhoodGraphDA(obj_milo_conserv, contrastHvL, alpha=0.15) + ggtitle("k = 45, d = 20")
+dev.off()
+
+annot_df <- annotateNhoods(obj_milo_conserv, contrastHvL, "predicted.celltype.l2")
+write_csv(annot_df, "milo_conserv_results_summary.csv")
+
+contrastHvL <- groupNhoods(obj_milo_conserv, contrastHvL, max.lfc.delta = 1)
+nhood.dge <- testDiffExp(obj_milo_conserv, contrastHvL, design=~ 0 + Group + Sex + Age, meta.data=obj@meta.data)
+
+
 
