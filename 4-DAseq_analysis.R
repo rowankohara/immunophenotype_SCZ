@@ -331,8 +331,6 @@ for (k in k_list) {
 		plot_list[[label]] <- p2
 
 		results_obj[[label]] <- obj_milo_iteration
-
-		annot_df <- annotateNhoods(obj_milo_iteration, contrastHvL, "predicted.celltype.l2")
 		summary_res <- cbind(k, d, annot_df)
                 summary_list[[label]] <- summary_res
 
@@ -447,6 +445,7 @@ contrast_all <- c(
                         "GroupSCZLow - GroupHC"
                 )
 mod.contrast <- makeContrasts(contrasts=contrast_all, levels=model)
+obj_milo_conserv <- calcNhoodDistance(obj_milo_conserv, d=20)
 contrast1.res <- testNhoods(obj_milo_conserv, design=model, design.df=obj_design, fdr.weighting="graph-overlap", model.contrasts = contrast_all)
 contrastHvL <- testNhoods(obj_milo_conserv, design=model, design.df=obj_design, fdr.weighting="graph-overlap", model.contrasts = c("GroupSCZHigh - GroupSCZLow"))
 
@@ -458,8 +457,20 @@ dev.off()
 annot_df <- annotateNhoods(obj_milo_conserv, contrastHvL, "predicted.celltype.l2")
 write_csv(annot_df, "milo_conserv_results_summary.csv")
 
-contrastHvL <- groupNhoods(obj_milo_conserv, contrastHvL, max.lfc.delta = 1)
-nhood.dge <- testDiffExp(obj_milo_conserv, contrastHvL, design=~ 0 + Group + Sex + Age, meta.data=obj@meta.data)
+annot_df$predicted.celltype.l2 <- ifelse(annot_df$predicted.celltype.l2_fraction < 0.7, "Mixed", annot_df$predicted.celltype.l2)
+pdf("plots/DA_celltype_frac_neighborhoods.pdf")
+ggplot(annot_df, aes(predicted.celltype.l2_fraction)) + geom_histogram(bins=50)
+plotDAbeeswarm(annot_df, group.by = "predicted.celltype.l2")
+dev.off()
 
+pdf("plots/DA_results_milo_kelly.pdf")
+ggplot(annot_df, aes(PValue)) + geom_histogram(bins=50)
+ggplot(annot_df, aes(logFC, -log10(SpatialFDR))) +
+  geom_point() +
+  geom_hline(yintercept = 1) ## Mark significance threshold (10% FDR)
+dev.off()
+
+#contrastHvL <- groupNhoods(obj_milo_conserv, contrastHvL, max.lfc.delta = 1)
+#nhood.dge <- testDiffExp(x=obj_milo_conserv, da.res=contrastHvL, model.contrasts = c("GroupSCZHigh - GroupSCZLow"), design=~ 0 + Group + Sex + Age, meta.data=obj@meta.data)
 
 
