@@ -34,7 +34,7 @@ for( i in 1:length(types) ) {
     idx = which( sub$sample == sample[j] )
     if(length(idx)==0) next
     sub.j = subset( sub , cells = idx )
-    expr[,j] = rowSums( GetAssayData( sub.j , slot = 'counts' ) )
+    expr[,j] = rowSums( GetAssayData( sub.j , layer = 'counts' ) )
     rownames(expr) = rownames(obj)
     colnames(expr) = sample
   }
@@ -163,9 +163,11 @@ dev.off()
 
 
 # volcano plot
-pal = DiscretePalette( 24 , 'polychrome' )
+custom_order <- c("0", "1", "10", "12", "14", "24-1", "25", "27", "21-0", "21-1", "21-2", "26", "29", "28", "30", "32", "24-0", "15", "19", "11", "18", "2", "9", "17", "22", "8", "13-1", "13-0", "23", "16", "6", "31", "7", "20", "5", "3", "4")
+col_pal <- c("darkturquoise", "darkslategrey", "cadetblue2", "blue3", "darkcyan", "cyan", "aquamarine3", "cornflowerblue", "dodgerblue3", "deepskyblue4", "darkblue", "royalblue3", "lightblue", "slateblue1", "navy", "powderblue", "seagreen", "limegreen", "olivedrab", "springgreen4", "yellow", "violetred1", "tomato", "tan1", "salmon", "rosybrown1", "red3", "palevioletred2", "orange", "maroon", "magenta3", "coral3", "gold", "firebrick", "deeppink", "darkorange3", "brown2")
+names(col_pal) <- custom_order
 types = levels(obj)
-names(pal) = types
+
 
 dge$logP = -log10(dge$PValue)
 

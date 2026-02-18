@@ -83,7 +83,7 @@ sample_metadata$Group <- forcats::fct_recode(sample_metadata$Group, "SCZLow" = "
 sample_metadata$Sex <- factor(sample_metadata$Sex)
 
 # create design matrix
-design <- model.matrix(~ Group + Age + Sex, data = sample_metadata)
+design <- model.matrix(~ 0 + Group + Age + Sex, data = sample_metadata)
 colnames(design)
 
 # model fitting and testing
@@ -472,5 +472,104 @@ dev.off()
 
 #contrastHvL <- groupNhoods(obj_milo_conserv, contrastHvL, max.lfc.delta = 1)
 #nhood.dge <- testDiffExp(x=obj_milo_conserv, da.res=contrastHvL, model.contrasts = c("GroupSCZHigh - GroupSCZLow"), design=~ 0 + Group + Sex + Age, meta.data=obj@meta.data)
+
+
+# Create CIBERSORTx input ----
+library(Matrix)
+obj <- readRDS("kelly_postqc_clusters_meta.rds")
+Idents(obj) <- "seurat_clusters"
+
+
+# read and wrangle neutrophil data set (Wigerblad et al., 2022; PMID: 35858733)
+files <- list.files(pattern = "Neut_.*\\.h5")
+objs <- lapply(files, function(f) {
+  counts <- Read10X_h5(f)
+  CreateSeuratObject(counts, project = f)
+})
+neutro <- merge(objs[[1]], y = objs[-1])
+neutro <- NormalizeData(neutro)
+neutro$donor <- neutro$orig.ident
+table(neutro$donor)
+# Average per donor, average donors (to avoid donor imbalance)
+neutro_avg_donor <- AggregateExpression(
+  neutro,
+  group.by = "donor",
+  assays = "RNA",
+  slot = "data"
+)$RNA
+neutro_avg <- rowMeans(neutro_avg_donor)
+neutro_avg <- matrix(neutro_avg, ncol = 1)
+rownames(neutro_avg) <- rownames(neutro_avg_donor)
+colnames(neutro_avg) <- "Neutrophil"
+
+# average expression per cell type in our data set
+avg_exp <- AggregateExpression(
+  obj,
+  group.by = "seurat_clusters",
+  assays = "RNA",
+  slot = "data"  # use log-normalized data
+)$RNA
+
+# remove mitochondrial and ribosomal genes
+avg_exp <- avg_exp[!grepl("^MT-", rownames(avg_exp)), ]
+avg_exp <- avg_exp[!grepl("^RPS|^RPL", rownames(avg_exp)), ]
+
+# filter neutrophil genes for those in our PBMC data
+common_genes <- intersect(
+  rownames(avg_exp),
+  rownames(neutro_avg)
+)
+avg_exp <- avg_exp[common_genes, ]
+neutro_avg <- neutro_avg[common_genes, , drop = FALSE]
+final_signature <- cbind(avg_exp, neutro_avg)  # combine our PBMC data with the neutrophils
+
+# wrangle Glahn data set into matrix
+bulk <- read_csv("salmon_merged_gene_counts.csv")
+gene_id <- bulk$gene_id
+bulk_matrix <- as.matrix(bulk[ , -1])
+rownames(bulk_matrix) <- gene_id
+
+# check that the same genes are present in both
+common_genes <- intersect(rownames(final_signature), rownames(bulk_matrix))
+final_signature <- final_signature[common_genes, ]
+bulk_matrix <- bulk_matrix[common_genes, ]
+
+# export for CIBERSORTx
+final_export <- cbind(gene = rownames(final_signature), as.data.frame(final_signature))
+write.table(
+  final_export,
+  file = "kelly_signature_matrix_w_neutrophils.txt",
+  sep = "\t",
+  quote = FALSE,
+  row.names = FALSE
+)
+
+# create single cell reference file
+obj <- NormalizeData(obj)
+neutro <- NormalizeData(neutro)
+pbmc_mat <- GetAssayData(obj, assay = "RNA", layer = "data")
+neutro_mat <- GetAssayData(neutro, assay = "RNA", layer = "data")
+common_genes <- intersect(
+  rownames(pbmc_mat),
+  rownames(neutro_mat)
+)
+
+pbmc_mat <- pbmc_mat[common_genes, ]
+neutro_mat <- neutro_mat[common_genes, ]
+combined_sc <- cbind(pbmc_mat, neutro_mat)
+
+# normalize Glahn counts to prep for CIBERSORTx
+dge <- DGEList(counts = bulk_matrix)
+dge <- calcNormFactors(dge)
+tpm <- cpm(dge, normalized.lib.sizes = TRUE)
+tpm_export <- cbind(gene = rownames(tpm), as.data.frame(tpm))tpm_export <- cbind(gene = rownames(tpm), as.data.frame(tpm))
+write.table(
+  tpm_export,
+  file = "glahn_mixture_file.txt",
+  sep = "\t",
+  quote = FALSE,
+  row.names = FALSE
+)
+
 
 

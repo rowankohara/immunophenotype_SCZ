@@ -28,7 +28,7 @@ P_long <- as.data.frame(P) %>%
 
 
 # get cell meta data (including sample meta data like age, sex, and group)
-kelly_meta <- as.data.frame(kelly_obj@metadata)
+kelly_meta <- as.data.frame(kelly_obj@meta.data)
 kelly_meta$cell_id <- rownames(kelly_meta)
 
 
@@ -52,5 +52,17 @@ ggplot(df, aes(x = condition, y = Activity, fill = condition)) +
 dev.off()
 
 
-
+pdf("plots/kelly_cogaps_boxplot_celltypes.pdf", width=14, height=6)
+for (pat in unique(kelly_df$Pattern)) {
+	plot_df <- kelly_df %>% filter(Pattern == pat)
+	p <- ggplot(plot_df, aes(x = predicted.celltype.l2, y = Activity, fill = Group)) +
+		geom_boxplot() +
+		#geom_jitter(alpha = 0.5) +
+		ylim(0, 1) +
+		theme_minimal() +
+		labs(title = paste0(pat, " Activity by Cell Type")) +
+		theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+	print(p)
+}
+dev.off()
 
