@@ -12,7 +12,7 @@ library(ggplot2)
 library(pheatmap)
 
 # read in Seurat object
-obj <- readRDS('dkelly_singlets.postqc.azimuth_celltypes.rds')
+obj <- readRDS('kelly_postqc_clusters_meta.rds')
 
 # read in pseudobulk data
 elist <- readRDS('dkelly_singlets.pseudobulk.rds')
@@ -61,7 +61,7 @@ sample_metadata <- obj@meta.data %>%
   distinct()
 
 # cell counts per sample per cell type
-counts_table <- table(obj$sample, obj$predicted.celltype.l2)
+counts_table <- table(obj$sample, obj$seurat_clusters)
 counts_matrix <- as.matrix(counts_table)  # samples x cell types
 
 # match sample order
@@ -114,7 +114,6 @@ res_contrast$cell_type <- rownames(res_contrast)
 
 # combine results
 res_all <- bind_rows(res_all, res_contrast)
-
 # fix celltype names
 res_all$cell_type <- stringr::str_remove(res_all$cell_type, "\\.\\.\\.[0-9]+")
 write.csv(res_all, "DAseq_edgeR_results_allcomparisons.csv", row.names=F)
@@ -122,7 +121,7 @@ write.csv(res_all, "DAseq_edgeR_results_allcomparisons.csv", row.names=F)
 
 # Plots ----
 
-## volcano plot ----
+## volcano plot ----fit2 <- glmFit(dge, design)
 
 # classify significance and direction
 volcano_df <- res_all %>%
@@ -170,7 +169,7 @@ pheatmap(lfc_matrix,
          main = "logFC of Cell Types")
 dev.off()
 
-# none at FDR < 0.05
+# 19 at FDR < 0.05
 sig_celltypes <- res_all %>%
   filter(FDR < 0.05) %>%
   pull(cell_type) %>%
@@ -193,25 +192,45 @@ prop_df <- counts_table %>%
 # add sample meta data
 prop_df <- left_join(prop_df, sample_metadata, by = "sample")
 
+library(ggpubr)
+comparisons <- list(
+  c("HC", "SCZHigh"),
+  c("SCZHigh", "SCZLow"),
+  c("HC", "SCZLow")
+)
 pdf("plots/DAseq_boxplots.pdf")
-ggplot(prop_df, aes(x = Group, y = prop, fill = Group)) +
-  geom_boxplot() +
-  facet_wrap(~cell_type, scales = "free_y") +
-  theme_bw() +
-  labs(y = "Proportion", title = "Cell Type Proportions by Group") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+for (ct in levels(obj@meta.data$seurat_clusters)) {
+	prop_ct <- filter(prop_df, cell_type == ct)
+	p <- ggplot(prop_ct, aes(x = Group, y = prop, fill = Group)) +
+  		geom_boxplot() +
+		geom_point() +
+		stat_compare_means(comparisons = comparisons,
+                   method = "t.test", label = "p.signif") +
+  		theme_bw() +
+  		labs(y = "Proportion", title = paste(ct)) +
+  		theme(axis.text.x = element_text(angle = 45, hjust = 1))
+	print(p)
+	 }
 dev.off()
 
-pdf("plots/DAseq_Treg_boxplot.pdf")
-prop_treg <- prop_df %>% filter(cell_type == "Treg")
-ggplot(prop_treg, aes(x = Group, y = prop, fill = Group)) +
-  geom_boxplot() +
-  theme_bw() +
-  labs(y = "Proportion", title = "Treg Proportions by Group") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+pdf("plots/DAseq_scatterplots.pdf")
+for (ct in levels(obj@meta.data$seurat_clusters)) {
+        prop_ct <- filter(prop_df, cell_type == ct)
+        p <- ggplot(prop_ct, aes(x = AGA_level, y = prop)) +
+                geom_point(aes(color = Group)) +
+		geom_smooth(method = "lm", formula = y ~ x, color = "black") +
+        	stat_cor(aes(label = after_stat(rr.label)),
+                 label.x.npc = 0.75, label.y.npc = 0.00001) +
+                coord_cartesian(clip = "off") +
+		theme_bw() +
+                labs(y = "Proportion", x = "AGA Level", title = paste(ct)) +
+                theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        print(p)
+         }
 dev.off()
 
-pdf("plots/celltype_prop_DAseq.pdf")
+
+pdf("plots/celltype_prop_DAseq.pdf", width = 15, height = 6)
 ggplot(prop_df, aes(x = cell_type, y = prop, fill = Group)) +
   geom_boxplot() +
   theme_bw() +
@@ -226,6 +245,7 @@ dev.off()
 pdf("plots/celltype_sample_DAseq.pdf")
 ggplot(prop_df, aes(x = sample, y = prop, fill = cell_type)) +
   geom_bar(stat = "identity") +
+  scale_fill_manual(values = col_pal) +
   theme_bw() +
   labs(x = "Sample", y = "Proportion of Cells", fill = "Cell Type") +
   scale_y_continuous(labels = scales::percent_format()) +
@@ -265,25 +285,14 @@ plot(var_explained[1:50], type = "b",
 dev.off()
 
 
-
-obj_milo$Group <- gsub(" ", "", obj_milo$Group)
-obj_milo$Group <- factor(obj_milo$Group)
-obj_milo$predicted.celltype.l2 <- factor(obj_milo$predicted.celltype.l2)
-obj_milo$Sex <- factor(obj_milo$Sex)
-
-
 pdf("plots/milo_umap_celltype_group.pdf", width=15, height=10)
 DimPlot(obj, reduction="umap", group.by="seurat_clusters", label=TRUE) + ggtitle("Seurat Clusters")
 DimPlot(obj, reduction="umap", group.by="predicted.celltype.l2", label=TRUE) + ggtitle("L2 Azimuth Labels")
 DimPlot(obj, reduction="umap", group.by="Group") + ggtitle("Group")
 dev.off()
 
-
-#k_list <- c(80, 70, 60, 50, 40, 30)
-#k_list <- c(40, 35, 30, 25, 20)
 k_list <- c(25, 30, 35, 45, 50, 55, 70, 75)
-#d_list <- c(10, 20, 30, 40, 50)
-d_list <- c(20, 30)
+d_list <- c(10, 20, 30, 40, 50)
 
 summary_list <- c()
 plot_list <- c()
@@ -422,12 +431,12 @@ plot(as.numeric(sig_table$k), sig_table$mean, type='b',
 dev.off()
 
 
-### check correlation of logFC across k ----
+### chose k = 45, d = 20 ----
 obj_milo_conserv <- buildGraph(obj_milo, k = 45, d = 20)
 obj_milo_conserv <- makeNhoods(obj_milo_conserv, prop = 0.2, k = 45, d = 20, refined = TRUE, refinement_scheme="graph")
 obj_milo_conserv <- countCells(obj_milo_conserv, meta.data = data.frame(colData(obj_milo_conserv)), samples = "sample")
 
-pdf("plots/NHoodSize_milo_conserv.pdf")
+pdf("plots/NHoodSize_milo_kelly_45.pdf")
 plotNhoodSizeHist(obj_milo_conserv)
 dev.off()
 
@@ -450,24 +459,28 @@ contrast1.res <- testNhoods(obj_milo_conserv, design=model, design.df=obj_design
 contrastHvL <- testNhoods(obj_milo_conserv, design=model, design.df=obj_design, fdr.weighting="graph-overlap", model.contrasts = c("GroupSCZHigh - GroupSCZLow"))
 
 obj_milo_conserv <- buildNhoodGraph(obj_milo_conserv)
-pdf("plots/NhoodGraph_milo_conserv.pdf")
-plotNhoodGraphDA(obj_milo_conserv, contrastHvL, alpha=0.15) + ggtitle("k = 45, d = 20")
+pdf("plots/NhoodGraph_milo_kelly.pdf")
+plotNhoodGraphDA(obj_milo_conserv, contrastHvL, alpha=0.30) + ggtitle("k = 45, d = 20, SpatialFDR < 0.30")
+plotNhoodGraphDA(obj_milo_conserv, contrastHvL, alpha=0.15) + ggtitle("k = 45, d = 20, SpatialFDR < 0.15")
 dev.off()
 
-annot_df <- annotateNhoods(obj_milo_conserv, contrastHvL, "predicted.celltype.l2")
-write_csv(annot_df, "milo_conserv_results_summary.csv")
+annot_df <- annotateNhoods(obj_milo_conserv, contrastHvL, "seurat_clusters")
+write_csv(annot_df, "milo_kelly_results_summary.csv")
 
-annot_df$predicted.celltype.l2 <- ifelse(annot_df$predicted.celltype.l2_fraction < 0.7, "Mixed", annot_df$predicted.celltype.l2)
-pdf("plots/DA_celltype_frac_neighborhoods.pdf")
-ggplot(annot_df, aes(predicted.celltype.l2_fraction)) + geom_histogram(bins=50)
-plotDAbeeswarm(annot_df, group.by = "predicted.celltype.l2")
+annot_df$seurat_clusters <- ifelse(annot_df$seurat_clusters_fraction < 0.7, "Mixed", annot_df$seurat_clusters)
+pdf("plots/DA_kelly_frac_neighborhoods_45.pdf")
+ggplot(annot_df, aes(seurat_clusters_fraction)) + geom_histogram(bins=50)
+plotDAbeeswarm(annot_df, group.by = "seurat_clusters")
 dev.off()
 
 pdf("plots/DA_results_milo_kelly.pdf")
+col_pal <- c("darkturquoise", "darkslategrey", "cadetblue2", "blue3", "darkcyan", "cyan", "aquamarine3", "cornflowerblue", "dodgerblue3", "deepskyblue4", "darkblue", "royalblue3", "lightblue", "slateblue1", "navy", "powderblue", "seagreen", "limegreen", "olivedrab", "springgreen4", "yellow", "violetred1", "tomato", "tan1", "salmon", "rosybrown1", "red3", "palevioletred2", "orange", "maroon", "magenta3", "coral3", "gold", "firebrick", "deeppink", "darkorange3", "brown2")
 ggplot(annot_df, aes(PValue)) + geom_histogram(bins=50)
 ggplot(annot_df, aes(logFC, -log10(SpatialFDR))) +
-  geom_point() +
-  geom_hline(yintercept = 1) ## Mark significance threshold (10% FDR)
+  geom_point(aes(color = seurat_clusters)) +
+  scale_color_manual(values = col_pal) +
+  geom_hline(yintercept = 1) + ## Mark significance threshold (10% FDR)
+  geom_hline(yintercept = 3, linetype = "dashed")
 dev.off()
 
 #contrastHvL <- groupNhoods(obj_milo_conserv, contrastHvL, max.lfc.delta = 1)
@@ -479,14 +492,28 @@ library(Matrix)
 obj <- readRDS("kelly_postqc_clusters_meta.rds")
 Idents(obj) <- "seurat_clusters"
 
+# filter cells to the top markers for each cell type
+markers <- FindAllMarkers(
+  obj,
+  only.pos = TRUE,
+  min.pct = 0.25,
+  logfc.threshold = 0.25
+)
+top_markers <- markers %>%
+  group_by(cluster) %>%
+  slice_max(order_by = avg_log2FC, n = 100)
+marker_genes <- unique(top_markers$gene)  # 1871 genes
+
 
 # read and wrangle neutrophil data set (Wigerblad et al., 2022; PMID: 35858733)
-files <- list.files(pattern = "Neut_.*\\.h5")
-objs <- lapply(files, function(f) {
-  counts <- Read10X_h5(f)
-  CreateSeuratObject(counts, project = f)
+h5_files <- list.files(pattern = "Neut_.*\\.h5")
+sample_names <- paste0("sample_", 1:length(h5_files))
+objs <- lapply(seq_along(h5_files), function(i) {
+  counts <- Read10X_h5(h5_files[i])
+  CreateSeuratObject(counts, project = "Wigerblad")
 })
-neutro <- merge(objs[[1]], y = objs[-1])
+neutro <- merge(objs[[1]], y = objs[-1], add.cell.ids = c("F1", "F2", "F3", "M0", "M1", "M2", "M3"))
+neutro <- JoinLayers(neutro)
 neutro <- NormalizeData(neutro)
 neutro$donor <- neutro$orig.ident
 table(neutro$donor)
@@ -511,15 +538,16 @@ avg_exp <- AggregateExpression(
 )$RNA
 
 # remove mitochondrial and ribosomal genes
-avg_exp <- avg_exp[!grepl("^MT-", rownames(avg_exp)), ]
-avg_exp <- avg_exp[!grepl("^RPS|^RPL", rownames(avg_exp)), ]
+avg_exp <- avg_exp[marker_genes, ]  # 1871 genes
+avg_exp <- avg_exp[!grepl("^MT-", rownames(avg_exp)), ]  # 1864 genes
+avg_exp <- avg_exp[!grepl("^RPS|^RPL", rownames(avg_exp)), ]  # 1794 genes
 
 # filter neutrophil genes for those in our PBMC data
 common_genes <- intersect(
   rownames(avg_exp),
   rownames(neutro_avg)
 )
-avg_exp <- avg_exp[common_genes, ]
+avg_exp <- avg_exp[common_genes, ]  # 1677 genes
 neutro_avg <- neutro_avg[common_genes, , drop = FALSE]
 final_signature <- cbind(avg_exp, neutro_avg)  # combine our PBMC data with the neutrophils
 
@@ -531,38 +559,37 @@ rownames(bulk_matrix) <- gene_id
 
 # check that the same genes are present in both
 common_genes <- intersect(rownames(final_signature), rownames(bulk_matrix))
-final_signature <- final_signature[common_genes, ]
+final_signature <- final_signature[common_genes, ]  # 1595 genes
 bulk_matrix <- bulk_matrix[common_genes, ]
 
 # export for CIBERSORTx
 final_export <- cbind(gene = rownames(final_signature), as.data.frame(final_signature))
 write.table(
   final_export,
-  file = "kelly_signature_matrix_w_neutrophils.txt",
+  file = "kelly_signature_matrix.txt",
   sep = "\t",
   quote = FALSE,
   row.names = FALSE
 )
 
 # create single cell reference file
-obj <- NormalizeData(obj)
-neutro <- NormalizeData(neutro)
 pbmc_mat <- GetAssayData(obj, assay = "RNA", layer = "data")
 neutro_mat <- GetAssayData(neutro, assay = "RNA", layer = "data")
-common_genes <- intersect(
-  rownames(pbmc_mat),
-  rownames(neutro_mat)
+pbmc_mat <- pbmc_mat[common_genes, ]  # 1595 genes
+neutro_mat <- neutro_mat[common_genes, ]  # 1595 genes
+sc_matrix <- cbind(pbmc_mat, neutro_mat)
+write.table(
+  sc_matrix,
+  file = "kelly_w_neutro_single_cell_reference.txt",
+  sep = "\t",
+  quote = FALSE
 )
-
-pbmc_mat <- pbmc_mat[common_genes, ]
-neutro_mat <- neutro_mat[common_genes, ]
-combined_sc <- cbind(pbmc_mat, neutro_mat)
 
 # normalize Glahn counts to prep for CIBERSORTx
 dge <- DGEList(counts = bulk_matrix)
 dge <- calcNormFactors(dge)
 tpm <- cpm(dge, normalized.lib.sizes = TRUE)
-tpm_export <- cbind(gene = rownames(tpm), as.data.frame(tpm))tpm_export <- cbind(gene = rownames(tpm), as.data.frame(tpm))
+tpm_export <- cbind(gene = rownames(tpm), as.data.frame(tpm))
 write.table(
   tpm_export,
   file = "glahn_mixture_file.txt",
@@ -571,5 +598,43 @@ write.table(
   row.names = FALSE
 )
 
+# read in Pan
+pan_counts <- read.table(file="/local/projects/idea/rohara/immunophenotype_SCZ/GSE243841_cleaned_counts.tsv", sep="\t", header=T)
+gene_id <- pan_counts$Geneid
+bulk_matrix <- as.matrix(pan_counts[ , -1])
+genes_clean <- sub("\\.\\d+$", "", gene_id)
 
+library(org.Hs.eg.db)
+library(AnnotationDbi)
+symbols <- mapIds(org.Hs.eg.db,
+                  keys = genes_clean,
+                  column = "SYMBOL",
+                  keytype = "ENSEMBL",
+                  multiVals = "first")
+rownames(bulk_matrix) <- symbols
 
+common_genes <- intersect(rownames(final_signature), rownames(bulk_matrix))
+final_signature <- final_signature[common_genes, ]  # 1595 genes
+bulk_matrix <- bulk_matrix[common_genes, ]
+
+# normalize Pan counts to prep for CIBERSORTx
+dge <- DGEList(counts = bulk_matrix)
+dge <- calcNormFactors(dge)
+tpm <- cpm(dge, normalized.lib.sizes = TRUE)
+tpm_export <- cbind(gene = rownames(tpm), as.data.frame(tpm))
+write.table(
+  tpm_export,
+  file = "pan_mixture_file.txt",
+  sep = "\t",
+  quote = FALSE,
+  row.names = FALSE
+)
+
+final_export <- cbind(gene = rownames(final_signature), as.data.frame(final_signature))
+write.table(
+  final_export,
+  file = "kelly_signature_matrix.txt",
+  sep = "\t",
+  quote = FALSE,
+  row.names = FALSE
+)

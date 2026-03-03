@@ -12,7 +12,7 @@ library(dplyr)
 library(tibble)
 library(tidyr)
 
-obj <- readRDS('dkelly_singlets.postqc.azimuth_celltypes.rds')
+obj <- readRDS("kelly_postqc_clusters_meta.rds")
 
 
 
