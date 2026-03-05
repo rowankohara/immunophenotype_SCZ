@@ -600,21 +600,27 @@ write.table(
 
 # read in Pan
 pan_counts <- read.table(file="/local/projects/idea/rohara/immunophenotype_SCZ/GSE243841_cleaned_counts.tsv", sep="\t", header=T)
-gene_id <- pan_counts$Geneid
+rownames(pan_counts) <- pan_counts$Geneid
 bulk_matrix <- as.matrix(pan_counts[ , -1])
-genes_clean <- sub("\\.\\d+$", "", gene_id)
+genes_clean <- sub("\\.\\d+$", "", rownames(pan_counts))
 
 library(org.Hs.eg.db)
 library(AnnotationDbi)
-symbols <- mapIds(org.Hs.eg.db,
+gene_map <- mapIds(org.Hs.eg.db,
                   keys = genes_clean,
                   column = "SYMBOL",
                   keytype = "ENSEMBL",
                   multiVals = "first")
-rownames(bulk_matrix) <- symbols
+idx <- which(!is.na(gene_map))
+found_genes <- gene_map[idx]
+pan_counts <- pan_counts[idx, ]
+ind <- !duplicated(found_genes)
+pan_counts <- pan_counts[ind, ]
+pan_counts$Geneid <- found_genes[ind]
+rownames(pan_counts) <- pan_counts$Geneid
 
 common_genes <- intersect(rownames(final_signature), rownames(bulk_matrix))
-final_signature <- final_signature[common_genes, ]  # 1595 genes
+final_signature <- final_signature[common_genes, ]  # 1692 genes
 bulk_matrix <- bulk_matrix[common_genes, ]
 
 # normalize Pan counts to prep for CIBERSORTx
@@ -633,8 +639,71 @@ write.table(
 final_export <- cbind(gene = rownames(final_signature), as.data.frame(final_signature))
 write.table(
   final_export,
-  file = "kelly_signature_matrix.txt",
+  file = "kelly_signature_matrix_pan.txt",
   sep = "\t",
   quote = FALSE,
   row.names = FALSE
-)
+ )
+
+
+# look at CIBERSORT output
+
+# Glahn
+glahn <- read.table("CIBERSORTx_Glahn_JustKelly.txt", sep="\t", header=T)
+colnames(glahn)[1] <- "sample"
+glahn <- glahn %>%
+	pivot_longer(cols = starts_with("g"),
+		     names_to = "celltype",
+		     values_to = "prop")
+
+meta <- read_csv("redcap_selection_for_seth.csv")
+meta$sample <- paste0(meta$subject_type, meta$id)
+meta$group <- gsub("^\\d+\\s*=\\s*", "", meta$subject)
+meta$sex <- as.factor(meta$sex)
+meta$group <- as.factor(meta$group)
+
+glahn_prop <- merge(glahn, meta, by = "sample")
+pdf("plots/DAseq_boxplots_glahn.pdf")
+for (ct in unique(glahn_prop$celltype)) {
+        prop_ct <- glahn_prop %>% filter(celltype == ct)
+        p <- ggplot(prop_ct, aes(x = group, y = prop, fill = group)) +
+                geom_boxplot() +
+                geom_point() +
+                stat_compare_means(method = "t.test", label = "p.signif") +
+                theme_bw() +
+                labs(y = "Proportion", title = paste(ct)) +
+                theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        print(p)
+         }
+dev.off()
+
+
+# Pan
+pan <- read.table("CIBERSORTx_Pan_JustKelly.txt", sep="\t", header=T)
+colnames(pan)[1] <- "sample"
+pan <- pan %>%
+        pivot_longer(cols = starts_with("g"),
+                     names_to = "celltype",
+                     values_to = "prop")
+
+meta <- read_csv("meta_sex_group__Pan.csv")
+pan_prop <- merge(pan, meta, by = "sample")
+pdf("plots/DAseq_boxplots_Pan.pdf")
+for (ct in unique(pan_prop$celltype)) {
+        prop_ct <- pan_prop %>% filter(celltype == ct)
+        p <- ggplot(prop_ct, aes(x = group, y = prop, fill = group)) +
+                geom_boxplot() +
+                geom_point() +
+                stat_compare_means(method = "t.test", label = "p.signif") +
+                theme_bw() +
+                labs(y = "Proportion", title = paste(ct)) +
+                theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        print(p)
+         }
+dev.off()
+
+
+# look at the proportions for all studies
+glahn_prop$study <- "Glahn"
+pan_prop$study <- "Pan"
+
