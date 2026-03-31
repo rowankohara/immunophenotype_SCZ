@@ -121,7 +121,7 @@ write.csv(res_all, "DAseq_edgeR_results_allcomparisons.csv", row.names=F)
 
 # Plots ----
 
-## volcano plot ----fit2 <- glmFit(dge, design)
+## volcano plot ----
 
 # classify significance and direction
 volcano_df <- res_all %>%
@@ -504,31 +504,6 @@ top_markers <- markers %>%
   slice_max(order_by = avg_log2FC, n = 100)
 marker_genes <- unique(top_markers$gene)  # 1871 genes
 
-
-# read and wrangle neutrophil data set (Wigerblad et al., 2022; PMID: 35858733)
-h5_files <- list.files(pattern = "Neut_.*\\.h5")
-sample_names <- paste0("sample_", 1:length(h5_files))
-objs <- lapply(seq_along(h5_files), function(i) {
-  counts <- Read10X_h5(h5_files[i])
-  CreateSeuratObject(counts, project = "Wigerblad")
-})
-neutro <- merge(objs[[1]], y = objs[-1], add.cell.ids = c("F1", "F2", "F3", "M0", "M1", "M2", "M3"))
-neutro <- JoinLayers(neutro)
-neutro <- NormalizeData(neutro)
-neutro$donor <- neutro$orig.ident
-table(neutro$donor)
-# Average per donor, average donors (to avoid donor imbalance)
-neutro_avg_donor <- AggregateExpression(
-  neutro,
-  group.by = "donor",
-  assays = "RNA",
-  slot = "data"
-)$RNA
-neutro_avg <- rowMeans(neutro_avg_donor)
-neutro_avg <- matrix(neutro_avg, ncol = 1)
-rownames(neutro_avg) <- rownames(neutro_avg_donor)
-colnames(neutro_avg) <- "Neutrophil"
-
 # average expression per cell type in our data set
 avg_exp <- AggregateExpression(
   obj,
@@ -542,15 +517,6 @@ avg_exp <- avg_exp[marker_genes, ]  # 1871 genes
 avg_exp <- avg_exp[!grepl("^MT-", rownames(avg_exp)), ]  # 1864 genes
 avg_exp <- avg_exp[!grepl("^RPS|^RPL", rownames(avg_exp)), ]  # 1794 genes
 
-# filter neutrophil genes for those in our PBMC data
-common_genes <- intersect(
-  rownames(avg_exp),
-  rownames(neutro_avg)
-)
-avg_exp <- avg_exp[common_genes, ]  # 1677 genes
-neutro_avg <- neutro_avg[common_genes, , drop = FALSE]
-final_signature <- cbind(avg_exp, neutro_avg)  # combine our PBMC data with the neutrophils
-
 # wrangle Glahn data set into matrix
 bulk <- read_csv("salmon_merged_gene_counts.csv")
 gene_id <- bulk$gene_id
@@ -558,7 +524,7 @@ bulk_matrix <- as.matrix(bulk[ , -1])
 rownames(bulk_matrix) <- gene_id
 
 # check that the same genes are present in both
-common_genes <- intersect(rownames(final_signature), rownames(bulk_matrix))
+common_genes <- intersect(rownames(avg_exp), rownames(bulk_matrix))
 final_signature <- final_signature[common_genes, ]  # 1595 genes
 bulk_matrix <- bulk_matrix[common_genes, ]
 
@@ -570,19 +536,6 @@ write.table(
   sep = "\t",
   quote = FALSE,
   row.names = FALSE
-)
-
-# create single cell reference file
-pbmc_mat <- GetAssayData(obj, assay = "RNA", layer = "data")
-neutro_mat <- GetAssayData(neutro, assay = "RNA", layer = "data")
-pbmc_mat <- pbmc_mat[common_genes, ]  # 1595 genes
-neutro_mat <- neutro_mat[common_genes, ]  # 1595 genes
-sc_matrix <- cbind(pbmc_mat, neutro_mat)
-write.table(
-  sc_matrix,
-  file = "kelly_w_neutro_single_cell_reference.txt",
-  sep = "\t",
-  quote = FALSE
 )
 
 # normalize Glahn counts to prep for CIBERSORTx
@@ -649,9 +602,9 @@ write.table(
 # look at CIBERSORT output
 
 # Glahn
-glahn <- read.table("CIBERSORTx_Glahn_JustKelly.txt", sep="\t", header=T)
-colnames(glahn)[1] <- "sample"
-glahn <- glahn %>%
+prop <- read.table("CIBERSORTx_Glahn_JustKelly.txt", sep="\t", header=T)
+colnames(prop)[1] <- "sample"
+prop <- prop %>%
 	pivot_longer(cols = starts_with("g"),
 		     names_to = "celltype",
 		     values_to = "prop")
@@ -662,7 +615,7 @@ meta$group <- gsub("^\\d+\\s*=\\s*", "", meta$subject)
 meta$sex <- as.factor(meta$sex)
 meta$group <- as.factor(meta$group)
 
-glahn_prop <- merge(glahn, meta, by = "sample")
+glahn_prop <- merge(prop, meta, by = "sample")
 pdf("plots/DAseq_boxplots_glahn.pdf")
 for (ct in unique(glahn_prop$celltype)) {
         prop_ct <- glahn_prop %>% filter(celltype == ct)
@@ -676,6 +629,217 @@ for (ct in unique(glahn_prop$celltype)) {
         print(p)
          }
 dev.off()
+
+
+# load BPRS scores
+bprs <- read_excel("GeneNetworksInfluenc_DATA_2021-01-11_1019.xlsx")
+bprs$sample <- paste0(bprs$is_this_subject_a_patient, bprs$id)
+bprs <- bprs %>% filter(!str_detect(sample, "--"))
+glahn <- left_join(meta, bprs, by = "sample")
+glahn <- glahn[ , c("sample", "group", "age.x", "sex.x", "bprs_has_this_instrument", "somatic_concerns", "anxiety", "depression", "guilt", "hostility", "suspiciousness", "unusual_thought_content", "grandiosity", "hallucinations", "disorientation", "conceptual_disorganization", "excitement", "motor_retardation", "blunted_affect", "tension", "mannerisms_and_posturing", "uncooperativeness", "emotional_withdrawal", "suicidality", "self_neglect", "bizarre_behaviors", "elevated_mood", "motor_hyperactivity", "distractability", "bprse_complete")]
+glahn$neg_avg <- (glahn$blunted_affect + glahn$emotional_withdrawal + glahn$motor_retardation) / 3
+glahn$pos_avg <- (glahn$unusual_thought_content + glahn$conceptual_disorganization + glahn$hallucinations + glahn$grandiosity) / 4
+glahn <- merge(glahn, prop, by = "sample")
+
+celltypes <- colnames(glahn)[33:69]
+scores <- c("neg_avg", "pos_avg")
+
+# center log-ratio transform
+glahn[, celltypes] <- glahn[, celltypes] + 1e-6
+df_clr <- glahn %>%
+  rowwise() %>%
+  mutate(
+    gm = exp(mean(log(c_across(all_of(celltypes)))))
+  ) %>%
+  mutate(
+    across(all_of(celltypes), ~ log(.x / gm))
+  ) %>%
+  ungroup() %>%
+  select(-gm)
+
+df_clr <- df_clr %>%
+  filter(group == "Patient")
+df_resid <- df_clr
+
+residualize_vec <- function(y, data) {
+  fit <- lm(y ~ age.x + sex.x, data = data, na.action = na.exclude)
+  resid(fit)
+}
+
+# residualize celltypes
+for (ct in celltypes) {
+  df_resid[[ct]] <- residualize_vec(df_clr[[ct]], df_clr)
+}
+
+# residualize symptoms
+for (sc in scores) {
+  df_resid[[sc]] <- residualize_vec(df_clr[[sc]], df_clr)
+}
+
+cor_df <- expand.grid(celltype = celltypes, symptom = scores) %>%
+  rowwise() %>%
+  mutate(
+    cor = cor(
+      df_resid[[celltype]],
+      df_resid[[symptom]],
+      method = "spearman",
+      use = "pairwise.complete.obs"
+    )
+  ) %>%
+  ungroup()
+
+cor_df <- cor_df %>%
+  rowwise() %>%
+  mutate(
+    test = list(cor.test(
+      df_resid[[celltype]],
+      df_resid[[symptom]],
+      method = "spearman"
+    )),
+    p = test$p.value
+  ) %>%
+  ungroup() %>%
+  mutate(sig = p < 0.05,
+	 label = sprintf("%.2f%s", cor, ifelse(sig, "*", "")))
+
+
+pdf("plots/BPRS_correlations.pdf")
+ggplot(cor_df, aes(x = symptom, y = celltype, fill = cor)) +
+  geom_tile() +
+  geom_text(aes(label = label)) +
+  scale_fill_gradient2(midpoint = 0) +
+  theme_minimal() +
+  labs(
+    title = "Cell Type Proportion Correlations with BPRS Subscales (Patients Only)",
+    fill = "Spearman r"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+dev.off()
+
+
+# correlations with Kelly
+prop_df$cell_type <- paste0("g", prop_df$cell_type)
+df <- prop_df %>%
+  select(sample, cell_type, count) %>%
+  pivot_wider(
+    names_from = cell_type,
+    values_from = prop 
+  )
+df <- df %>% mutate(MPRCID = sub("[_-].*", "", sample))
+celltypes <- unique(prop_df$cell_type)
+scores <- c("neg_avg", "pos_avg")
+
+sample_metadata <- sample_metadata %>% mutate(MPRCID = sub("[_-].*", "", sample))
+
+library(readxl)
+bprs <- read_excel("BPRS-all-entries.xlsx")
+bprs$sample <- bprs$MPRCID
+bprs <- bprs %>%
+  mutate(date = as.Date(Interview_date))
+df_latest <- bprs %>%
+  group_by(sample) %>%
+  slice_max(order_by = date, n = 1, with_ties = FALSE) %>%
+  ungroup()
+df_latest$neg_avg <- (df_latest$"16_Blunted" + df_latest$"3_Emot_Withdr" + df_latest$"13_MotorRetard") / 3
+df_latest$pos_avg <- (df_latest$"15_Unusualthght" + df_latest$"4_ConceptDisorg" + df_latest$"12_Hallucination" + df_latest$"8_Grandiosity") / 4
+
+kelly <- merge(df_latest, df, by = "MPRCID")
+kelly <- merge(kelly, sample_metadata, by = "MPRCID")
+kelly[, celltypes] <- kelly[, celltypes] + 1e-6
+df_clr <- kelly %>%
+  rowwise() %>%
+  mutate(
+    gm = exp(mean(log(c_across(all_of(celltypes)))))
+  ) %>%
+  mutate(
+    across(all_of(celltypes), ~ log(.x / gm))
+  ) %>%
+  ungroup() %>%
+  select(-gm)
+aga_levels <- c(124.40, 0.95, 6.40, 129.50, 23.64, 31.87, 32.10, 84.52, 4.82, 22.97)
+df_clr <- cbind(df_clr, aga_levels)
+
+df_resid <- df_clr
+residualize_vec <- function(y, data) {
+  fit <- lm(y ~ Age + Sex, data = data, na.action = na.exclude)
+  resid(fit)
+}
+for (ct in celltypes) {
+  df_resid[[ct]] <- residualize_vec(df_clr[[ct]], df_clr)
+}
+for (sc in scores) {
+  df_resid[[sc]] <- residualize_vec(df_clr[[sc]], df_clr)
+}
+df_resid$aga_levels_resid <- residualize_vec(aga_levels, df_clr)
+
+# cell type proportions vs BPRS subscales
+cor_df <- expand.grid(celltype = celltypes, symptom = scores) %>%
+  rowwise() %>%
+  mutate(
+    cor = cor(
+      df_resid[[celltype]],
+      df_resid[[symptom]],
+      method = "spearman",
+      use = "pairwise.complete.obs"
+    )
+  ) %>%
+  ungroup()
+cor_df <- cor_df %>%
+  rowwise() %>%
+  mutate(
+    test = list(cor.test(
+      df_resid[[celltype]],
+      df_resid[[symptom]],
+      method = "spearman"
+    )),
+    p = test$p.value
+  ) %>%
+  ungroup() %>%
+  mutate(sig = p < 0.05,
+	 label = sprintf("%.2f%s", cor, ifelse(sig, "*", "")))
+pdf("plots/BPRS_correlations_Kelly.pdf")
+ggplot(cor_df, aes(x = symptom, y = celltype, fill = cor)) +
+  geom_tile() +
+  geom_text(aes(label = label)) +
+  scale_fill_gradient2(midpoint = 0) +
+  theme_minimal() +
+  labs(
+    title = "Cell Type Proportion Correlations with BPRS Subscales",
+    fill = "Spearman r"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+dev.off()
+
+
+# cell type proportions vs AGA levels correlations
+cor_df <- tibble(celltype = celltypes) %>%
+  rowwise() %>%
+  mutate(
+    cor = cor(df_resid[[celltype]], df_resid$aga_levels_resid,
+              method = "spearman", use = "pairwise.complete.obs"),
+    test = list(cor.test(df_resid[[celltype]], df_resid$aga_levels_resid,
+                         method = "spearman")),
+    p = test$p.value
+  ) %>%
+  ungroup() %>%
+  mutate(
+    p_adj = p.adjust(p, method = "fdr"),
+    sig_fdr = p_adj < 0.05,
+    label = sprintf("%.2f%s", cor, ifelse(sig_fdr, "*", ""))
+  )
+pdf("BPRS_correlations_aga_kelly.pdf")
+ggplot(cor_df, aes(x = cor, y = celltype)) +
+  geom_point(aes(size = -log10(p_adj))) +
+  geom_text(aes(label = label), nudge_x = 0.05) +
+  theme_minimal() +
+  labs(
+    title = "Cell Type vs AGA (Spearman)",
+    x = "Spearman r",
+    y = "Cell Type",
+    size = "-log10(FDR)"
+  )
+dev.off()
+
 
 
 # Pan
@@ -707,3 +871,17 @@ dev.off()
 glahn_prop$study <- "Glahn"
 pan_prop$study <- "Pan"
 
+
+pdf("plots/CIBERSORTx_prop_kelly_glahn_pan.pdf")
+for (ct in unique(prop_df$celltype)) {
+        prop_ct <- prop_df %>% filter(celltype == ct)
+        p <- ggplot(prop_ct, aes(x = study, y = prop, fill = group)) +
+                geom_boxplot(position = position_dodge(0.8)) +
+                geom_point() +
+                stat_compare_means(aes(group = group), method = "wilcox.test", label = "p.signif") +
+                theme_bw() +
+                labs(y = "Proportion", title = paste(ct)) +
+                theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        print(p)
+         }
+dev.off()
