@@ -6,10 +6,11 @@
 
 # Read in libraries and data ----
 library(Seurat)
-library(dplyr)
+library(tidyverse)
 library(edgeR)
-library(ggplot2)
 library(pheatmap)
+library(emmeans)
+library(ggpubr)
 
 # read in Seurat object
 obj <- readRDS('kelly_postqc_clusters_meta.rds')
@@ -26,6 +27,45 @@ meta <- read.csv('/local/projects/idea/sament2/dkelly_tcell/dge/sample_metadata.
 rownames(meta) <- meta$MPRCID
 meta <- meta[ MPRCID , ]
 
+celltype_labels <- c(
+  "3"    = "CD26^'Hi'*CD4^'+'*TS['B']*N",
+  "5"    = "CD4^'+'*TS['B']*N",
+  "4"    = "CD8^'+'*TS['B']*N",
+  "16"   = "CD4^'+'*TD['W']*M",
+  "6"    = "CD4^'+'*T['H2']*D['W']*M['P']",
+  "7"    = "CD4^'+'*T['FH']*S['B']*M['P']",
+  "31"   = "CD4^'-'*CD8^'dim'*T['Reg']*SM",
+  "20"   = "CD4^'+'*T['Reg']*S['W']*M",
+  "13-0" = "CD4^'+'*T['H17']*D['W']*M",
+  "23"   = "CD4^'+'*T['FH1']*S['W']*M",
+  "8"    = "CD8^'+'*T['C1']*D['W']*M",
+  "9"    = "CD8^'+'*NKT['C1']*D['W']*A['T']",
+  "17"   = "CD161^'+'*CD8^'+'*NKT['C1']*D['W']*A['T']",
+  "22"   = "CD8^'+'*NKT['C1']*D['W']*A['T']",
+  "13-1" = "CD8^'+'*'MAIT-like'*T['C1']*D['W']*M",
+  "28"   = "Ki67^'+'*CD8^'+'*NKT['C1']",
+  "2"    = "CD56^'dim'~NK",
+  "18"   = "CD56^'bright'~NK",
+  "12"   = "C1Q^'Hi'*CD16^'+'~Mono",
+  "24-1" = "CD16^'+'~Mono",
+  "25"   = "ISG^'+'*CD14^'+'~Mono",
+  "0"    = "SOD^'Hi'*CD14^'+'~Mono",
+  "1"    = "'IL-1B'^'Hi'*CD14^'+'~Mono",
+  "10"   = "MHC^'Hi'*CD14^'+'~Mono",
+  "14"   = "CD14^'+'~Mono",
+  "27"   = "Platelets",
+  "21-0" = "DC3",
+  "21-1" = "DC2",
+  "21-2" = "DC1",
+  "26"   = "pDC",
+  "11"   = "Activated~Naive~B",
+  "15"   = "Switched~Memory~B",
+  "19"   = "CD5^'+'~B",
+  "24-0" = "Atypical~Memory~B",
+  "29"   = "Plasmablasts",
+  "30"   = "HSPCs",
+  "32"   = "Neutrophils"
+)
 
 # Differential Abundance Analysis ----
 
@@ -192,7 +232,125 @@ prop_df <- counts_table %>%
 # add sample meta data
 prop_df <- left_join(prop_df, sample_metadata, by = "sample")
 
-library(ggpubr)
+
+### ANOVA ----
+run_binom_model <- function(df_ct) {
+
+  ct_name <- as.character(unique(df_ct$cell_type)[1])
+
+  group_levels <- c("SCZHigh", "SCZLow", "HC")
+  df_ct$Group <- factor(df_ct$Group, levels = group_levels)
+
+  # Fit model
+  fit <- glm(
+    cbind(count, total - count) ~ Group + Sex + Age,
+    family = binomial,
+    data = df_ct
+  )
+
+  # Overall test
+  anova_res <- car::Anova(fit, type = 3)
+  p_group <- anova_res["Group", "Pr(>Chisq)"]
+
+  # Emmeans (response scale)
+  emm <- emmeans(fit, ~ Group, type = "response")
+  emm_df <- as.data.frame(emm) %>%
+    mutate(cell_type = ct_name)
+
+
+  # Split contrast safely
+  contr <- emmeans::contrast(emm, method = "pairwise", adjust = "none")
+
+  pairs_df <- as.data.frame(contr) %>%
+    tidyr::separate(contrast, into = c("group1", "group2"), sep = " / ") %>%
+    dplyr::mutate(
+      group1 = trimws(group1),
+      group2 = trimws(group2),
+      p_label = sprintf("p=%.3g", p.value),
+      cell_type = ct_name
+    )
+  
+
+  # y position for significance bars
+  y_max <- max(c(df_ct$prop, emm_df$prob), na.rm = TRUE)
+  y_range <- diff(range(c(df_ct$prop, emm_df$prob), na.rm = TRUE))
+
+  pairs_df <- pairs_df %>%
+    dplyr::arrange(group1, group2) %>%
+    dplyr::mutate(
+      y.position = y_max + 0.08 * y_range * seq_len(n())
+    )
+
+  # Plot
+  p <- ggplot(df_ct, aes(x = Group, y = prop)) +
+	  geom_col(data = emm_df,
+                aes(x = Group, y = prob, fill = Group), color = "black", lwd = 1.25, width = 0.75) +
+	  geom_jitter(width = 0.15, size = 4, alpha = 0.8, color = "black") +
+	  geom_errorbar(
+    		data = emm_df,
+    		aes(x = Group, ymin = asymp.LCL, ymax = asymp.UCL),
+    		width = 0.35,
+		lwd = 1.25,
+    		inherit.aes = FALSE) +
+	  scale_x_discrete(
+			   labels = c("SCZHigh" = "AGA+ SRD",
+				      "SCZLow" = "AGA- SRD",
+				      "HC" = "AGA- Control")
+			   ) +
+	  scale_fill_manual(values = c("#BB5566", "#DDAA33", "#004488")) +
+	  labs(title = parse(text = celltype_labels[[ct_name]]),
+	       y = "Proportion",
+	       fill = "group") +
+	  theme_classic() +
+	  scale_y_continuous(limits = c(0, NA),
+			     expand = expansion(mult = c(0, 0.05))
+			     ) +
+	  theme(plot.title = element_text(hjust = 0.5,
+					  size = 20),
+		axis.text = element_text(size = 15),
+		axis.title = element_text(size = 17),
+		axis.line = element_line(linewidth = 1.25),
+		axis.ticks = element_line(linewidth = 1.25))
+
+  # Add significance bars (AFTER p is created)
+  p <- p + ggpubr::stat_pvalue_manual(
+				      pairs_df,
+    				      label = "p_label",
+				      xmin = "group1",
+				      xmax = "group2",
+				      y.position = "y.position",
+				      tip.length = 0.015,
+				      inherit.aes = FALSE,
+				      size = 5,
+				      bracket.size = 0.7) +
+			coord_cartesian(clip = "off")
+
+  return(list(
+    summary = data.frame(cell_type = ct_name, p_value = p_group),
+    emm = emm_df,
+    pairs = pairs_df,
+    plot = p
+  ))
+}
+
+results_list <- prop_df %>%
+  group_split(cell_type) %>%
+  map(run_binom_model)
+
+summary_df <- map_dfr(results_list, "summary") %>%
+  mutate(FDR = p.adjust(p_value, method = "fdr"))
+
+emm_all <- map_dfr(results_list, "emm")
+
+pairs_all <- map_dfr(results_list, "pairs") %>%
+  mutate(FDR = p.adjust(p.value, method = "fdr"))
+
+pdf("plots/celltype_proportion_plots.pdf", width = 12, height = 8)
+walk(results_list, ~ print(.x$plot))
+dev.off()
+
+
+### t-test ----
 comparisons <- list(
   c("HC", "SCZHigh"),
   c("SCZHigh", "SCZLow"),
@@ -205,7 +363,8 @@ for (ct in levels(obj@meta.data$seurat_clusters)) {
   		geom_boxplot() +
 		geom_point() +
 		stat_compare_means(comparisons = comparisons,
-                   method = "t.test", label = "p.signif") +
+				   method = "t.test", 
+				   label = "p.signif") +
   		theme_bw() +
   		labs(y = "Proportion", title = paste(ct)) +
   		theme(axis.text.x = element_text(angle = 45, hjust = 1))
@@ -720,7 +879,7 @@ dev.off()
 # correlations with Kelly
 prop_df$cell_type <- paste0("g", prop_df$cell_type)
 df <- prop_df %>%
-  select(sample, cell_type, count) %>%
+  select(sample, cell_type, prop) %>%
   pivot_wider(
     names_from = cell_type,
     values_from = prop 
@@ -773,7 +932,7 @@ for (sc in scores) {
 df_resid$aga_levels_resid <- residualize_vec(aga_levels, df_clr)
 
 # cell type proportions vs BPRS subscales
-cor_df <- expand.grid(celltype = celltypes, symptom = scores) %>%
+cor_df <- crossing(celltype = celltypes, symptom = scores) %>%
   rowwise() %>%
   mutate(
     cor = cor(
@@ -823,21 +982,66 @@ cor_df <- tibble(celltype = celltypes) %>%
   ) %>%
   ungroup() %>%
   mutate(
-    p_adj = p.adjust(p, method = "fdr"),
-    sig_fdr = p_adj < 0.05,
-    label = sprintf("%.2f%s", cor, ifelse(sig_fdr, "*", ""))
+    log10_p = -log10(p),
+    sig = p < 0.05,
+    label = sprintf("%.2f%s", cor, ifelse(sig, "*", ""))
   )
-pdf("BPRS_correlations_aga_kelly.pdf")
-ggplot(cor_df, aes(x = cor, y = celltype)) +
-  geom_point(aes(size = -log10(p_adj))) +
-  geom_text(aes(label = label), nudge_x = 0.05) +
+
+cor_df$celltype <- gsub("g", "", cor_df$celltype)
+celltype_labels <- c("0" = "SOD^'Hi'*CD14^'+'~Mono", "1" = "'IL-1B'^'Hi'*CD14^'+'~Mono", "10" = "MHC^'Hi'*CD14^'+'~Mono", "12" = "C1Q^'Hi'*CD16^'+'~Mono", "14" = "CD14^'+'~Mono", "24-1" = "CD16^'+'~Mono", "25" = "ISG^'+'*CD14^'+'~Mono", "27" = "Platelets", "21-0" = "DC3", "21-1" = "DC2", "21-2" = "DC1", "26" = "pDC", "29" = "Plasmablasts", "28" = "Ki67^'+'*CD8^'+'*NKT['C1']", "30" = "HSPCs", "32" = "Neutrophils", "24-0" = "Atypical~Memory~B", "15" = "Switched~Memory~B", "19" = "CD5^'+'~B", "11" = "Activated~Naive~B", "18" = "CD56^'bright'~NK", "2" = "CD56^'dim'~NK", "9" = "CD8^'+'*NKT['C1']*A['T']", "17" = "CD161^'+'*CD8^'+'*NKT['C1']*A['T']", "22" = "CD8^'+'*NKT['C1']*A['P']", "8" = "CD8^'+'*T['C1']*M", "13-1" = "CD8^'+'*'MAIT-like'*T['C1']*M", "13-0" = "CD4^'+'*T['H17']*M", "23" = "CD4^'+'*T['FH1']*M", "16" = "CD4^'+'*TM", "6" = "CD4^'+'*T['H2']*M['P']", "31" = "CD4^'-'*CD8^'dim'*T['Reg']*M", "7" = "CD4^'+'*T['FH']*M['P']", "20" = "CD4^'+'*T['Reg']*M", "5" = "CD4^'+'*TN", "3" = "CD26^'Hi'*CD4^'+'*TN", "4" = "CD8^'+'*TN")
+
+pdf("plots/BPRS_correlations_aga_kelly.pdf", width = 10, height = 6)
+ggplot(cor_df, aes(x = cor, y = log10_p)) +
+  geom_point(aes(color = sig), size = 2) +
+  geom_text_repel(
+    data = cor_df %>% filter(sig),
+    aes(label = celltype_labels[celltype]),
+    parse = TRUE,
+    size = 5
+  ) +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed") +
+  geom_vline(xintercept = 0) +
+  scale_color_manual(values = c("grey70", "red")) +
+  scale_x_continuous(
+  limits = c(-1, 1),
+  breaks = seq(-1, 1, by = 0.25)
+) +
   theme_minimal() +
   labs(
-    title = "Cell Type vs AGA (Spearman)",
-    x = "Spearman r",
-    y = "Cell Type",
-    size = "-log10(FDR)"
-  )
+    x = expression(paste("Spearman correlation (", rho, ")")),
+    y = "-log10(p-value)",
+    color = "Significant",
+    title = "Correlations Between Cell Type Proportions and AGA Levels") +
+  theme(plot.title = element_text(size = 15))
+dev.off()
+
+ct <- "g13-0"
+ct_label <- parse(text = celltype_labels[gsub("g", "", ct)])[[1]]
+cor_val <- cor_df %>%
+  filter(celltype == ct) %>%
+  pull(cor)
+p_val <- cor_df %>%
+  filter(celltype == ct) %>%
+  pull(p)
+pdf("plots/corr_13-0_aga_scatterplot.pdf", width = 12, height = 8)
+ggplot(df_resid, aes(x = aga_levels_resid, y = `g13-0`)) +
+	geom_point() +
+	geom_smooth(method = "lm", se = FALSE) +
+	labs(x = "AGA Levels (adjusted)",
+	     y = bquote(.(ct_label) ~ "proportion (center log-ratio transformed & adjusted)"),
+	     title = bquote("Correlation between" ~ .(ct_label) ~ "proportion and AGA levels (age + sex adjusted)")) +
+	theme_minimal() +
+	annotate("text",
+		 x = Inf,
+		 y = -Inf,
+		 label = bquote(rho == .(round(cor_val, 3)) * "," ~ italic(p) == .(signif(p_val, 2))),
+		 hjust = 2, 
+		 vjust = -6,
+		 size = 6) +
+	theme(plot.title = element_text(size = 20,
+					hjust = 0.5),
+	      axis.title = element_text(size = 15))
+
 dev.off()
 
 

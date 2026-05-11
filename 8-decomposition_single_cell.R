@@ -8,6 +8,7 @@
 args <- commandArgs(trailingOnly = TRUE)
 input_file <- args[1]
 output_file <- args[2]
+pattern <- args[3]
 
 library(CoGAPS)
 library(Seurat)
@@ -39,14 +40,29 @@ genes <- rownames(expr_mat)
 params <- new("CogapsParams")
 params <- setParam(params, "sparseOptimization", FALSE)
 params <- setParam(params, "nIterations", 10000)
-params <- setParam(params, "nPatterns", 30)
+params <- setParam(params, "nPatterns", pattern)
 params <- setDistributedParams(params, nSets=1)
 
 xxCoGAPS <- CoGAPS(data=expr_mat, params=params, geneNames=genes, sampleNames=cells, messages=TRUE, transposeData=FALSE, nPatterns=30, nIterations=10000, nThreads=16)
 
-output_file <- paste0("/autofs/projects-t2/idea/rohara/immunophenotype_SCZ/", output_file, "CoGAPS_30Pat.rds")
+output_file <- paste0("/autofs/projects-t2/idea/rohara/immunophenotype_SCZ/", output_file, "_CoGAPS_", pattern, ".rds")
 
 saveRDS(xxCoGAPS, file = output_file)
+
+
+# Look at different number of patterns ----
+obj_files <- list.files(pattern = "kelly_CoGAPS_\\d\\d\\.rds")
+objs <- lapply(seq_along(obj_files), function(i) {
+	readRDS(obj_files[i])
+})
+patterns <- c(10, 15, 20, 25, 30, 35, 40, 45, 50)
+errors <- c()
+for (i in seq_along(objs)) {
+	errors[i] <- obj[i]$meanChiSq
+}
+df <- as.data.frme(cbind(patterns, errors))
+
+# plot the errors
 
 
 # Interpret CoGAPS results ----
@@ -97,7 +113,7 @@ kornberg <- kornberg[ , -1]
 
 # linear modeling
 lm_results <- lapply(colnames(kelly)[c(1:30)], function(pat) {
-  formula <- as.formula(paste(pat, "~ Group + Sex + Age + predicted.celltype.l2"))
+  formula <- as.formula(paste(pat, "~ Group + Sex + Age + seurat_clusters"))
   lm(formula, data = kelly)
 })
 
