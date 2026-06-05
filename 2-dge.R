@@ -163,8 +163,9 @@ dev.off()
 
 # volcano plots
 clusters_order <- c("3", "5", "4", "16", "6", "7", "31", "20", "13-0", "23", "8", "9", "17","22", "13-1","28", "2", "18", "12","24-1", "25", "0", "1", "10", "14", "27", "21-0", "21-1", "21-2", "26", "11", "15", "19", "24-0", "29", "30", "32")
+
 celltype_labels <- c(
-  "3"    = "CD26^'Hi'*CD4^'+'*TS['B']*N",
+  "3"    = "CD26^'hi'*CD4^'+'*TS['B']*N",
   "5"    = "CD4^'+'*TS['B']*N",
   "4"    = "CD8^'+'*TS['B']*N",
   "16"   = "CD4^'+'*TD['W']*M",
@@ -177,17 +178,17 @@ celltype_labels <- c(
   "8"    = "CD8^'+'*T['C1']*D['W']*M",
   "9"    = "CD8^'+'*NKT['C1']*D['W']*A['T']",
   "17"   = "CD161^'+'*CD8^'+'*NKT['C1']*D['W']*A['T']",
-  "22"   = "CD8^'+'*NKT['C1']*D['W']*A['T']",
+  "22"   = "CD8^'+'*NKT['C1']*D['W']*A['P']",
   "13-1" = "CD8^'+'*'MAIT-like'*T['C1']*D['W']*M",
-  "28"   = "Ki67^'+'*CD8^'+'*NKT['C1']",
+  "28"   = "Ki67^'+'*CD8^'+'*NKT['C1']*D['W']*A['T']",
   "2"    = "CD56^'dim'~NK",
   "18"   = "CD56^'bright'~NK",
-  "12"   = "C1Q^'Hi'*CD16^'+'~Mono",
+  "12"   = "C1Q^'hi'*CD16^'+'~Mono",
   "24-1" = "CD16^'+'~Mono",
   "25"   = "ISG^'+'*CD14^'+'~Mono",
-  "0"    = "SOD^'Hi'*CD14^'+'~Mono",
-  "1"    = "'IL-1B'^'Hi'*CD14^'+'~Mono",
-  "10"   = "MHC^'Hi'*CD14^'+'~Mono",
+  "0"    = "SOD2^'hi'*CD14^'+'~Mono",
+  "1"    = "'IL-1B'^'hi'*CD14^'+'~Mono",
+  "10"   = "MHC^'hi'*CD14^'+'~Mono",
   "14"   = "CD14^'+'~Mono",
   "27"   = "Platelets",
   "21-0" = "DC3",
@@ -497,18 +498,18 @@ dge$Celltype <- factor(dge$Celltype, levels = clusters_order)
 pdf("plots/AGA_v_AGA_volcano_dge.pdf", width = 12, height = 8)
 p <- ggplot(dge, aes(x = logFC, y = logP)) +
             geom_point(color = "lightgray",
-                       size = 1) +
+                       size = 1.5) +
             geom_point(data = dge %>% filter(Sig != "NS"),
                        aes(color = Celltype),
-                       size = 1) +
+                       size = 1.5) +
             geom_text_repel(data = dge %>% filter(FDR < 0.05, abs(logFC) > 1),
                             aes(label = Symbol),
                             size = 4,
                             color = "black",
                             max.overlaps = 30) +
-            geom_hline(yintercept = -log10(0.01), linetype = "dashed") +
-            geom_vline(xintercept = 1, linetype = "dashed") +
-            geom_vline(xintercept = -1, linetype = "dashed") +
+            geom_hline(yintercept = -log10(0.01), linetype = "dashed", linewidth = 0.75) +
+            geom_vline(xintercept = 1, linetype = "dashed", linewidth = 0.75) +
+            geom_vline(xintercept = -1, linetype = "dashed", linewidth = 0.75) +
             scale_color_manual(values = celltype_pal,
                                labels = function(x) parse(text = celltype_labels[x]),
                                name = "cell types") +
@@ -532,18 +533,18 @@ dev.off()
 pdf("plots/celltypes_AGA_v_AGA_volcano_dge.pdf", width = 12, height = 8)
 for (ct in unique(dge$Celltype)) {
         p <- ggplot(dge %>% filter(Celltype == ct), aes(x = logFC, y = -log10(PValue), color = Sig)) +
-            geom_point() +
+            geom_point(size = 1.5) +
             geom_text_repel(data = dge %>% filter(Celltype == ct & PValue < 0.01 & abs(logFC) > 1),
                             aes(label = Symbol),
                             size = 4,
                             color = "black",
                             max.overlaps = 15) +
-            geom_hline(yintercept = -log10(0.01), linetype = "dashed") +
-            geom_vline(xintercept = 1, linetype = "dashed") +
-            geom_vline(xintercept = -1, linetype = "dashed") +
+            geom_hline(yintercept = -log10(0.01), linetype = "dashed", linewidth = 1) +
+            geom_vline(xintercept = 1, linetype = "dashed", linewidth = 1) +
+            geom_vline(xintercept = -1, linetype = "dashed", linewidth = 1) +
             scale_color_manual(values = c("UP" = "red", "DOWN" = "blue", "NS" = "gray70"),
                                guide = "none") +
-            labs(title = parse(text = paste0("Differential~Gene~Expression:~", celltype_labels[ct])),
+            labs(title = parse(text = celltype_labels[ct]),
                  x = "logFC",
                  y = parse(text = "-log[10]*(PValue)")) +
             theme_classic() +

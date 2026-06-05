@@ -27,8 +27,9 @@ meta <- read.csv('/local/projects/idea/sament2/dkelly_tcell/dge/sample_metadata.
 rownames(meta) <- meta$MPRCID
 meta <- meta[ MPRCID , ]
 
+
 celltype_labels <- c(
-  "3"    = "CD26^'Hi'*CD4^'+'*TS['B']*N",
+  "3"    = "CD26^'hi'*CD4^'+'*TS['B']*N",
   "5"    = "CD4^'+'*TS['B']*N",
   "4"    = "CD8^'+'*TS['B']*N",
   "16"   = "CD4^'+'*TD['W']*M",
@@ -41,17 +42,17 @@ celltype_labels <- c(
   "8"    = "CD8^'+'*T['C1']*D['W']*M",
   "9"    = "CD8^'+'*NKT['C1']*D['W']*A['T']",
   "17"   = "CD161^'+'*CD8^'+'*NKT['C1']*D['W']*A['T']",
-  "22"   = "CD8^'+'*NKT['C1']*D['W']*A['T']",
+  "22"   = "CD8^'+'*NKT['C1']*D['W']*A['P']",
   "13-1" = "CD8^'+'*'MAIT-like'*T['C1']*D['W']*M",
-  "28"   = "Ki67^'+'*CD8^'+'*NKT['C1']",
+  "28"   = "Ki67^'+'*CD8^'+'*NKT['C1']*D['W']*A['T']",
   "2"    = "CD56^'dim'~NK",
   "18"   = "CD56^'bright'~NK",
-  "12"   = "C1Q^'Hi'*CD16^'+'~Mono",
+  "12"   = "C1Q^'hi'*CD16^'+'~Mono",
   "24-1" = "CD16^'+'~Mono",
   "25"   = "ISG^'+'*CD14^'+'~Mono",
-  "0"    = "SOD^'Hi'*CD14^'+'~Mono",
-  "1"    = "'IL-1B'^'Hi'*CD14^'+'~Mono",
-  "10"   = "MHC^'Hi'*CD14^'+'~Mono",
+  "0"    = "SOD2^'hi'*CD14^'+'~Mono",
+  "1"    = "'IL-1B'^'hi'*CD14^'+'~Mono",
+  "10"   = "MHC^'hi'*CD14^'+'~Mono",
   "14"   = "CD14^'+'~Mono",
   "27"   = "Platelets",
   "21-0" = "DC3",
@@ -66,6 +67,7 @@ celltype_labels <- c(
   "30"   = "HSPCs",
   "32"   = "Neutrophils"
 )
+
 
 # Differential Abundance Analysis ----
 
@@ -306,8 +308,8 @@ run_binom_model <- function(df_ct) {
 			     expand = expansion(mult = c(0, 0.05))
 			     ) +
 	  theme(plot.title = element_text(hjust = 0.5,
-					  size = 20),
-		axis.text = element_text(size = 15),
+					  size = 30),
+		axis.text = element_text(size = 20),
 		axis.title = element_text(size = 17),
 		axis.line = element_line(linewidth = 1.25),
 		axis.ticks = element_line(linewidth = 1.25))
