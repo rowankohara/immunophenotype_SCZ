@@ -251,8 +251,7 @@ enrich_list <- lapply(clusters, function(gene_set) {
         OrgDb         = org.Hs.eg.db,
         keyType       = "SYMBOL",
         ont           = "BP",
-        pAdjustMethod = "BH",
-        qvalueCutoff  = 0.05
+        universe      = dge$Symbol
     )
 })
 top_terms <- sapply(enrich_list, function(x) {
@@ -267,16 +266,16 @@ row_annot <- data.frame(
     pathway = top_terms
 )
 rownames(row_annot) <- names(top_terms)
-pathway_pal <- c("regulation of translation" = "#E41A1C",
-		 "cytoplasmic translation" = "#377EB8",
-		 "cellular response to chemical stress" = "#4DAF4A",
-		 "purine ribonucleotide catabolic process" = "#984EA3",
-		 "arginine catabolic process" = "#FF7F00",
-		 "growth hormone receptor signaling pathway via JAK-STAT" = "#FFFF33",
-		 "protein acylation" = "#A65628",
-		 "regeneration" = "#F781BF",
-		 "response to lipopolysaccharide" = "#999999",
-		 "positive regulation of type I interferon-mediated signaling pathway" = "#FB8072")
+pathway_pal <- c("blood vessel morphogenesis" = "#E41A1C",
+		 "post-transcriptional regulation of gene expression" = "#377EB8",
+		 "cellular lipid catabolic process" = "#4DAF4A",
+		 "vitamin transport" = "#984EA3",
+		 "purine ribonucleotide catabolic process" = "#FF7F00",
+		 "regeneration" = "#FFFF33",
+		 "response to bacterium" = "#A65628",
+		 "cytoplasmic translation" = "#F781BF",
+		 "positive regulation of type I interferon-mediated signaling pathway" = "#999999",
+		 "growth hormone receptor signaling pathway via JAK-STAT" = "#FB8072")
 
 palette <- colorRampPalette(
     c("#2166AC", "white", "#B2182B")

@@ -317,7 +317,7 @@ p <- ggplot(
         )
 
 ggsave(
-        "plots/gsea_facetwrap_all_celltypes.pdf",
+        "plots/gsea_hallmark_all_celltypes.pdf",
         p,
         width = 18,
         height = 14
