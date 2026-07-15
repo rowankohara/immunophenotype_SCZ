@@ -184,8 +184,7 @@ celltype_pal <- c(
   "0"    = "darkturquoise",
   "1"    = "steelblue2",
   "10"   = "cadetblue2",
-  "14"   = "darkcyan",
-  "27"   = "orchid3",
+
   "21-0" = "dodgerblue3",
   "21-1" = "deepskyblue4",
   "21-2" = "darkblue",
@@ -306,8 +305,8 @@ domino_list <- lapply(samples, function(s) {
     clusters <- factor(pbmc$seurat_clusters)
     names(clusters) = colnames(pbmc)
 
-    create_domino(rl_map = rl_map, 
-		  features = auc_in, 
+    pbmc_dom <- create_domino(rl_map = rl_map, 
+		  features = auc_in[, colnames(pbmc)], 
 		  counts = counts, 
 		  z_scores = z_scores,
 		  clusters = clusters, 
@@ -315,6 +314,14 @@ domino_list <- lapply(samples, function(s) {
 		  use_clusters = TRUE, 
 		  use_complexes = TRUE,
 		  remove_rec_dropout = FALSE)
+    pbmc_dom <- build_domino(dom = pbmc_dom, 
+		 min_tf_pval = 0.001, 
+		 max_tf_per_clust = 25,
+		 max_rec_per_tf = 25, 
+		 rec_tf_cor_threshold = 0.25, 
+		 min_rec_percentage = 0.1)
+
+    pbmc_dom
 })
 
 names(domino_list) <- samples
@@ -331,5 +338,98 @@ th17_signaling_diff <- test_differential_linkages(
   subject_names = samples,
   test_name = "fishers.exact"
 )
+
+
+pdf("plots/th17_signaling_diff_rec_lig.pdf", width = 10, height = 20)
+plot_differential_linkages(
+  th17_signaling_diff,
+  "p.value",
+  stat_range = c(0, 1),
+  stat_ranking = "ascending",
+  group_palette = NULL
+)
+dev.off()
+
+
+th17_signaling_diff <- test_differential_linkages(
+  dom_summary,
+  "13-0",
+  "Group",
+  linkage = "tfs_rec",
+  subject_names = samples,
+  test_name = "fishers.exact"
+)
+
+pdf("plots/th17_signaling_diff_tfs_rec.pdf", width = 15, height = 50)
+plot_differential_linkages(
+  th17_signaling_diff,
+  "p.value",
+  stat_range = c(0, 1),
+  stat_ranking = "ascending",
+  group_palette = NULL
+)
+dev.off()
+
+
+th17_signaling_diff <- test_differential_linkages(
+  dom_summary,
+  "13-0",
+  "Group",
+  linkage = "tfs",
+  subject_names = samples,
+  test_name = "fishers.exact"
+)
+
+pdf("plots/th17_signaling_diff_tfs.pdf", width = 10, height = 15)
+plot_differential_linkages(
+  th17_signaling_diff,
+  "p.value",
+  stat_range = c(0, 1),
+  stat_ranking = "ascending",
+  group_palette = NULL
+)
+dev.off()
+
+
+th17_signaling_diff <- test_differential_linkages(
+  dom_summary,
+  "13-0",
+  "Group",
+  linkage = "rec",
+  subject_names = samples,
+  test_name = "fishers.exact"
+)
+
+pdf("plots/th17_signaling_diff_rec.pdf", width = 10, height = 10)
+plot_differential_linkages(
+  th17_signaling_diff,
+  "p.value",
+  stat_range = c(0, 1),
+  stat_ranking = "ascending",
+  group_palette = NULL
+)
+dev.off()
+
+
+th17_signaling_diff <- test_differential_linkages(
+  dom_summary,
+  "13-0",
+  "Group",
+  linkage = "incoming_lig",
+  subject_names = samples,
+  test_name = "fishers.exact"
+)
+
+pdf("plots/th17_signaling_diff_incoming_lig.pdf", width = 10, height = 20)
+plot_differential_linkages(
+  th17_signaling_diff,
+  "p.value",
+  stat_range = c(0, 1),
+  stat_ranking = "ascending",
+  group_palette = NULL
+)
+dev.off()
+
+
 
 
