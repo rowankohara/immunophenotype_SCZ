@@ -102,6 +102,7 @@ cellphone_data <- "/local/projects/idea/rohara/immunophenotype_SCZ/cellphone/cel
 
 # Load all input files ----
 library(dominoSignal)
+library(Seurat)
 
 regulons <- read.csv("scenic/regulons_pbmc_13k.csv")
 auc <- read.table("scenic/auc_pbmc_60k.csv", header = TRUE, row.names = 1, stringsAsFactors = FALSE,
@@ -135,8 +136,9 @@ counts <- SummarizedExperiment::assay(pbmc, "counts")
 logcounts <- SummarizedExperiment::assay(pbmc, "logcounts")
 logcounts <- logcounts[rowSums(logcounts) > 0, ]
 z_scores <- t(scale(t(logcounts)))
+levels(pbmc$seurat_clusters) <- celltype_labels[levels(pbmc$seurat_clusters)]
 clusters <- factor(pbmc$seurat_clusters)
-names(clusters) = colnames(pbmc)
+names(clusters) <- colnames(pbmc)
 
 pbmc_dom <- create_domino(rl_map = rl_map, features = auc_in, counts = counts, z_scores = z_scores,
     clusters = clusters, tf_targets = regulon_list, use_clusters = TRUE, use_complexes = TRUE,
@@ -157,118 +159,150 @@ pbmc_dom <- build_domino(dom = pbmc_dom, min_tf_pval = 0.001, max_tf_per_clust =
 # rec_tf_cor_threshold: Minimum correlation between receptor and TF 
 # min_rec_percentage: Minimum percent of cells that must express receptor
 
+# save domino object
+saveRDS(pbmc_dom, "kelly_domino_obj.RDS")
+
 
 # plotting results
 celltype_pal <- c(
-  "3"    = "coral3",
-  "5"    = "orangered",
-  "4"    = "chocolate1",
-  "16"   = "goldenrod",
-  "6"    = "darkgoldenrod",
-  "7"    = "sandybrown",
-  "31"   = "darkorange3",
-  "20"   = "indianred1",
-  "13-0" = "red2",
-  "23"   = "orange",
-  "8"    = "rosybrown1",
-  "9"    = "tomato",
-  "17"   = "tan1",
-  "22"   = "salmon",
-  "13-1" = "palevioletred2",
-  "28"   = "deeppink3",
-  "2"    = "gold",
-  "18"   = "yellow",
-  "12"   = "dodgerblue2",
-  "24-1" = "cyan",
-  "25"   = "aquamarine3",
-  "0"    = "darkturquoise",
-  "1"    = "steelblue2",
-  "10"   = "cadetblue2",
-
-  "21-0" = "dodgerblue3",
-  "21-1" = "deepskyblue4",
-  "21-2" = "darkblue",
-  "26"   = "royalblue3",
-  "11"   = "springgreen2",
-  "15"   = "limegreen",
-  "19"   = "olivedrab",
-  "24-0" = "seagreen",
-  "29"   = "mediumseagreen",
-  "30"   = "navy",
-  "32"   = "mediumpurple3"
+  "CD26hiCD4TSbN"    = "coral3",
+  "CD4TSbN"    = "orangered",
+  "CD8TSbN"    = "chocolate1",
+  "CD4TDwM"   = "goldenrod",
+  "CD4Th2DwMp"    = "darkgoldenrod",
+  "CD4TfhSbMp"    = "sandybrown",
+  "CD4negCD8dimTregSM"   = "darkorange3",
+  "CD4TregSwM"   = "indianred1",
+  "CD4Th17DwM" = "red2",
+  "CD4Tfh1SwM"   = "orange",
+  "CD8Tc1DwM"    = "rosybrown1",
+  "CD8NKTc1DwAt"    = "tomato",
+  "CD161CD8NKTc1DwAt"   = "tan1",
+  "CD8NKTc1DwAp"   = "salmon",
+  "CD8MAITlikeTc1DwM" = "palevioletred2",
+  "Ki67CD8NKTc1DwAt"   = "deeppink3",
+  "CD56dimNK"    = "gold",
+  "CD56brightNK"   = "yellow",
+  "C1QhiCD16Mono"   = "dodgerblue2",
+  "CD16Mono" = "cyan",
+  "ISGCD14Mono"   = "aquamarine3",
+  "SOD2hiCD14Mono"    = "darkturquoise",
+  "IL1BhiCD14Mono"    = "steelblue2",
+  "MHChiCD14Mono"   = "cadetblue2",
+  "CD14Mono"   = "darkcyan",
+  "Platelets"   = "orchid3",
+  "DC3" = "dodgerblue3",
+  "DC2" = "deepskyblue4",
+  "DC1" = "darkblue",
+  "pDC"   = "royalblue3",
+  "ActivatedNaiveB"   = "springgreen2",
+  "SwitchedMemoryB"   = "limegreen",
+  "CD5B"   = "olivedrab",
+  "AtypicalMemoryB" = "seagreen",
+  "Plasmablasts"   = "mediumseagreen",
+  "HSPCs"   = "navy",
+  "Neutrophils"   = "mediumpurple3"
 )
+
 celltype_labels <- c(
-  "3"    = "CD26^'hi'*CD4^'+'*TS['B']*N",
-  "5"    = "CD4^'+'*TS['B']*N",
-  "4"    = "CD8^'+'*TS['B']*N",
-  "16"   = "CD4^'+'*TD['W']*M",
-  "6"    = "CD4^'+'*T['H2']*D['W']*M['P']",
-  "7"    = "CD4^'+'*T['FH']*S['B']*M['P']",
-  "31"   = "CD4^'-'*CD8^'dim'*T['Reg']*SM",
-  "20"   = "CD4^'+'*T['Reg']*S['W']*M",
-  "13-0" = "CD4^'+'*T['H17']*D['W']*M",
-  "23"   = "CD4^'+'*T['FH1']*S['W']*M",
-  "8"    = "CD8^'+'*T['C1']*D['W']*M",
-  "9"    = "CD8^'+'*NKT['C1']*D['W']*A['T']",
-  "17"   = "CD161^'+'*CD8^'+'*NKT['C1']*D['W']*A['T']",
-  "22"   = "CD8^'+'*NKT['C1']*D['W']*A['P']",
-  "13-1" = "CD8^'+'*'MAIT-like'*T['C1']*D['W']*M",
-  "28"   = "Ki67^'+'*CD8^'+'*NKT['C1']*D['W']*A['T']",
-  "2"    = "CD56^'dim'~NK",
-  "18"   = "CD56^'bright'~NK",
-  "12"   = "C1Q^'hi'*CD16^'+'~Mono",
-  "24-1" = "CD16^'+'~Mono",
-  "25"   = "ISG^'+'*CD14^'+'~Mono",
-  "0"    = "SOD2^'hi'*CD14^'+'~Mono",
-  "1"    = "'IL-1B'^'hi'*CD14^'+'~Mono",
-  "10"   = "MHC^'hi'*CD14^'+'~Mono",
-  "14"   = "CD14^'+'~Mono",
+  "3"    = "CD26hiCD4TSbN",
+  "5"    = "CD4TSbN",
+  "4"    = "CD8TSbN",
+  "16"   = "CD4TDwM",
+  "6"    = "CD4Th2DwMp",
+  "7"    = "CD4TfhSbMp",
+  "31"   = "CD4negCD8dimTregSM",
+  "20"   = "CD4TregSwM",
+  "13-0" = "CD4Th17DwM",
+  "23"   = "CD4Tfh1SwM",
+  "8"    = "CD8Tc1DwM",
+  "9"    = "CD8NKTc1DwAt",
+  "17"   = "CD161CD8NKTc1DwAt",
+  "22"   = "CD8NKTc1DwAp",
+  "13-1" = "CD8MAITlikeTc1DwM",
+  "28"   = "Ki67CD8NKTc1DwAt",
+  "2"    = "CD56dimNK",
+  "18"   = "CD56brightNK",
+  "12"   = "C1QhiCD16Mono",
+  "24-1" = "CD16Mono",
+  "25"   = "ISGCD14Mono",
+  "0"    = "SOD2hiCD14Mono",
+  "1"    = "IL1BhiCD14Mono",
+  "10"   = "MHChiCD14Mono",
+  "14"   = "CD14Mono",
   "27"   = "Platelets",
   "21-0" = "DC3",
   "21-1" = "DC2",
   "21-2" = "DC1",
   "26"   = "pDC",
-  "11"   = "Activated~Naive~B",
-  "15"   = "Switched~Memory~B",
-  "19"   = "CD5^'+'~B",
-  "24-0" = "Atypical~Memory~B",
+  "11"   = "ActivatedNaiveB",
+  "15"   = "SwitchedMemoryB",
+  "19"   = "CD5B",
+  "24-0" = "AtypicalMemoryB",
   "29"   = "Plasmablasts",
   "30"   = "HSPCs",
   "32"   = "Neutrophils"
 )
 
-pdf("plots/domino_feature_heatmap.pdf")
+pdf("plots/domino_feature_heatmap.pdf", width = 10, height = 10)
 feat_heatmap(pbmc_dom, norm = TRUE, bool = FALSE, use_raster = FALSE, cols = celltype_pal, row_names_gp = grid::gpar(fontsize = 4))
 dev.off()
 
-pdf("plots/domino_signaling_diagram.pdf")
+pdf("plots/domino_signaling_diagram.pdf", width = 10, height = 10)
+par(mar = c(6, 6, 6, 6), xpd = NA)
 signaling_network(pbmc_dom, cols = celltype_pal, edge_weight = 0.5, max_thresh = 3)
-signaling_network(pbmc_dom, cols = celltype_pal, showOutgoingSignalingClusts = c("13-0"), edge_weight = 0.5, max_thresh = 3)
-signaling_network(pbmc_dom, cols = celltype_pal, showIncomingSignalingClusts = c("13-0"), edge_weight = 0.5, max_thresh = 3)
+signaling_network(pbmc_dom, cols = celltype_pal, showOutgoingSignalingClusts = c("CD4Th17DwM"), edge_weight = 0.5, max_thresh = 3, layout = "fr")
+signaling_network(pbmc_dom, cols = celltype_pal, showOutgoingSignalingClusts = c("CD4Th17DwM"), edge_weight = 0.5, max_thresh = 3)
+signaling_network(pbmc_dom, cols = celltype_pal, showIncomingSignalingClusts = c("CD4Th17DwM"), edge_weight = 0.5, max_thresh = 3, layout = "fr")
+signaling_network(pbmc_dom, cols = celltype_pal, showIncomingSignalingClusts = c("CD4Th17DwM"), edge_weight = 0.5, max_thresh = 3)
 dev.off()
 
 pdf("plots/domino_gene_network_th17.pdf", width = 10, height = 10)
-gene_network(pbmc_dom, clust = "13-0", layout = "sphere")
-gene_network(pbmc_dom, clust = "13-0", OutgoingSignalingClust = "21-1", layout = "sphere")
-gene_network(pbmc_dom, clust = "13-0", OutgoingSignalingClust = "26", layout = "sphere")
-gene_network(pbmc_dom, clust = "13-0", OutgoingSignalingClust = "19", layout = "sphere")
+gene_network(pbmc_dom, clust = "CD4Th17DwM", layout = "fr")
+gene_network(pbmc_dom, clust = "CD4Th17DwM", OutgoingSignalingClust = "DC2", layout = "fr")
+gene_network(pbmc_dom, clust = "CD4Th17DwM", OutgoingSignalingClust = "pDC", layout = "fr")
+gene_network(pbmc_dom, clust = "CD4Th17DwM", OutgoingSignalingClust = "CD5B", layout = "fr")
+gene_network(pbmc_dom, clust = "CD4Th17DwM", OutgoingSignalingClust = "ActivatedNaiveB", layout = "fr")
+gene_network(pbmc_dom, clust = "CD4Th17DwM", OutgoingSignalingClust = "SwitchedMemoryB", layout = "fr")
 dev.off()
 
 pdf("plots/domino_gene_network_from_th17.pdf", width = 10, height = 10)
-gene_network(pbmc_dom, clust = "24-0", OutgoingSignalingClust = "13-0", layout = "grid")
-gene_network(pbmc_dom, clust = "21-1", OutgoingSignalingClust = "13-0", layout = "grid")
-gene_network(pbmc_dom, clust = "26", OutgoingSignalingClust = "13-0", layout = "grid")
-gene_network(pbmc_dom, clust = "1", OutgoingSignalingClust = "13-0", layout = "grid")
-gene_network(pbmc_dom, clust = "0", OutgoingSignalingClust = "13-0", layout = "grid")
-gene_network(pbmc_dom, clust = "24-1", OutgoingSignalingClust = "13-0", layout = "grid")
+gene_network(pbmc_dom, clust = "AtypicalMemoryB", OutgoingSignalingClust = "CD4Th17DwM", layout = "fr")
+gene_network(pbmc_dom, clust = "ActivatedNaiveB", OutgoingSignalingClust = "CD4Th17DwM", layout = "fr")
+gene_network(pbmc_dom, clust = "SwitchedMemoryB", OutgoingSignalingClust = "CD4Th17DwM", layout = "fr")
+gene_network(pbmc_dom, clust = "DC2", OutgoingSignalingClust = "CD4Th17DwM", layout = "fr")
+gene_network(pbmc_dom, clust = "pDC", OutgoingSignalingClust = "CD4Th17DwM", layout = "fr")
+gene_network(pbmc_dom, clust = "IL1BhiCD14Mono", OutgoingSignalingClust = "CD4Th17DwM", layout = "fr")
+gene_network(pbmc_dom, clust = "SOD2hiCD14Mono", OutgoingSignalingClust = "CD4Th17DwM", layout = "fr")
+gene_network(pbmc_dom, clust = "CD16Mono", OutgoingSignalingClust = "CD4Th17DwM", layout = "fr")
 dev.off()
 
 pdf("plots/domino_incoming_signaling_heatmap.pdf", width = 10, height = 12)
-incoming_signaling_heatmap(pbmc_dom, rec_clust = "13-0", max_thresh = 2.5, use_raster = FALSE)
+incoming_signaling_heatmap(pbmc_dom, rec_clust = "CD4Th17DwM", max_thresh = 2.5, use_raster = FALSE)
 dev.off()
 
-pdf("plots/domino_circos_CD74.pdf")
-circos_ligand_receptor(pbmc_dom, receptor = "CD74")
+pdf("plots/domino_circos_IL6R.pdf", width = 16, height = 12)
+circos_ligand_receptor(pbmc_dom, receptor = "IL6_receptor", cell_colors = celltype_pal)
+dev.off()
+
+pdf("plots/domino_circos_TNFRSF1B.pdf", width = 16, height = 12)
+circos_ligand_receptor(pbmc_dom, receptor = "TNFRSF1B", cell_colors = celltype_pal)
+dev.off()
+
+pdf("plots/domino_circos_VSIR.pdf", width = 16, height = 12)
+circos_ligand_receptor(pbmc_dom, receptor = "VSIR", cell_colors = celltype_pal)
+dev.off()
+
+pdf("plots/domino_circos_IL7R.pdf", width = 16, height = 12)
+circos_ligand_receptor(pbmc_dom, receptor = "IL7_receptor", cell_colors = celltype_pal)
+dev.off()
+
+pdf("plots/domino_circos_CD74.pdf", width = 16, height = 12)
+circos_ligand_receptor(pbmc_dom, receptor = "CD74", cell_colors = celltype_pal)
+dev.off()
+
+pdf("plots/domino_circos_IL11R.pdf", width = 16, height = 12)
+circos_ligand_receptor(pbmc_dom, receptor = "IL11_receptor", cell_colors = celltype_pal)
 dev.off()
 
 pdf("plots/domino_corr_heatmap.pdf", width = 14, height = 12)
@@ -277,7 +311,7 @@ cor_heatmap(pbmc_dom, bool = TRUE, bool_thresh = 0.25)
 cor_heatmap(pbmc_dom, bool = FALSE, mark_connections = TRUE)
 dev.off()
 
-pdf("plots/domino_signaling_heatmap.pdf")
+pdf("plots/domino_signaling_heatmap.pdf", width = 10, height = 10)
 signaling_heatmap(pbmc_dom)
 signaling_heatmap(pbmc_dom, scale = "sqrt")
 signaling_heatmap(pbmc_dom, normalize = "rec_norm")
