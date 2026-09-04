@@ -364,6 +364,38 @@ names(domino_list) <- samples
 dom_summary <- summarize_linkages(domino_list, meta, subject_names = NULL)
 
 
+# Run differential signaling test for all celltypes and combine results into a dataframe
+celltypes <- unique(obj$seurat_clusters)
+results_list <- list()
+for (type in celltypes) {
+
+  cat("Testing:", type, "\n")
+
+  res <- tryCatch(
+    test_differential_linkages(
+      dom_summary,
+      type,
+      "Group",
+      linkage = "rec_lig",
+      subject_names = samples,
+      test_name = "fishers.exact"
+    ),
+    error = function(e) {
+      message(type, " failed: ", e$message)
+      return(NULL)
+    }
+  )
+
+  if (!is.null(res)) {
+    res$cluster <- type
+    results_list[[type]] <- res
+  }
+}
+
+diff_linkages <- do.call(rbind, results_list)
+rownames(diff_linkages) <- NULL
+
+
 th17_signaling_diff <- test_differential_linkages(
   dom_summary,
   "13-0",
@@ -466,4 +498,83 @@ dev.off()
 
 
 
+# Summary plots -----
 
+# recode cluster labels to their spelled out form
+diff_link$cluster <- celltype_labels[diff_link$cluster]
+
+# a function to get the top 3 senders for a particular ligand
+get_top_n_senders <- function(dom, receiver, receptor, ligand, n = 3) {
+  
+  if (!receiver %in% names(dom@cl_signaling_matrices)) {
+    return(NULL)
+  }
+  
+  mat <- dom@cl_signaling_matrices[[receiver]]
+  
+  if (!ligand %in% rownames(mat)) {
+    return(NULL)
+  }
+  
+  scores <- mat[ligand, ]
+  
+  # Remove zero scores
+  scores <- scores[scores > 0]
+  
+  # Sort and take top n
+  scores <- sort(scores, decreasing = TRUE)
+  scores <- head(scores, n)
+  
+  if (length(scores) == 0) {
+    return(NULL)
+  }
+  
+  data.frame(
+    receiver = receiver,
+    receptor = receptor,
+    ligand = ligand,
+    sender = sub("^L_", "", names(scores)),
+    sender_score = as.numeric(scores),
+    sender_rank = seq_along(scores),
+    stringsAsFactors = FALSE
+  )
+}
+
+sig_diff <- diff_link[diff_link$p.value < 0.05, ]
+sig_diff$receptor <- sub(" <- .*", "", sig_diff$feature)
+sig_diff$ligand <- sub(".* <- ", "", sig_diff$feature)
+
+
+top_senders_list <- vector("list", nrow(sig_diff))
+
+# iterate through the rows of significantly different signaling linkages
+for (i in seq_len(nrow(sig_diff))) {
+
+  receiver <- sig_diff$cluster[i]
+  receptor <- sig_diff$receptor[i]
+  ligand <- sig_diff$ligand[i]
+
+  senders <- get_top_n_senders(
+    dom = pbmc_dom,
+    receiver = receiver,
+    receptor = receptor,
+    ligand = ligand,
+    n = 3
+  )
+
+  if (!is.null(senders)) {
+
+    # Add differential signaling statistics
+    result_info <- sig_diff[rep(i, nrow(senders)), ]
+
+    top_senders_list[[i]] <- cbind(
+      result_info,
+      senders[, c("sender", "sender_score", "sender_rank")]
+    )
+  }
+}
+
+top_senders <- do.call(rbind, top_senders_list)
+rownames(top_senders) <- NULL
+
+write.csv(top_senders, "incoming_ligand_senders.csv")
