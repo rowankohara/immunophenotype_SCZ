@@ -56,6 +56,9 @@ rownames(meta) = meta$MPRCID
 meta = meta[ MPRCID , ]
 
 ## Groups ---- 
+# Comparing AGA+ SRD vs AGA- SRD vs AGA- HC
+# SCZHi = AGA+ SRD
+# SCZLo = AGA- SRD
 
 design = model.matrix( ~ 0 + Group + Sex + Age , data = meta )
 
@@ -100,67 +103,6 @@ write.table( dge , quote=F , sep='\t' , row.names=F ,
 
 # Make plots ----
 
-# barplot
-sig = dge[ dge$PValue < 0.01 , ]
-sig$dir = 'up'
-sig$dir[ sig$logFC < 0 ] = 'down'
-
-sig$cond = paste( sig$Celltype , sig$Contrast )
-
-nsig = table( sig$cond , sig$dir )
-nsig[,1] = -1 * nsig[,1]
-
-types = sort(  unique( sig$Celltype ) )
-
-pdf('plots/nsig.barplot.pdf',width=8,height=5)
-par( mar = c(8,4,1,1) , bty = 'l' )
-barplot( height = nsig[,1] , ylim = c(-300,200) , space = c(1,0,0) ,
-         xaxt = 'n' , col = c('maroon','green','blue') )
-barplot( add = T , height = nsig[,2] , space = c(1,0,0) ,
-         col = c('maroon','green','blue') , xaxt = 'n' )
-axis( side = 1 , at = 1:25 * 4 - 1.5 , las = 2 , label = types )
-abline( h = c(0,-300) )
-legend( 'bottomright' , bty = 'n' , fill = c('maroon','green','blue') ,
-        legend = c('SZhigh vs. HC','SZlow vs. HC','SZhigh vs. SZlow') )
-mtext( side = 2 , line = 2.5 , '# of DEGs (P < 0.01)' )
-dev.off()
-
-
-# boxplots
-meta$xpos = 1
-meta$xpos[ meta$Group == 'SCZ High' ] = 2
-meta$xpos[ meta$Group == 'SCZ Low' ] = 3
-meta$color = 'maroon'
-meta$color[ meta$Group == 'SCZ Low' ] = 'green'
-meta$color[ meta$Group == 'HC' ] = 'blue'
-
-e = elist[['Treg']]
-e = cpm( e , log = T )
-
-pdf('dkelly_pilot.treg.top_degs.boxplot.pdf',width=10,height=2.5)
-# boxplot( y ~ grp , outline = F )
-par( bty = 'l' , mfrow = c(1,5) , mar = c(3,2.5,2.5,0) , oma = c(1,1,0,0) )
-for( gene.i in c('TNFAIP3','NR4A2','ELL2','FMN1','RAP2A') ) {
-y = as.vector(t(e[gene.i,]))
-plot( y = y ,
-      x = jitter( meta$xpos ) ,
-      col = meta$color ,
-      pch = 19 , cex = 1.5 ,
-      xlim = c(0.5,3.5) ,
-      xaxt = 'n' ,
-      xlab = '' , ylab = '' )
-if( gene.i == 'TNFAIP3' ) mtext( outer = T , side = 1 ,
-                              'SCZ AGA group' )
-if( gene.i == 'TNFAIP3' ) mtext( outer = T , side = 2 , 'logCPM' )
-boxplot( add = T , y ~ meta$xpos , outline = F , col = NA ,
-         notch = F , xaxt = 'n' , border = c('blue','maroon','green') )
-axis( side = 1 , at = 1:3 ,
-      labels = c('HC','SZ Hi','SZ Lo') )
-mtext( side = 3 , font = 4 , adj = 0 , cex = 1 , line = 1 , gene.i )
-}
-dev.off()
-
-
 # volcano plots
 clusters_order <- c("3", "5", "4", "16", "6", "7", "31", "20", "13-0", "23", "8", "9", "17","22", "13-1","28", "2", "18", "12","24-1", "25", "0", "1", "10", "14", "27", "21-0", "21-1", "21-2", "26", "11", "15", "19", "24-0", "29", "30", "32")
 
@@ -203,6 +145,7 @@ celltype_labels <- c(
   "30"   = "HSPCs",
   "32"   = "Neutrophils"
 )
+
 celltype_pal <- c(
   "3"    = "coral3",
   "5"    = "orangered",
@@ -459,6 +402,7 @@ design = model.matrix( ~ Class + Sex + Age , data = meta )
 
 dgelist = list()
 
+# pseudobulk and contrast by AGA status
 types = names(elist)
 n = length(types)
 for( i in 1:n ) {
@@ -495,6 +439,7 @@ dge <- dge %>%
 
 dge$Celltype <- factor(dge$Celltype, levels = clusters_order)
 
+# FIGURE 3A
 pdf("plots/AGA_v_AGA_volcano_dge.pdf", width = 12, height = 8)
 p <- ggplot(dge, aes(x = logFC, y = logP)) +
             geom_point(color = "lightgray",

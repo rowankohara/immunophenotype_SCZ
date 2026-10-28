@@ -137,7 +137,9 @@ write.csv(modules_df, "gene_modules_all_celltypes.csv", row.names = FALSE)
 
 # K means modules ----
 dge <- read.table("dkelly_Class.pseudobulk_edgeR.dge.txt", sep = "\t", header = TRUE)
+
 clusters_order <- c("3", "5", "4", "16", "6", "7", "31", "20", "13-0", "23", "8", "9", "17","22", "13-1","28", "2", "18", "12","24-1", "25", "0", "1", "10", "14", "27", "21-0", "21-1", "21-2", "26", "11", "15", "19", "24-0", "29", "30", "32")
+
 celltype_labels <- c(
   "3"    = "CD26^'hi'*CD4^'+'*TS['B']*N",
   "5"    = "CD4^'+'*TS['B']*N",
@@ -177,6 +179,7 @@ celltype_labels <- c(
   "30"   = "HSPCs",
   "32"   = "Neutrophils"
 )
+
 celltype_pal <- c(
   "3"    = "coral3",
   "5"    = "orangered",
@@ -298,7 +301,7 @@ ann_colors <- list(
   pathway = pathway_pal
 )
 
-
+# FIGURE 3C
 pdf('plots/dge.sig-genes.kmeans10.centroids.heatmap.pdf', width = 10, height = 6)
 pheatmap(
   x,
@@ -319,6 +322,7 @@ dev.off()
 MM = cor( t(logfc) , t(centroids) )
 
 
+# SUPPLEMENTAL FIGURE
 pdf('plots/dge.sig-genes.kmeans10.top10.heatmap.pdf', width = 10, height = 6)
 for( i in 1:10 ) {
   pattern = i
@@ -425,102 +429,5 @@ pheatmap(
 )
 
 dev.off()
-
-# Projection ---
-
-glahn_counts <- read.csv("salmon_merged_gene_counts.csv")
-rownames(glahn_counts) <- glahn_counts$gene_id
-glahn_counts <- glahn_counts[, -1]
-logCPM <- edgeR::cpm(glahn_counts, log = TRUE)
-
-common_genes <- intersect(names(clust), rownames(logCPM))
-expr <- t(logCPM[common_genes, ])
-colors <- as.character(clust[common_genes])
-
-MEs <- WGCNA::moduleEigengenes(expr,
-			       colors = colors
-			       )$eigengenes
-rownames(MEs) <- gsub("X", "", rownames(MEs))
-
-
-bprs <- readxl::read_excel("GeneNetworksInfluenc_DATA_2021-01-11_1019.xlsx")
-bprs$sample <- paste0(bprs$is_this_subject_a_patient, bprs$id)
-bprs <- bprs %>% filter(!str_detect(sample, "--"))
-meta <- read_csv("redcap_selection_for_seth.csv")
-meta$sample <- paste0(meta$subject_type, meta$id)
-meta$group <- gsub("^\\d+\\s*=\\s*", "", meta$subject)
-meta$sex <- as.factor(meta$sex)
-meta$group <- as.factor(meta$group)
-
-glahn <- left_join(meta, bprs, by = "sample")
-glahn <- glahn[ , c("sample", "group", "age.x", "sex.x", "bprs_has_this_instrument", "somatic_concerns", "anxiety", "depression", "guilt", "hostility", "suspiciousness", "unusual_thought_content", "grandiosity", "hallucinations", "disorientation", "conceptual_disorganization", "excitement", "motor_retardation", "blunted_affect", "tension", "mannerisms_and_posturing", "uncooperativeness", "emotional_withdrawal", "suicidality", "self_neglect", "bizarre_behaviors", "elevated_mood", "motor_hyperactivity", "distractability", "bprse_complete", "work_and_activities")]
-glahn$neg_avg <- (glahn$blunted_affect + glahn$emotional_withdrawal + glahn$motor_retardation) / 3
-glahn$pos_avg <- (glahn$unusual_thought_content + glahn$conceptual_disorganization + glahn$hallucinations + glahn$grandiosity) / 4
-
-
-MEs <- MEs %>% filter(rownames(MEs) %in% glahn$sample)
-glahn <- glahn %>% filter(glahn$sample %in% rownames(MEs))
-
-
-cor_results <- data.frame(
-  module = colnames(MEs),
-  cor = NA,
-  pvalue = NA
-)
-
-for(i in seq_along(colnames(MEs))) {
-
-  ct <- cor.test(
-    MEs[, i],
-    glahn$work_and_activities,
-    method = "pearson"
-  )
-
-  cor_results$cor[i] <- ct$estimate
-  cor_results$pvalue[i] <- ct$p.value
-}
-
-cor_results$FDR <- p.adjust(
-  cor_results$pvalue,
-  method = "fdr"
-)
-
-cor_results[order(cor_results$FDR), ]
-
-
-### with covariates -----
-results <- lapply(colnames(MEs), function(me){
-
-  dat <- cbind(
-    glahn,
-    module = MEs[, me]
-  )
-
-  fit <- lm(
-    work_and_activities  ~
-      module +
-      age.x +
-      sex.x,
-    data = dat
-  )
-
-  s <- summary(fit)$coefficients
-
-  data.frame(
-    module = me,
-    beta = s["module","Estimate"],
-    pvalue = s["module","Pr(>|t|)"]
-  )
-})
-
-results <- do.call(rbind, results)
-
-results$FDR <- p.adjust(
-  results$pvalue,
-  method = "fdr"
-)
-
-results[order(results$FDR), ]
-
 
 
