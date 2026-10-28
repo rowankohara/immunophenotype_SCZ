@@ -5,6 +5,9 @@
 .Rprofile
 venv/
 *.swp
+*.swo
+*.swn
+.*.sw?
 .Rproj
 .rds
 .txt
