@@ -1,5 +1,5 @@
 # Molecular adaptations of activated T-cells in an inflammation-associated schizophrenia subgroup
-## Authors:  Deepak Salem, Rowan K. O’Hara-Payne, Sarah M. Clark, Marcia Cortes-Gutierrez, Nevil J. Singh, Daniel J. Roche, Deanna L. Kelly, Seth A. Ament
+**Deepak Salem, Rowan K. O’Hara-Payne, Sarah M. Clark, Marcia Cortes-Gutierrez, Nevil J. Singh, Daniel J. Roche, Deanna L. Kelly, Seth A. Ament**
 
 Thirty-five percent of people with schizophrenia-related disorders (SRD) form a high-inflammation subgroup defined by elevated anti-gliadin antibodies (AGA+) and inflammatory proteins and associated with an increased severity of negative symptoms. 
 However, the immune mechanisms mediating these effects remain poorly defined. 
@@ -13,6 +13,6 @@ These findings contribute to our current understanding of negative symptom-predo
 
 Keywords: *schizophrenia*, *single cell*, *T cell*, *antigliadin antibody*, *RNA sequencing*, *inflammation*.
 
-[Pre-print] (https://www.biorxiv.org/content/10.64898/2026.05.22.727194v1)
+(Pre-print) [https://www.biorxiv.org/content/10.64898/2026.05.22.727194v1]
 
 ## Scripts
