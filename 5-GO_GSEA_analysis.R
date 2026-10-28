@@ -197,7 +197,6 @@ celltype_labels <- c(
   "32"   = "Neutrophils"
 )
 
-all_gsea <- list()
 
 clean_names <- function(x) {
         x %>%
@@ -206,12 +205,13 @@ clean_names <- function(x) {
                 str_to_lower() %>%
                 str_to_title() %>%
                 str_replace_all(
-                        "\\b(Tnfa|Nfkb|Dna|Rna|Myc|Mtorc1|Uv|G2m|Il6|Jak|Stat3|Il2|Stat5|Tgf)\\b",
+                        "\\b(Tnfa|Kras|Nfkb|Dna|Rna|Myc|Mtorc1|Uv|G2m|Il6|Jak|Stat3|Il2|Stat5|Tgf|E2f)\\b",
                         toupper
                 )
 }
 
-
+all_gsea <- list()
+top_pathways_list <- list()
 for (ct in celltypes) {
 
         dge_sub <- dge %>%
@@ -242,20 +242,31 @@ for (ct in celltypes) {
                 BPPARAM = SerialParam()
         )
 
+	# save all gsea results
+	all_gsea[[ct]] <- gsea_res %>%
+		arrange(padj) %>%
+		mutate(Celltype = ct,
+                        pathway = clean_names(pathway)
+                )
+
         # keep top pathways
         top_gsea <- gsea_res %>%
                 arrange(padj) %>%
                 slice_head(n = 20) %>%
-                mutate(
-                        Celltype = ct,
+                mutate(Celltype = ct,
                         pathway = clean_names(pathway)
                 )
 
-        all_gsea[[ct]] <- top_gsea
+	top_pathways_list[[ct]] <- top_gsea$pathway	
 }
 
 # combine all cell types
 gsea_df <- bind_rows(all_gsea)
+
+unique_pathways <- unique(unlist(top_pathways_list))
+
+gsea_df <- gsea_df %>%
+	filter(pathway %in% unique_pathways)
 
 # reorder pathways globally
 gsea_df <- gsea_df %>%
@@ -272,7 +283,6 @@ gsea_df$Celltype <- factor(
     gsea_df$Celltype,
     levels = c("23", "17", "13-1", "18", "16", "13-0", "2", "6", "7", "3", "4", "15", "20", "11", "5", "22", "9", "8", "19", "10", "21-0", "0", "1", "12", "14")
 )
-
 
 # facet plot
 p <- ggplot(
@@ -309,11 +319,11 @@ p <- ggplot(
                         hjust = 0,
                         size = 15,
 			color = "black"
-                ),
-
-                axis.ticks.x = element_blank(),
-                axis.text.y = element_text(size = 15,
-					   color = "black")
+              ),
+              axis.ticks.x = element_blank(),
+              axis.text.y = element_text(size = 15,
+					 color = "black"),
+	      axis.title.y = element_text(size = 20)
         )
 
 ggsave(
