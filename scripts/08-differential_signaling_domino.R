@@ -87,7 +87,8 @@ pbmc_counts <- SummarizedExperiment::assay(pbmc, "counts")
 write.table(t(as.matrix(pbmc_counts)), "scenic/pbmc13k_counts.tsv", sep = "\t",
     col.names = NA)
 
-# run pySCENIC using the bash script
+# run pySCENIC using the bash script (08.1-pySCENIC.sh)
+# based on https://fertiglab.github.io/dominoSignal/articles/tf_scenic_vignette.html
 
 
 # Download CellPhone DB ----

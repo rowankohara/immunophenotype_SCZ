@@ -1,0 +1,669 @@
+"","cluster","linkage","group.by","test_name","feature","odds.ratio","p.value","p.adj","total_count","AGAneg_count","AGApos_count","total_n","AGAneg_n","AGApos_n"
+"1","CD26hiCD4TSbN","rec_lig","Group","fishers.exact","CD44 <- FGF2",0,0.0256410256410257,0.267399267399268,4,0,4,15,8,7
+"2","CD26hiCD4TSbN","rec_lig","Group","fishers.exact","CD44 <- HGF",0,0.0256410256410257,0.267399267399268,4,0,4,15,8,7
+"3","CD26hiCD4TSbN","rec_lig","Group","fishers.exact","CD44 <- LGALS9",0,0.0256410256410257,0.267399267399268,4,0,4,15,8,7
+"4","CD26hiCD4TSbN","rec_lig","Group","fishers.exact","CD44 <- SELE",0,0.0256410256410257,0.267399267399268,4,0,4,15,8,7
+"5","CD26hiCD4TSbN","rec_lig","Group","fishers.exact","CD44 <- SIGLEC15",0,0.0256410256410257,0.267399267399268,4,0,4,15,8,7
+"6","CD26hiCD4TSbN","rec_lig","Group","fishers.exact","CD44 <- TYROBP",0,0.0256410256410257,0.267399267399268,4,0,4,15,8,7
+"7","CD26hiCD4TSbN","rec_lig","Group","fishers.exact","IL11_receptor <- IL11",0,0.0256410256410257,0.267399267399268,4,0,4,15,8,7
+"8","CD26hiCD4TSbN","rec_lig","Group","fishers.exact","PLXNC1 <- SEMA7A",0.071636216880102,0.0405594405594406,0.370104895104895,8,2,6,15,8,7
+"9","DC3","rec_lig","Group","fishers.exact","ICAM1 <- AREG",13.5941167979328,0.0405594405594406,0.827412587412588,9,7,2,15,8,7
+"10","DC3","rec_lig","Group","fishers.exact","ICAM1 <- integrin_aLb2_complex",13.5941167979328,0.0405594405594406,0.827412587412588,9,7,2,15,8,7
+"11","DC3","rec_lig","Group","fishers.exact","ICAM1 <- integrin_aMb2_complex",13.5941167979328,0.0405594405594406,0.827412587412588,9,7,2,15,8,7
+"12","DC3","rec_lig","Group","fishers.exact","ICAM1 <- integrin_aXb2_complex",13.5941167979328,0.0405594405594406,0.827412587412588,9,7,2,15,8,7
+"13","DC3","rec_lig","Group","fishers.exact","ICAM1 <- SPN",13.5941167979328,0.0405594405594406,0.827412587412588,9,7,2,15,8,7
+"14","CD4TSbN","rec_lig","Group","fishers.exact","DPP4 <- PYY",0,0.0256410256410256,0.846153846153846,10,3,7,15,8,7
+"15","CD4TfhSbMp","rec_lig","Group","fishers.exact","IL11_receptor <- IL11",0,0.0256410256410257,1,4,0,4,15,8,7
+"16","SOD2hiCD14Mono","rec_lig","Group","fishers.exact","ICAM1 <- AREG",Inf,0.00699300699300699,0.141258741258741,10,8,2,15,8,7
+"17","SOD2hiCD14Mono","rec_lig","Group","fishers.exact","ICAM1 <- integrin_aLb2_complex",Inf,0.00699300699300699,0.141258741258741,10,8,2,15,8,7
+"18","SOD2hiCD14Mono","rec_lig","Group","fishers.exact","ICAM1 <- integrin_aMb2_complex",Inf,0.00699300699300699,0.141258741258741,10,8,2,15,8,7
+"19","SOD2hiCD14Mono","rec_lig","Group","fishers.exact","ICAM1 <- integrin_aXb2_complex",Inf,0.00699300699300699,0.141258741258741,10,8,2,15,8,7
+"20","SOD2hiCD14Mono","rec_lig","Group","fishers.exact","ICAM1 <- SPN",Inf,0.00699300699300699,0.141258741258741,10,8,2,15,8,7
+"21","CD4Th2DwMp","rec_lig","Group","fishers.exact","IL11_receptor <- IL11",0,0.0256410256410257,1,4,0,4,15,8,7
+"22","CD4Tfh1SwM","rec_lig","Group","fishers.exact","CD36 <- THBS1",0,0.0256410256410257,0.0781440781440782,4,0,4,15,8,7
+"23","CD4Tfh1SwM","rec_lig","Group","fishers.exact","CD74 <- APP",0,0.00699300699300699,0.0298368298368298,5,0,5,15,8,7
+"24","CD4Tfh1SwM","rec_lig","Group","fishers.exact","CD74 <- COPA",0,0.00699300699300699,0.0298368298368298,5,0,5,15,8,7
+"25","CD4Tfh1SwM","rec_lig","Group","fishers.exact","CD74 <- MIF",0,0.00699300699300699,0.0298368298368298,5,0,5,15,8,7
+"26","CD4Tfh1SwM","rec_lig","Group","fishers.exact","LRP1 <- LGALS9",0,0.00699300699300699,0.0298368298368298,5,0,5,15,8,7
+"27","CD4Tfh1SwM","rec_lig","Group","fishers.exact","LRP1 <- MDK",0,0.00699300699300699,0.0298368298368298,5,0,5,15,8,7
+"28","CD4Tfh1SwM","rec_lig","Group","fishers.exact","LRP1 <- PDGFB",0,0.00699300699300699,0.0298368298368298,5,0,5,15,8,7
+"29","CD4Tfh1SwM","rec_lig","Group","fishers.exact","NOTCH2 <- CNTN1",0,0.0256410256410257,0.0781440781440782,4,0,4,15,8,7
+"30","CD4Tfh1SwM","rec_lig","Group","fishers.exact","NOTCH2 <- DLL1",0,0.00699300699300699,0.0298368298368298,5,0,5,15,8,7
+"31","CD4Tfh1SwM","rec_lig","Group","fishers.exact","NOTCH2 <- IL24",0,0.00699300699300699,0.0298368298368298,5,0,5,15,8,7
+"32","CD4Tfh1SwM","rec_lig","Group","fishers.exact","NOTCH2 <- JAG1",0,0.00699300699300699,0.0298368298368298,5,0,5,15,8,7
+"33","CD4Tfh1SwM","rec_lig","Group","fishers.exact","NOTCH2 <- JAG2",0,0.00699300699300699,0.0298368298368298,5,0,5,15,8,7
+"34","CD4Tfh1SwM","rec_lig","Group","fishers.exact","PLAUR <- BMP8B",0,0.0256410256410257,0.0781440781440782,4,0,4,15,8,7
+"35","CD4Tfh1SwM","rec_lig","Group","fishers.exact","PLAUR <- integrin_a4b1_complex",0,0.0256410256410257,0.0781440781440782,4,0,4,15,8,7
+"36","CD4Tfh1SwM","rec_lig","Group","fishers.exact","PLAUR <- integrin_aVb3_complex",0,0.0256410256410257,0.0781440781440782,4,0,4,15,8,7
+"37","CD4Tfh1SwM","rec_lig","Group","fishers.exact","PLXNC1 <- SEMA7A",0,0.00699300699300699,0.0298368298368298,5,0,5,15,8,7
+"38","CD4Tfh1SwM","rec_lig","Group","fishers.exact","TNFRSF1B <- GRN",0,0.00699300699300699,0.0298368298368298,5,0,5,15,8,7
+"39","CD4Tfh1SwM","rec_lig","Group","fishers.exact","TNFRSF1B <- LTA",0,0.00699300699300699,0.0298368298368298,5,0,5,15,8,7
+"40","CD4Tfh1SwM","rec_lig","Group","fishers.exact","TNFRSF1B <- TNF",0,0.00699300699300699,0.0298368298368298,5,0,5,15,8,7
+"41","CD4Tfh1SwM","rec_lig","Group","fishers.exact","VSIR <- CCL4L2",0,0.0256410256410257,0.0781440781440782,4,0,4,15,8,7
+"42","CD4Tfh1SwM","rec_lig","Group","fishers.exact","VSIR <- TNF",0,0.00699300699300699,0.0298368298368298,5,0,5,15,8,7
+"43","IL1BhiCD14Mono","rec_lig","Group","fishers.exact","ICAM1 <- AREG",Inf,0.00699300699300699,0.142657342657343,10,8,2,15,8,7
+"44","IL1BhiCD14Mono","rec_lig","Group","fishers.exact","ICAM1 <- integrin_aLb2_complex",Inf,0.00699300699300699,0.142657342657343,10,8,2,15,8,7
+"45","IL1BhiCD14Mono","rec_lig","Group","fishers.exact","ICAM1 <- integrin_aMb2_complex",Inf,0.00699300699300699,0.142657342657343,10,8,2,15,8,7
+"46","IL1BhiCD14Mono","rec_lig","Group","fishers.exact","ICAM1 <- integrin_aXb2_complex",Inf,0.00699300699300699,0.142657342657343,10,8,2,15,8,7
+"47","IL1BhiCD14Mono","rec_lig","Group","fishers.exact","ICAM1 <- SPN",Inf,0.00699300699300699,0.142657342657343,10,8,2,15,8,7
+"48","CD4Th17DwM","rec_lig","Group","fishers.exact","IL6_receptor <- IL6",0,0.00699300699300699,0.227564102564103,5,0,5,15,8,7
+"49","CD4Th17DwM","rec_lig","Group","fishers.exact","NOTCH2 <- CNTN1",0,0.0256410256410257,0.227564102564103,4,0,4,15,8,7
+"50","CD4Th17DwM","rec_lig","Group","fishers.exact","NOTCH2 <- DLL1",0,0.0256410256410257,0.227564102564103,4,0,4,15,8,7
+"51","CD4Th17DwM","rec_lig","Group","fishers.exact","NOTCH2 <- IL24",0,0.0256410256410257,0.227564102564103,4,0,4,15,8,7
+"52","CD4Th17DwM","rec_lig","Group","fishers.exact","NOTCH2 <- JAG1",0,0.0256410256410257,0.227564102564103,4,0,4,15,8,7
+"53","CD4Th17DwM","rec_lig","Group","fishers.exact","NOTCH2 <- JAG2",0,0.0256410256410257,0.227564102564103,4,0,4,15,8,7
+"54","CD4Th17DwM","rec_lig","Group","fishers.exact","VSIR <- CCL4L2",0,0.0256410256410257,0.227564102564103,4,0,4,15,8,7
+"55","CD4Th17DwM","rec_lig","Group","fishers.exact","VSIR <- TNF",0,0.0256410256410257,0.227564102564103,4,0,4,15,8,7
+"56","CD4TregSwM","rec_lig","Group","fishers.exact","SORL1 <- APP",0.0735612335000728,0.0405594405594406,0.436013986013986,6,1,5,15,8,7
+"57","CD4TregSwM","rec_lig","Group","fishers.exact","SORL1 <- LGALS9",0.0735612335000728,0.0405594405594406,0.436013986013986,6,1,5,15,8,7
+"58","CD4TregSwM","rec_lig","Group","fishers.exact","SORL1 <- MDK",0.0735612335000728,0.0405594405594406,0.436013986013986,6,1,5,15,8,7
+"59","CD4TregSwM","rec_lig","Group","fishers.exact","SORL1 <- TAFA4",0.0735612335000728,0.0405594405594406,0.436013986013986,6,1,5,15,8,7
+"60","C1QhiCD16Mono","rec_lig","Group","fishers.exact","ICAM1 <- AREG",27.2446401495036,0.0101010101010101,0.177777777777778,8,7,1,15,8,7
+"61","C1QhiCD16Mono","rec_lig","Group","fishers.exact","ICAM1 <- integrin_aLb2_complex",27.2446401495036,0.0101010101010101,0.177777777777778,8,7,1,15,8,7
+"62","C1QhiCD16Mono","rec_lig","Group","fishers.exact","ICAM1 <- integrin_aMb2_complex",27.2446401495036,0.0101010101010101,0.177777777777778,8,7,1,15,8,7
+"63","C1QhiCD16Mono","rec_lig","Group","fishers.exact","ICAM1 <- integrin_aXb2_complex",27.2446401495036,0.0101010101010101,0.177777777777778,8,7,1,15,8,7
+"64","C1QhiCD16Mono","rec_lig","Group","fishers.exact","ICAM1 <- SPN",27.2446401495036,0.0101010101010101,0.177777777777778,8,7,1,15,8,7
+"65","ActivatedNaiveB","rec_lig","Group","fishers.exact","LILRB1 <- HLA-F",0.0735612335000728,0.0405594405594406,0.821333333333334,6,1,5,15,8,7
+"66","ISGCD14Mono","rec_lig","Group","fishers.exact","ICAM1 <- AREG",Inf,0.00699300699300699,0.142657342657343,10,8,2,15,8,7
+"67","ISGCD14Mono","rec_lig","Group","fishers.exact","ICAM1 <- integrin_aLb2_complex",Inf,0.00699300699300699,0.142657342657343,10,8,2,15,8,7
+"68","ISGCD14Mono","rec_lig","Group","fishers.exact","ICAM1 <- integrin_aMb2_complex",Inf,0.00699300699300699,0.142657342657343,10,8,2,15,8,7
+"69","ISGCD14Mono","rec_lig","Group","fishers.exact","ICAM1 <- integrin_aXb2_complex",Inf,0.00699300699300699,0.142657342657343,10,8,2,15,8,7
+"70","ISGCD14Mono","rec_lig","Group","fishers.exact","ICAM1 <- SPN",Inf,0.00699300699300699,0.142657342657343,10,8,2,15,8,7
+"71","CD14Mono","rec_lig","Group","fishers.exact","ICAM1 <- AREG",13.959419460602,0.0405594405594406,1,7,6,1,15,8,7
+"72","CD14Mono","rec_lig","Group","fishers.exact","ICAM1 <- integrin_aLb2_complex",13.959419460602,0.0405594405594406,1,7,6,1,15,8,7
+"73","CD14Mono","rec_lig","Group","fishers.exact","ICAM1 <- integrin_aMb2_complex",13.959419460602,0.0405594405594406,1,7,6,1,15,8,7
+"74","CD14Mono","rec_lig","Group","fishers.exact","ICAM1 <- integrin_aXb2_complex",13.959419460602,0.0405594405594406,1,7,6,1,15,8,7
+"75","CD14Mono","rec_lig","Group","fishers.exact","ICAM1 <- SPN",13.959419460602,0.0405594405594406,1,7,6,1,15,8,7
+"76","CD26hiCD4TSbN","tfs_rec","Group","fishers.exact","FOXO1 <- IL11_receptor",0,0.00699300699300699,0.396270396270396,5,0,5,15,8,7
+"77","CD26hiCD4TSbN","tfs_rec","Group","fishers.exact","FOXP1 <- IL11_receptor",0,0.00699300699300699,0.396270396270396,5,0,5,15,8,7
+"78","CD26hiCD4TSbN","tfs_rec","Group","fishers.exact","KLF12 <- DPP4",0.0735612335000728,0.0405594405594406,0.861888111888113,6,1,5,15,8,7
+"79","CD26hiCD4TSbN","tfs_rec","Group","fishers.exact","KLF7 <- CD44",0,0.0256410256410257,0.726495726495727,4,0,4,15,8,7
+"80","CD26hiCD4TSbN","tfs_rec","Group","fishers.exact","KLF7 <- PLXNC1",0.071636216880102,0.0405594405594406,0.861888111888113,8,2,6,15,8,7
+"81","CD26hiCD4TSbN","tfs_rec","Group","fishers.exact","KLF9 <- DPP4",0,0.0256410256410257,0.726495726495727,4,0,4,15,8,7
+"82","CD26hiCD4TSbN","tfs_rec","Group","fishers.exact","KLF9 <- IL6_receptor",0,0.00699300699300699,0.396270396270396,5,0,5,15,8,7
+"83","CD26hiCD4TSbN","tfs_rec","Group","fishers.exact","ZNF583 <- DPP4",0,0.0256410256410257,0.726495726495727,4,0,4,15,8,7
+"84","CD56brightNK","tfs_rec","Group","fishers.exact","E2F3 <- APOBR",0,0.0256410256410257,0.974917491749175,4,0,4,15,8,7
+"85","CD56brightNK","tfs_rec","Group","fishers.exact","E2F3 <- NOTCH2",0.0735612335000728,0.0405594405594406,0.974917491749175,6,1,5,15,8,7
+"86","CD56brightNK","tfs_rec","Group","fishers.exact","E2F3 <- PLXNC1",0,0.00699300699300699,0.974917491749175,5,0,5,15,8,7
+"87","CD56brightNK","tfs_rec","Group","fishers.exact","E2F3 <- TNFRSF1B",0.0735612335000728,0.0405594405594406,0.974917491749175,6,1,5,15,8,7
+"88","CD56brightNK","tfs_rec","Group","fishers.exact","E2F3 <- VSIR",0,0.0256410256410257,0.974917491749175,4,0,4,15,8,7
+"89","DC3","tfs_rec","Group","fishers.exact","CUX1 <- ICAM1",13.5941167979328,0.0405594405594406,1,9,7,2,15,8,7
+"90","DC3","tfs_rec","Group","fishers.exact","ELF1 <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"91","DC3","tfs_rec","Group","fishers.exact","ETV5 <- PECAM1",13.959419460602,0.0405594405594406,1,7,6,1,15,8,7
+"92","DC3","tfs_rec","Group","fishers.exact","ETV5 <- PLAUR",27.2446401495036,0.0101010101010101,1,8,7,1,15,8,7
+"93","DC3","tfs_rec","Group","fishers.exact","ETV6 <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"94","DC3","tfs_rec","Group","fishers.exact","JUNB <- Type_II_IFNR",0,0.00699300699300699,1,5,0,5,15,8,7
+"95","DC3","tfs_rec","Group","fishers.exact","KLF6 <- INSR",0.071636216880102,0.0405594405594406,1,8,2,6,15,8,7
+"96","DC3","tfs_rec","Group","fishers.exact","KLF6 <- Type_II_IFNR",0.071636216880102,0.0405594405594406,1,8,2,6,15,8,7
+"97","DC3","tfs_rec","Group","fishers.exact","MITF <- APOBR",0.071636216880102,0.0405594405594406,1,8,2,6,15,8,7
+"98","DC3","tfs_rec","Group","fishers.exact","MITF <- LILRB2",0.071636216880102,0.0405594405594406,1,8,2,6,15,8,7
+"99","DC3","tfs_rec","Group","fishers.exact","MITF <- SORT1",0.071636216880102,0.0405594405594406,1,8,2,6,15,8,7
+"100","DC3","tfs_rec","Group","fishers.exact","MITF <- Type_II_IFNR",0,0.0013986013986014,1,6,0,6,15,8,7
+"101","DC3","tfs_rec","Group","fishers.exact","RCOR1 <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"102","DC3","tfs_rec","Group","fishers.exact","REL <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"103","DC3","tfs_rec","Group","fishers.exact","RELB <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"104","DC3","tfs_rec","Group","fishers.exact","SPI1 <- INSR",0,0.0256410256410256,1,10,3,7,15,8,7
+"105","DC3","tfs_rec","Group","fishers.exact","SPI1 <- LILRB2",0,0.0256410256410256,1,10,3,7,15,8,7
+"106","DC3","tfs_rec","Group","fishers.exact","SPI1 <- SORT1",0,0.0256410256410256,1,10,3,7,15,8,7
+"107","DC3","tfs_rec","Group","fishers.exact","YBX1 <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"108","CD4TSbN","tfs_rec","Group","fishers.exact","FOXP1 <- DPP4",0.071636216880102,0.0405594405594406,1,8,2,6,15,8,7
+"109","CD4TSbN","tfs_rec","Group","fishers.exact","ZNF583 <- DPP4",0,0.0256410256410257,1,4,0,4,15,8,7
+"110","CD4TfhSbMp","tfs_rec","Group","fishers.exact","FOXO1 <- IL11_receptor",0,0.00699300699300699,0.417249417249417,5,0,5,15,8,7
+"111","CD4TfhSbMp","tfs_rec","Group","fishers.exact","FOXP1 <- DPP4",0.071636216880102,0.0405594405594406,0.907971014492754,8,2,6,15,8,7
+"112","CD4TfhSbMp","tfs_rec","Group","fishers.exact","FOXP1 <- IL11_receptor",0,0.00699300699300699,0.417249417249417,5,0,5,15,8,7
+"113","CD4TfhSbMp","tfs_rec","Group","fishers.exact","KLF12 <- DPP4",0.0735612335000728,0.0405594405594406,0.907971014492754,6,1,5,15,8,7
+"114","CD4TfhSbMp","tfs_rec","Group","fishers.exact","KLF9 <- DPP4",0,0.0256410256410257,0.907971014492754,4,0,4,15,8,7
+"115","CD4TfhSbMp","tfs_rec","Group","fishers.exact","KLF9 <- IL6_receptor",0,0.00699300699300699,0.417249417249417,5,0,5,15,8,7
+"116","CD4TfhSbMp","tfs_rec","Group","fishers.exact","ZNF583 <- DPP4",0,0.0256410256410257,0.907971014492754,4,0,4,15,8,7
+"117","CD8TSbN","tfs_rec","Group","fishers.exact","FOXP1 <- DPP4",0.071636216880102,0.0405594405594406,1,8,2,6,15,8,7
+"118","CD8TSbN","tfs_rec","Group","fishers.exact","ZNF583 <- DPP4",0,0.0256410256410257,1,4,0,4,15,8,7
+"119","SOD2hiCD14Mono","tfs_rec","Group","fishers.exact","ATF3 <- ICAM1",Inf,0.0013986013986014,1,9,8,1,15,8,7
+"120","SOD2hiCD14Mono","tfs_rec","Group","fishers.exact","CEBPD <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"121","SOD2hiCD14Mono","tfs_rec","Group","fishers.exact","CUX1 <- ICAM1",13.5941167979328,0.0405594405594406,1,9,7,2,15,8,7
+"122","SOD2hiCD14Mono","tfs_rec","Group","fishers.exact","ELF4 <- C5AR1",Inf,0.006993006993007,1,6,6,0,15,8,7
+"123","SOD2hiCD14Mono","tfs_rec","Group","fishers.exact","ELF4 <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"124","SOD2hiCD14Mono","tfs_rec","Group","fishers.exact","ETV6 <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"125","SOD2hiCD14Mono","tfs_rec","Group","fishers.exact","FOS <- FPR1",13.5941167979328,0.0405594405594406,1,9,7,2,15,8,7
+"126","SOD2hiCD14Mono","tfs_rec","Group","fishers.exact","FOSB <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"127","SOD2hiCD14Mono","tfs_rec","Group","fishers.exact","JUN <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"128","SOD2hiCD14Mono","tfs_rec","Group","fishers.exact","JUNB <- ICAM1",13.959419460602,0.0405594405594406,1,7,6,1,15,8,7
+"129","SOD2hiCD14Mono","tfs_rec","Group","fishers.exact","JUND <- C5AR1",Inf,0.0256410256410257,1,11,8,3,15,8,7
+"130","SOD2hiCD14Mono","tfs_rec","Group","fishers.exact","KLF6 <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"131","SOD2hiCD14Mono","tfs_rec","Group","fishers.exact","MITF <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"132","SOD2hiCD14Mono","tfs_rec","Group","fishers.exact","NFKB2 <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"133","SOD2hiCD14Mono","tfs_rec","Group","fishers.exact","NFKB2 <- PILRA",Inf,0.0256410256410257,1,11,8,3,15,8,7
+"134","SOD2hiCD14Mono","tfs_rec","Group","fishers.exact","NFKB2 <- PLXNB2",13.5941167979328,0.0405594405594406,1,9,7,2,15,8,7
+"135","SOD2hiCD14Mono","tfs_rec","Group","fishers.exact","NR4A1 <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"136","SOD2hiCD14Mono","tfs_rec","Group","fishers.exact","RCOR1 <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"137","SOD2hiCD14Mono","tfs_rec","Group","fishers.exact","RELB <- C5AR1",Inf,0.0256410256410257,1,11,8,3,15,8,7
+"138","SOD2hiCD14Mono","tfs_rec","Group","fishers.exact","RELB <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"139","SOD2hiCD14Mono","tfs_rec","Group","fishers.exact","SPI1 <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"140","SOD2hiCD14Mono","tfs_rec","Group","fishers.exact","TFEC <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"141","SOD2hiCD14Mono","tfs_rec","Group","fishers.exact","VDR <- C5AR1",Inf,0.0256410256410257,1,11,8,3,15,8,7
+"142","SwitchedMemoryB","tfs_rec","Group","fishers.exact","RELB <- CD74",0,0.0256410256410256,0.636608863198459,10,3,7,15,8,7
+"143","SwitchedMemoryB","tfs_rec","Group","fishers.exact","RELB <- CD86",0,0.0256410256410257,0.636608863198459,4,0,4,15,8,7
+"144","SwitchedMemoryB","tfs_rec","Group","fishers.exact","RELB <- NOTCH2",0,0.0256410256410256,0.636608863198459,10,3,7,15,8,7
+"145","SwitchedMemoryB","tfs_rec","Group","fishers.exact","RELB <- PECAM1",0,0.0256410256410256,0.636608863198459,10,3,7,15,8,7
+"146","SwitchedMemoryB","tfs_rec","Group","fishers.exact","RELB <- TNFRSF1B",0,0.0256410256410256,0.636608863198459,10,3,7,15,8,7
+"147","SwitchedMemoryB","tfs_rec","Group","fishers.exact","RELB <- Type_II_IFNR",0,0.0256410256410257,0.636608863198459,4,0,4,15,8,7
+"148","SwitchedMemoryB","tfs_rec","Group","fishers.exact","VDR <- Type_II_IFNR",0,0.0256410256410257,0.636608863198459,4,0,4,15,8,7
+"149","CD4Th2DwMp","tfs_rec","Group","fishers.exact","FOXO1 <- IL11_receptor",0,0.00699300699300699,0.452214452214452,5,0,5,15,8,7
+"150","CD4Th2DwMp","tfs_rec","Group","fishers.exact","FOXP1 <- IL11_receptor",0,0.00699300699300699,0.452214452214452,5,0,5,15,8,7
+"151","CD4Th2DwMp","tfs_rec","Group","fishers.exact","KLF12 <- DPP4",0.0735612335000728,0.0405594405594406,0.76078431372549,6,1,5,15,8,7
+"152","CD4Th2DwMp","tfs_rec","Group","fishers.exact","KLF9 <- DPP4",0,0.0256410256410257,0.76078431372549,4,0,4,15,8,7
+"153","CD4Th2DwMp","tfs_rec","Group","fishers.exact","KLF9 <- IL6_receptor",0,0.00699300699300699,0.452214452214452,5,0,5,15,8,7
+"154","CD4Th2DwMp","tfs_rec","Group","fishers.exact","ZNF583 <- DPP4",0,0.0256410256410257,0.76078431372549,4,0,4,15,8,7
+"155","CD4Tfh1SwM","tfs_rec","Group","fishers.exact","ATF3 <- LRP1",0,0.0256410256410257,0.216962524654832,4,0,4,15,8,7
+"156","CD4Tfh1SwM","tfs_rec","Group","fishers.exact","ATF3 <- NOTCH2",0,0.0256410256410257,0.216962524654832,4,0,4,15,8,7
+"157","CD4Tfh1SwM","tfs_rec","Group","fishers.exact","ATF3 <- PECAM1",0,0.0256410256410257,0.216962524654832,4,0,4,15,8,7
+"158","CD4Tfh1SwM","tfs_rec","Group","fishers.exact","ATF3 <- PLXNC1",0,0.0256410256410257,0.216962524654832,4,0,4,15,8,7
+"159","CD4Tfh1SwM","tfs_rec","Group","fishers.exact","ATF3 <- TNFRSF1B",0,0.0256410256410257,0.216962524654832,4,0,4,15,8,7
+"160","CD4Tfh1SwM","tfs_rec","Group","fishers.exact","ATF3 <- VSIR",0,0.0256410256410257,0.216962524654832,4,0,4,15,8,7
+"161","CD4Tfh1SwM","tfs_rec","Group","fishers.exact","RXRA <- CD74",0,0.0256410256410257,0.216962524654832,4,0,4,15,8,7
+"162","CD4Tfh1SwM","tfs_rec","Group","fishers.exact","RXRA <- CSF3R",0,0.0256410256410257,0.216962524654832,4,0,4,15,8,7
+"163","CD4Tfh1SwM","tfs_rec","Group","fishers.exact","RXRA <- LRP1",0,0.0256410256410257,0.216962524654832,4,0,4,15,8,7
+"164","CD4Tfh1SwM","tfs_rec","Group","fishers.exact","RXRA <- NOTCH2",0,0.0256410256410257,0.216962524654832,4,0,4,15,8,7
+"165","CD4Tfh1SwM","tfs_rec","Group","fishers.exact","RXRA <- PECAM1",0,0.0256410256410257,0.216962524654832,4,0,4,15,8,7
+"166","CD4Tfh1SwM","tfs_rec","Group","fishers.exact","RXRA <- TNFRSF1B",0,0.0256410256410257,0.216962524654832,4,0,4,15,8,7
+"167","CD4Tfh1SwM","tfs_rec","Group","fishers.exact","RXRA <- VSIR",0,0.0256410256410257,0.216962524654832,4,0,4,15,8,7
+"168","CD8Tc1DwM","tfs_rec","Group","fishers.exact","KLF12 <- DPP4",0.0735612335000728,0.0405594405594406,0.892753623188406,6,1,5,15,8,7
+"169","CD8Tc1DwM","tfs_rec","Group","fishers.exact","KLF9 <- DPP4",0,0.0256410256410257,0.892753623188406,4,0,4,15,8,7
+"170","CD8Tc1DwM","tfs_rec","Group","fishers.exact","ZBTB14 <- CLEC2D",0,0.0256410256410257,0.892753623188406,4,0,4,15,8,7
+"171","CD8Tc1DwM","tfs_rec","Group","fishers.exact","ZNF583 <- DPP4",0,0.0256410256410257,0.892753623188406,4,0,4,15,8,7
+"172","IL1BhiCD14Mono","tfs_rec","Group","fishers.exact","ATF3 <- ICAM1",Inf,0.0013986013986014,1,9,8,1,15,8,7
+"173","IL1BhiCD14Mono","tfs_rec","Group","fishers.exact","CEBPD <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"174","IL1BhiCD14Mono","tfs_rec","Group","fishers.exact","CUX1 <- ICAM1",13.5941167979328,0.0405594405594406,1,9,7,2,15,8,7
+"175","IL1BhiCD14Mono","tfs_rec","Group","fishers.exact","ETV6 <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"176","IL1BhiCD14Mono","tfs_rec","Group","fishers.exact","FOS <- FPR1",13.5941167979328,0.0405594405594406,1,9,7,2,15,8,7
+"177","IL1BhiCD14Mono","tfs_rec","Group","fishers.exact","FOSB <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"178","IL1BhiCD14Mono","tfs_rec","Group","fishers.exact","JUN <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"179","IL1BhiCD14Mono","tfs_rec","Group","fishers.exact","JUNB <- ICAM1",13.959419460602,0.0405594405594406,1,7,6,1,15,8,7
+"180","IL1BhiCD14Mono","tfs_rec","Group","fishers.exact","KLF6 <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"181","IL1BhiCD14Mono","tfs_rec","Group","fishers.exact","MITF <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"182","IL1BhiCD14Mono","tfs_rec","Group","fishers.exact","NR4A1 <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"183","IL1BhiCD14Mono","tfs_rec","Group","fishers.exact","RCOR1 <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"184","IL1BhiCD14Mono","tfs_rec","Group","fishers.exact","RELB <- C5AR1",Inf,0.0256410256410257,1,11,8,3,15,8,7
+"185","IL1BhiCD14Mono","tfs_rec","Group","fishers.exact","RELB <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"186","IL1BhiCD14Mono","tfs_rec","Group","fishers.exact","SPI1 <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"187","IL1BhiCD14Mono","tfs_rec","Group","fishers.exact","TFEC <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"188","IL1BhiCD14Mono","tfs_rec","Group","fishers.exact","VDR <- C5AR1",Inf,0.0256410256410257,1,11,8,3,15,8,7
+"189","IL1BhiCD14Mono","tfs_rec","Group","fishers.exact","YBX1 <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"190","IL1BhiCD14Mono","tfs_rec","Group","fishers.exact","YBX1 <- LILRB1",13.5941167979328,0.0405594405594406,1,9,7,2,15,8,7
+"191","CD5B","tfs_rec","Group","fishers.exact","KLF12 <- DPP4",0.0735612335000728,0.0405594405594406,0.949518304431599,6,1,5,15,8,7
+"192","CD5B","tfs_rec","Group","fishers.exact","NFKB2 <- CD74",0.071636216880102,0.0405594405594406,0.949518304431599,8,2,6,15,8,7
+"193","CD5B","tfs_rec","Group","fishers.exact","NFKB2 <- NOTCH2",0.071636216880102,0.0405594405594406,0.949518304431599,8,2,6,15,8,7
+"194","CD5B","tfs_rec","Group","fishers.exact","NFKB2 <- PECAM1",0.071636216880102,0.0405594405594406,0.949518304431599,8,2,6,15,8,7
+"195","CD5B","tfs_rec","Group","fishers.exact","NFKB2 <- Type_II_IFNR",0.0735612335000728,0.0405594405594406,0.949518304431599,6,1,5,15,8,7
+"196","CD4Th17DwM","tfs_rec","Group","fishers.exact","FOXO1 <- IGF1R",0.0735612335000728,0.0405594405594406,0.567307692307693,6,1,5,15,8,7
+"197","CD4Th17DwM","tfs_rec","Group","fishers.exact","FOXO1 <- IL6_receptor",0,0.0256410256410257,0.567307692307693,4,0,4,15,8,7
+"198","CD4Th17DwM","tfs_rec","Group","fishers.exact","FOXO1 <- SEMA4D",0,0.0013986013986014,0.247552447552448,6,0,6,15,8,7
+"199","CD4Th17DwM","tfs_rec","Group","fishers.exact","KLF12 <- DPP4",0,0.00699300699300699,0.309440559440559,5,0,5,15,8,7
+"200","CD4Th17DwM","tfs_rec","Group","fishers.exact","KLF9 <- DPP4",0,0.0256410256410257,0.567307692307693,4,0,4,15,8,7
+"201","CD4Th17DwM","tfs_rec","Group","fishers.exact","KLF9 <- IL6_receptor",0,0.00699300699300699,0.309440559440559,5,0,5,15,8,7
+"202","CD4Th17DwM","tfs_rec","Group","fishers.exact","NFKB1 <- IL6_receptor",0,0.00699300699300699,0.309440559440559,5,0,5,15,8,7
+"203","CD4Th17DwM","tfs_rec","Group","fishers.exact","NFKB1 <- VSIR",0,0.0256410256410257,0.567307692307693,4,0,4,15,8,7
+"204","CD4Th17DwM","tfs_rec","Group","fishers.exact","ZBTB14 <- CLEC2D",0,0.0256410256410257,0.567307692307693,4,0,4,15,8,7
+"205","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","CEBPD <- CD36",0,0.00699300699300699,0.849906191369606,5,0,5,15,8,7
+"206","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","CEBPD <- CD86",0.0735612335000728,0.0405594405594406,0.849906191369606,6,1,5,15,8,7
+"207","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","CEBPD <- CSF1R",0.0735612335000728,0.0405594405594406,0.849906191369606,6,1,5,15,8,7
+"208","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","CEBPD <- CSF3R",0.0735612335000728,0.0405594405594406,0.849906191369606,6,1,5,15,8,7
+"209","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","CEBPD <- FCGR2A",0,0.0256410256410257,0.849906191369606,4,0,4,15,8,7
+"210","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","CEBPD <- INSR",0,0.0256410256410257,0.849906191369606,4,0,4,15,8,7
+"211","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","CEBPD <- LILRB2",0.0735612335000728,0.0405594405594406,0.849906191369606,6,1,5,15,8,7
+"212","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","CEBPD <- LRP1",0.0735612335000728,0.0405594405594406,0.849906191369606,6,1,5,15,8,7
+"213","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","CEBPD <- NOTCH2",0,0.00699300699300699,0.849906191369606,5,0,5,15,8,7
+"214","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","CEBPD <- PECAM1",0.0735612335000728,0.0405594405594406,0.849906191369606,6,1,5,15,8,7
+"215","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","CEBPD <- PILRA",0.0735612335000728,0.0405594405594406,0.849906191369606,6,1,5,15,8,7
+"216","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","CEBPD <- PLAUR",0.0735612335000728,0.0405594405594406,0.849906191369606,6,1,5,15,8,7
+"217","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","CEBPD <- PLXNB2",0.0735612335000728,0.0405594405594406,0.849906191369606,6,1,5,15,8,7
+"218","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","CEBPD <- SORT1",0,0.00699300699300699,0.849906191369606,5,0,5,15,8,7
+"219","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","CEBPD <- TNFRSF1B",0.0735612335000728,0.0405594405594406,0.849906191369606,6,1,5,15,8,7
+"220","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","CEBPD <- VSIR",0,0.0256410256410257,0.849906191369606,4,0,4,15,8,7
+"221","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","CUX1 <- ICAM1",13.959419460602,0.0405594405594406,0.849906191369606,7,6,1,15,8,7
+"222","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","ELF4 <- C5AR1",Inf,0.0013986013986014,0.633566433566434,7,7,0,15,8,7
+"223","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","ELF4 <- CD86",13.5941167979328,0.0405594405594406,0.849906191369606,9,7,2,15,8,7
+"224","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","ELF4 <- CSF1R",13.5941167979328,0.0405594405594406,0.849906191369606,9,7,2,15,8,7
+"225","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","ELF4 <- PLXNB2",13.5941167979328,0.0405594405594406,0.849906191369606,9,7,2,15,8,7
+"226","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","ELF4 <- PLXNC1",13.959419460602,0.0405594405594406,0.849906191369606,7,6,1,15,8,7
+"227","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","ETV6 <- ICAM1",Inf,0.0256410256410256,0.849906191369606,5,5,0,15,8,7
+"228","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","FOXO3 <- ICAM1",Inf,0.0256410256410256,0.849906191369606,5,5,0,15,8,7
+"229","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","JUNB <- ICAM1",13.959419460602,0.0405594405594406,0.849906191369606,7,6,1,15,8,7
+"230","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","KLF6 <- ICAM1",Inf,0.0256410256410256,0.849906191369606,5,5,0,15,8,7
+"231","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","MITF <- APOBR",0,0.0256410256410256,0.849906191369606,10,3,7,15,8,7
+"232","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","MITF <- CD36",0,0.0256410256410256,0.849906191369606,10,3,7,15,8,7
+"233","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","MITF <- SORT1",0,0.0256410256410256,0.849906191369606,10,3,7,15,8,7
+"234","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","MITF <- Type_II_IFNR",0,0.0013986013986014,0.633566433566434,8,1,7,15,8,7
+"235","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","NR4A1 <- ICAM1",Inf,0.0256410256410256,0.849906191369606,5,5,0,15,8,7
+"236","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","RCOR1 <- ICAM1",Inf,0.0256410256410256,0.849906191369606,5,5,0,15,8,7
+"237","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","REL <- ICAM1",Inf,0.0256410256410256,0.849906191369606,5,5,0,15,8,7
+"238","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","REL <- LILRB1",13.5941167979328,0.0405594405594406,0.849906191369606,9,7,2,15,8,7
+"239","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","RELB <- C5AR1",Inf,0.0256410256410257,0.849906191369606,11,8,3,15,8,7
+"240","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","RELB <- ICAM1",Inf,0.0256410256410256,0.849906191369606,5,5,0,15,8,7
+"241","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","SPI1 <- ICAM1",Inf,0.0256410256410256,0.849906191369606,5,5,0,15,8,7
+"242","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","TP53 <- C5AR1",Inf,0.0256410256410257,0.849906191369606,11,8,3,15,8,7
+"243","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","VDR <- C5AR1",Inf,0.0256410256410257,0.849906191369606,11,8,3,15,8,7
+"244","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","YBX1 <- ICAM1",Inf,0.0256410256410256,0.849906191369606,5,5,0,15,8,7
+"245","C1QhiCD16Mono","tfs_rec","Group","fishers.exact","ZBTB7A <- C5AR1",Inf,0.0256410256410257,0.849906191369606,11,8,3,15,8,7
+"246","MHChiCD14Mono","tfs_rec","Group","fishers.exact","ELF4 <- INSR",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"247","MHChiCD14Mono","tfs_rec","Group","fishers.exact","KLF4 <- LILRB1",13.5941167979328,0.0405594405594406,1,9,7,2,15,8,7
+"248","MHChiCD14Mono","tfs_rec","Group","fishers.exact","RELB <- Type_II_IFNR",0,0.0256410256410257,1,4,0,4,15,8,7
+"249","MHChiCD14Mono","tfs_rec","Group","fishers.exact","RXRA <- LILRB1",13.5941167979328,0.0405594405594406,1,9,7,2,15,8,7
+"250","MHChiCD14Mono","tfs_rec","Group","fishers.exact","VDR <- Type_II_IFNR",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"251","pDC","tfs_rec","Group","fishers.exact","ARID3A <- CD74",Inf,0.0256410256410257,1,11,8,3,15,8,7
+"252","pDC","tfs_rec","Group","fishers.exact","ELF4 <- NOTCH2",0.071636216880102,0.0405594405594406,1,8,2,6,15,8,7
+"253","pDC","tfs_rec","Group","fishers.exact","ELF4 <- PLXNC1",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"254","ActivatedNaiveB","tfs_rec","Group","fishers.exact","ERF <- CD74",0.0735612335000728,0.0405594405594406,0.637889383343929,6,1,5,15,8,7
+"255","ActivatedNaiveB","tfs_rec","Group","fishers.exact","ERF <- NOTCH2",0.0735612335000728,0.0405594405594406,0.637889383343929,6,1,5,15,8,7
+"256","ActivatedNaiveB","tfs_rec","Group","fishers.exact","ERF <- PECAM1",0,0.0256410256410257,0.637889383343929,4,0,4,15,8,7
+"257","ActivatedNaiveB","tfs_rec","Group","fishers.exact","NFKB2 <- CD74",0,0.006993006993007,0.403263403263404,9,2,7,15,8,7
+"258","ActivatedNaiveB","tfs_rec","Group","fishers.exact","NFKB2 <- NOTCH2",0,0.006993006993007,0.403263403263404,9,2,7,15,8,7
+"259","ActivatedNaiveB","tfs_rec","Group","fishers.exact","NFKB2 <- PECAM1",0,0.006993006993007,0.403263403263404,9,2,7,15,8,7
+"260","ActivatedNaiveB","tfs_rec","Group","fishers.exact","NFKB2 <- PLXNC1",0.071636216880102,0.0405594405594406,0.637889383343929,8,2,6,15,8,7
+"261","ActivatedNaiveB","tfs_rec","Group","fishers.exact","NFKB2 <- Type_II_IFNR",0,0.0256410256410257,0.637889383343929,4,0,4,15,8,7
+"262","ActivatedNaiveB","tfs_rec","Group","fishers.exact","REL <- LILRB1",0.0735612335000728,0.0405594405594406,0.637889383343929,6,1,5,15,8,7
+"263","ActivatedNaiveB","tfs_rec","Group","fishers.exact","VDR <- PLXNC1",0.071636216880102,0.0405594405594406,0.637889383343929,8,2,6,15,8,7
+"264","ActivatedNaiveB","tfs_rec","Group","fishers.exact","VDR <- Type_II_IFNR",0,0.0256410256410257,0.637889383343929,4,0,4,15,8,7
+"265","CD8NKTc1DwAp","tfs_rec","Group","fishers.exact","FOXO1 <- IL11_receptor",0,0.0256410256410257,0.942666666666667,4,0,4,15,8,7
+"266","CD8NKTc1DwAp","tfs_rec","Group","fishers.exact","FOXO1 <- SEMA4D",0,0.0256410256410257,0.942666666666667,4,0,4,15,8,7
+"267","CD8NKTc1DwAp","tfs_rec","Group","fishers.exact","FOXP1 <- IL11_receptor",0.0735612335000728,0.0405594405594406,0.942666666666667,6,1,5,15,8,7
+"268","CD8NKTc1DwAp","tfs_rec","Group","fishers.exact","GATA3 <- RORA",13.959419460602,0.0405594405594406,0.942666666666667,7,6,1,15,8,7
+"269","CD8NKTc1DwAp","tfs_rec","Group","fishers.exact","KLF12 <- DPP4",0.0735612335000728,0.0405594405594406,0.942666666666667,6,1,5,15,8,7
+"270","CD8NKTc1DwAp","tfs_rec","Group","fishers.exact","KLF9 <- DPP4",0,0.0256410256410257,0.942666666666667,4,0,4,15,8,7
+"271","CD8NKTc1DwAp","tfs_rec","Group","fishers.exact","KLF9 <- IL6_receptor",0,0.00699300699300699,0.942666666666667,5,0,5,15,8,7
+"272","ISGCD14Mono","tfs_rec","Group","fishers.exact","ATF3 <- ICAM1",Inf,0.0013986013986014,1,9,8,1,15,8,7
+"273","ISGCD14Mono","tfs_rec","Group","fishers.exact","CEBPD <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"274","ISGCD14Mono","tfs_rec","Group","fishers.exact","ELF1 <- CD36",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"275","ISGCD14Mono","tfs_rec","Group","fishers.exact","ELF1 <- CD74",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"276","ISGCD14Mono","tfs_rec","Group","fishers.exact","ELF1 <- CD86",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"277","ISGCD14Mono","tfs_rec","Group","fishers.exact","ELF1 <- CSF1R",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"278","ISGCD14Mono","tfs_rec","Group","fishers.exact","ELF1 <- CSF3R",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"279","ISGCD14Mono","tfs_rec","Group","fishers.exact","ELF1 <- FCGR2A",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"280","ISGCD14Mono","tfs_rec","Group","fishers.exact","ELF1 <- INSR",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"281","ISGCD14Mono","tfs_rec","Group","fishers.exact","ELF1 <- LILRB2",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"282","ISGCD14Mono","tfs_rec","Group","fishers.exact","ELF1 <- LRP1",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"283","ISGCD14Mono","tfs_rec","Group","fishers.exact","ELF1 <- PECAM1",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"284","ISGCD14Mono","tfs_rec","Group","fishers.exact","ELF1 <- PILRA",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"285","ISGCD14Mono","tfs_rec","Group","fishers.exact","ELF1 <- PLAUR",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"286","ISGCD14Mono","tfs_rec","Group","fishers.exact","ELF1 <- PLXNB2",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"287","ISGCD14Mono","tfs_rec","Group","fishers.exact","ELF1 <- SIRPA",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"288","ISGCD14Mono","tfs_rec","Group","fishers.exact","ELF1 <- SORT1",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"289","ISGCD14Mono","tfs_rec","Group","fishers.exact","ELF1 <- TNFRSF10B",0,0.0256410256410257,1,4,0,4,15,8,7
+"290","ISGCD14Mono","tfs_rec","Group","fishers.exact","ELF1 <- TNFRSF1B",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"291","ISGCD14Mono","tfs_rec","Group","fishers.exact","ELF1 <- VSIR",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"292","ISGCD14Mono","tfs_rec","Group","fishers.exact","FOSB <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"293","ISGCD14Mono","tfs_rec","Group","fishers.exact","JUN <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"294","ISGCD14Mono","tfs_rec","Group","fishers.exact","JUNB <- ICAM1",13.959419460602,0.0405594405594406,1,7,6,1,15,8,7
+"295","ISGCD14Mono","tfs_rec","Group","fishers.exact","MITF <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"296","ISGCD14Mono","tfs_rec","Group","fishers.exact","NFKB2 <- PLXNB2",13.959419460602,0.0405594405594406,1,7,6,1,15,8,7
+"297","ISGCD14Mono","tfs_rec","Group","fishers.exact","NR4A1 <- C5AR1",Inf,0.0256410256410257,1,11,8,3,15,8,7
+"298","ISGCD14Mono","tfs_rec","Group","fishers.exact","NR4A1 <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"299","ISGCD14Mono","tfs_rec","Group","fishers.exact","RCOR1 <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"300","ISGCD14Mono","tfs_rec","Group","fishers.exact","SPI1 <- ICAM1",Inf,0.0256410256410256,1,5,5,0,15,8,7
+"301","ISGCD14Mono","tfs_rec","Group","fishers.exact","YBX1 <- FCGR2A",13.959419460602,0.0405594405594406,1,7,6,1,15,8,7
+"302","ISGCD14Mono","tfs_rec","Group","fishers.exact","YBX1 <- LILRB2",13.5941167979328,0.0405594405594406,1,9,7,2,15,8,7
+"303","CD14Mono","tfs_rec","Group","fishers.exact","ATF3 <- INSR",0.071636216880102,0.0405594405594406,0.486713286713287,8,2,6,15,8,7
+"304","CD14Mono","tfs_rec","Group","fishers.exact","ATF3 <- LILRB2",0.071636216880102,0.0405594405594406,0.486713286713287,8,2,6,15,8,7
+"305","CD14Mono","tfs_rec","Group","fishers.exact","ATF3 <- SORT1",0.071636216880102,0.0405594405594406,0.486713286713287,8,2,6,15,8,7
+"306","CD14Mono","tfs_rec","Group","fishers.exact","CEBPD <- CD36",0.071636216880102,0.0405594405594406,0.486713286713287,8,2,6,15,8,7
+"307","CD14Mono","tfs_rec","Group","fishers.exact","CEBPD <- CD86",0.071636216880102,0.0405594405594406,0.486713286713287,8,2,6,15,8,7
+"308","CD14Mono","tfs_rec","Group","fishers.exact","CEBPD <- CSF1R",0.071636216880102,0.0405594405594406,0.486713286713287,8,2,6,15,8,7
+"309","CD14Mono","tfs_rec","Group","fishers.exact","CEBPD <- CSF3R",0.071636216880102,0.0405594405594406,0.486713286713287,8,2,6,15,8,7
+"310","CD14Mono","tfs_rec","Group","fishers.exact","CEBPD <- FCGR2A",0.0735612335000728,0.0405594405594406,0.486713286713287,6,1,5,15,8,7
+"311","CD14Mono","tfs_rec","Group","fishers.exact","CEBPD <- HRH2",0,0.0256410256410257,0.475033738191633,4,0,4,15,8,7
+"312","CD14Mono","tfs_rec","Group","fishers.exact","CEBPD <- INSR",0.0735612335000728,0.0405594405594406,0.486713286713287,6,1,5,15,8,7
+"313","CD14Mono","tfs_rec","Group","fishers.exact","CEBPD <- LILRB2",0.071636216880102,0.0405594405594406,0.486713286713287,8,2,6,15,8,7
+"314","CD14Mono","tfs_rec","Group","fishers.exact","CEBPD <- LRP1",0.071636216880102,0.0405594405594406,0.486713286713287,8,2,6,15,8,7
+"315","CD14Mono","tfs_rec","Group","fishers.exact","CEBPD <- NOTCH2",0.0367044671727191,0.0101010101010101,0.475033738191633,7,1,6,15,8,7
+"316","CD14Mono","tfs_rec","Group","fishers.exact","CEBPD <- PECAM1",0.071636216880102,0.0405594405594406,0.486713286713287,8,2,6,15,8,7
+"317","CD14Mono","tfs_rec","Group","fishers.exact","CEBPD <- PILRA",0.071636216880102,0.0405594405594406,0.486713286713287,8,2,6,15,8,7
+"318","CD14Mono","tfs_rec","Group","fishers.exact","CEBPD <- PLAUR",0.071636216880102,0.0405594405594406,0.486713286713287,8,2,6,15,8,7
+"319","CD14Mono","tfs_rec","Group","fishers.exact","CEBPD <- PLXNB2",0.071636216880102,0.0405594405594406,0.486713286713287,8,2,6,15,8,7
+"320","CD14Mono","tfs_rec","Group","fishers.exact","CEBPD <- SIRPA",0.0367044671727191,0.0101010101010101,0.475033738191633,7,1,6,15,8,7
+"321","CD14Mono","tfs_rec","Group","fishers.exact","CEBPD <- SORT1",0.0367044671727191,0.0101010101010101,0.475033738191633,7,1,6,15,8,7
+"322","CD14Mono","tfs_rec","Group","fishers.exact","CEBPD <- TNFRSF1B",0.071636216880102,0.0405594405594406,0.486713286713287,8,2,6,15,8,7
+"323","CD14Mono","tfs_rec","Group","fishers.exact","CEBPD <- Type_II_IFNR",0,0.0256410256410257,0.475033738191633,4,0,4,15,8,7
+"324","CD14Mono","tfs_rec","Group","fishers.exact","CEBPD <- VSIR",0.0735612335000728,0.0405594405594406,0.486713286713287,6,1,5,15,8,7
+"325","CD14Mono","tfs_rec","Group","fishers.exact","CUX1 <- ICAM1",13.959419460602,0.0405594405594406,0.486713286713287,7,6,1,15,8,7
+"326","CD14Mono","tfs_rec","Group","fishers.exact","ELF1 <- C5AR1",Inf,0.0256410256410257,0.475033738191633,11,8,3,15,8,7
+"327","CD14Mono","tfs_rec","Group","fishers.exact","ELF1 <- ICAM1",Inf,0.0256410256410256,0.475033738191633,5,5,0,15,8,7
+"328","CD14Mono","tfs_rec","Group","fishers.exact","ETV6 <- ICAM1",Inf,0.0256410256410256,0.475033738191633,5,5,0,15,8,7
+"329","CD14Mono","tfs_rec","Group","fishers.exact","FOS <- SORT1",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"330","CD14Mono","tfs_rec","Group","fishers.exact","FOSB <- ICAM1",Inf,0.0256410256410256,0.475033738191633,5,5,0,15,8,7
+"331","CD14Mono","tfs_rec","Group","fishers.exact","FOXO3 <- INSR",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"332","CD14Mono","tfs_rec","Group","fishers.exact","FOXO3 <- SORT1",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"333","CD14Mono","tfs_rec","Group","fishers.exact","FOXO3 <- Type_II_IFNR",0,0.0013986013986014,0.475033738191633,8,1,7,15,8,7
+"334","CD14Mono","tfs_rec","Group","fishers.exact","JUN <- ICAM1",Inf,0.0256410256410256,0.475033738191633,5,5,0,15,8,7
+"335","CD14Mono","tfs_rec","Group","fishers.exact","JUN <- Type_II_IFNR",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"336","CD14Mono","tfs_rec","Group","fishers.exact","KLF12 <- CLEC2D",Inf,0.0256410256410256,0.475033738191633,5,5,0,15,8,7
+"337","CD14Mono","tfs_rec","Group","fishers.exact","KLF12 <- IL7_receptor",Inf,0.0256410256410256,0.475033738191633,5,5,0,15,8,7
+"338","CD14Mono","tfs_rec","Group","fishers.exact","KLF13 <- CD86",Inf,0.0256410256410256,0.475033738191633,5,5,0,15,8,7
+"339","CD14Mono","tfs_rec","Group","fishers.exact","KLF13 <- LRP1",Inf,0.0256410256410256,0.475033738191633,5,5,0,15,8,7
+"340","CD14Mono","tfs_rec","Group","fishers.exact","KLF13 <- PECAM1",Inf,0.0256410256410256,0.475033738191633,5,5,0,15,8,7
+"341","CD14Mono","tfs_rec","Group","fishers.exact","KLF13 <- TNFRSF1B",Inf,0.0256410256410256,0.475033738191633,5,5,0,15,8,7
+"342","CD14Mono","tfs_rec","Group","fishers.exact","KLF4 <- APOBR",0.071636216880102,0.0405594405594406,0.486713286713287,8,2,6,15,8,7
+"343","CD14Mono","tfs_rec","Group","fishers.exact","KLF4 <- CD36",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"344","CD14Mono","tfs_rec","Group","fishers.exact","KLF4 <- CD74",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"345","CD14Mono","tfs_rec","Group","fishers.exact","KLF4 <- CD86",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"346","CD14Mono","tfs_rec","Group","fishers.exact","KLF4 <- CSF1R",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"347","CD14Mono","tfs_rec","Group","fishers.exact","KLF4 <- INSR",0,0.006993006993007,0.475033738191633,9,2,7,15,8,7
+"348","CD14Mono","tfs_rec","Group","fishers.exact","KLF4 <- LILRB2",0.071636216880102,0.0405594405594406,0.486713286713287,8,2,6,15,8,7
+"349","CD14Mono","tfs_rec","Group","fishers.exact","KLF4 <- LRP1",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"350","CD14Mono","tfs_rec","Group","fishers.exact","KLF4 <- PECAM1",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"351","CD14Mono","tfs_rec","Group","fishers.exact","KLF4 <- PILRA",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"352","CD14Mono","tfs_rec","Group","fishers.exact","KLF4 <- PLAUR",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"353","CD14Mono","tfs_rec","Group","fishers.exact","KLF4 <- PLXNC1",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"354","CD14Mono","tfs_rec","Group","fishers.exact","KLF4 <- SORT1",0,0.006993006993007,0.475033738191633,9,2,7,15,8,7
+"355","CD14Mono","tfs_rec","Group","fishers.exact","KLF4 <- TNFRSF1B",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"356","CD14Mono","tfs_rec","Group","fishers.exact","KLF4 <- Type_II_IFNR",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"357","CD14Mono","tfs_rec","Group","fishers.exact","KLF4 <- VSIR",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"358","CD14Mono","tfs_rec","Group","fishers.exact","KLF6 <- ICAM1",Inf,0.0256410256410256,0.475033738191633,5,5,0,15,8,7
+"359","CD14Mono","tfs_rec","Group","fishers.exact","MITF <- APOBR",0,0.006993006993007,0.475033738191633,9,2,7,15,8,7
+"360","CD14Mono","tfs_rec","Group","fishers.exact","MITF <- CD36",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"361","CD14Mono","tfs_rec","Group","fishers.exact","MITF <- CD74",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"362","CD14Mono","tfs_rec","Group","fishers.exact","MITF <- CD86",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"363","CD14Mono","tfs_rec","Group","fishers.exact","MITF <- CSF1R",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"364","CD14Mono","tfs_rec","Group","fishers.exact","MITF <- FCGR2A",0.071636216880102,0.0405594405594406,0.486713286713287,8,2,6,15,8,7
+"365","CD14Mono","tfs_rec","Group","fishers.exact","MITF <- HRH2",0.0735612335000728,0.0405594405594406,0.486713286713287,6,1,5,15,8,7
+"366","CD14Mono","tfs_rec","Group","fishers.exact","MITF <- LILRB2",0.071636216880102,0.0405594405594406,0.486713286713287,8,2,6,15,8,7
+"367","CD14Mono","tfs_rec","Group","fishers.exact","MITF <- LRP1",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"368","CD14Mono","tfs_rec","Group","fishers.exact","MITF <- NOTCH2",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"369","CD14Mono","tfs_rec","Group","fishers.exact","MITF <- PECAM1",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"370","CD14Mono","tfs_rec","Group","fishers.exact","MITF <- PILRA",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"371","CD14Mono","tfs_rec","Group","fishers.exact","MITF <- PLAUR",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"372","CD14Mono","tfs_rec","Group","fishers.exact","MITF <- PLXNC1",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"373","CD14Mono","tfs_rec","Group","fishers.exact","MITF <- SORT1",0,0.006993006993007,0.475033738191633,9,2,7,15,8,7
+"374","CD14Mono","tfs_rec","Group","fishers.exact","MITF <- TNFRSF1B",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"375","CD14Mono","tfs_rec","Group","fishers.exact","MITF <- Type_II_IFNR",0,0.000155400155400156,0.164102564102564,7,0,7,15,8,7
+"376","CD14Mono","tfs_rec","Group","fishers.exact","MITF <- VSIR",0,0.0256410256410256,0.475033738191633,10,3,7,15,8,7
+"377","CD14Mono","tfs_rec","Group","fishers.exact","POLR2A <- PECAM1",Inf,0.0256410256410256,0.475033738191633,5,5,0,15,8,7
+"378","CD14Mono","tfs_rec","Group","fishers.exact","POLR2A <- PLXNC1",Inf,0.0256410256410256,0.475033738191633,5,5,0,15,8,7
+"379","CD14Mono","tfs_rec","Group","fishers.exact","POLR2A <- TNFRSF1B",Inf,0.0256410256410256,0.475033738191633,5,5,0,15,8,7
+"380","CD14Mono","tfs_rec","Group","fishers.exact","RCOR1 <- ICAM1",Inf,0.0256410256410256,0.475033738191633,5,5,0,15,8,7
+"381","CD14Mono","tfs_rec","Group","fishers.exact","RELB <- LILRB2",0.0735612335000728,0.0405594405594406,0.486713286713287,6,1,5,15,8,7
+"382","CD14Mono","tfs_rec","Group","fishers.exact","RELB <- SIRPA",0.0735612335000728,0.0405594405594406,0.486713286713287,6,1,5,15,8,7
+"383","CD14Mono","tfs_rec","Group","fishers.exact","RELB <- Type_II_IFNR",0,0.00699300699300699,0.475033738191633,5,0,5,15,8,7
+"384","CD14Mono","tfs_rec","Group","fishers.exact","SPI1 <- HRH2",0.0735612335000728,0.0405594405594406,0.486713286713287,6,1,5,15,8,7
+"385","CD14Mono","tfs_rec","Group","fishers.exact","SPI1 <- INSR",0.071636216880102,0.0405594405594406,0.486713286713287,8,2,6,15,8,7
+"386","CD14Mono","tfs_rec","Group","fishers.exact","SPI1 <- LILRB2",0.071636216880102,0.0405594405594406,0.486713286713287,8,2,6,15,8,7
+"387","CD14Mono","tfs_rec","Group","fishers.exact","SPI1 <- SORT1",0.071636216880102,0.0405594405594406,0.486713286713287,8,2,6,15,8,7
+"388","CD14Mono","tfs_rec","Group","fishers.exact","VDR <- LILRB2",0.071636216880102,0.0405594405594406,0.486713286713287,8,2,6,15,8,7
+"389","CD14Mono","tfs_rec","Group","fishers.exact","VDR <- SIRPA",0.071636216880102,0.0405594405594406,0.486713286713287,8,2,6,15,8,7
+"390","CD14Mono","tfs_rec","Group","fishers.exact","VDR <- Type_II_IFNR",0.0367044671727191,0.0101010101010101,0.475033738191633,7,1,6,15,8,7
+"391","DC2","tfs_rec","Group","fishers.exact","ETV5 <- PECAM1",13.959419460602,0.0405594405594406,1,7,6,1,15,8,7
+"392","DC2","tfs_rec","Group","fishers.exact","ETV5 <- PLAUR",27.2446401495036,0.0101010101010101,1,8,7,1,15,8,7
+"393","DC2","tfs_rec","Group","fishers.exact","KLF9 <- IL6_receptor",0,0.0256410256410257,1,4,0,4,15,8,7
+"394","DC2","tfs_rec","Group","fishers.exact","NFKB1 <- TNFRSF10B",13.5941167979328,0.0405594405594406,1,9,7,2,15,8,7
+"395","CD16Mono","tfs_rec","Group","fishers.exact","CUX1 <- LILRB2",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"396","CD16Mono","tfs_rec","Group","fishers.exact","CUX1 <- SORT1",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"397","CD16Mono","tfs_rec","Group","fishers.exact","ELF1 <- CD36",0.071636216880102,0.0405594405594406,0.304551588762115,8,2,6,15,8,7
+"398","CD16Mono","tfs_rec","Group","fishers.exact","ELF1 <- CSF1R",0,0.0256410256410256,0.304551588762115,10,3,7,15,8,7
+"399","CD16Mono","tfs_rec","Group","fishers.exact","ETV6 <- CD36",0.0367044671727191,0.0101010101010101,0.183967332903503,7,1,6,15,8,7
+"400","CD16Mono","tfs_rec","Group","fishers.exact","ETV6 <- CD74",0.071636216880102,0.0405594405594406,0.304551588762115,8,2,6,15,8,7
+"401","CD16Mono","tfs_rec","Group","fishers.exact","ETV6 <- CSF1R",0.071636216880102,0.0405594405594406,0.304551588762115,8,2,6,15,8,7
+"402","CD16Mono","tfs_rec","Group","fishers.exact","ETV6 <- FCGR2A",0,0.0256410256410257,0.304551588762115,4,0,4,15,8,7
+"403","CD16Mono","tfs_rec","Group","fishers.exact","ETV6 <- INSR",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"404","CD16Mono","tfs_rec","Group","fishers.exact","ETV6 <- LILRB2",0.0367044671727191,0.0101010101010101,0.183967332903503,7,1,6,15,8,7
+"405","CD16Mono","tfs_rec","Group","fishers.exact","ETV6 <- LRP1",0.071636216880102,0.0405594405594406,0.304551588762115,8,2,6,15,8,7
+"406","CD16Mono","tfs_rec","Group","fishers.exact","ETV6 <- NOTCH2",0.071636216880102,0.0405594405594406,0.304551588762115,8,2,6,15,8,7
+"407","CD16Mono","tfs_rec","Group","fishers.exact","ETV6 <- PECAM1",0.071636216880102,0.0405594405594406,0.304551588762115,8,2,6,15,8,7
+"408","CD16Mono","tfs_rec","Group","fishers.exact","ETV6 <- PILRA",0.071636216880102,0.0405594405594406,0.304551588762115,8,2,6,15,8,7
+"409","CD16Mono","tfs_rec","Group","fishers.exact","ETV6 <- PLXNB2",0.071636216880102,0.0405594405594406,0.304551588762115,8,2,6,15,8,7
+"410","CD16Mono","tfs_rec","Group","fishers.exact","ETV6 <- SORT1",0.0367044671727191,0.0101010101010101,0.183967332903503,7,1,6,15,8,7
+"411","CD16Mono","tfs_rec","Group","fishers.exact","ETV6 <- VSIR",0.071636216880102,0.0405594405594406,0.304551588762115,8,2,6,15,8,7
+"412","CD16Mono","tfs_rec","Group","fishers.exact","FOS <- CD36",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"413","CD16Mono","tfs_rec","Group","fishers.exact","FOS <- CSF1R",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"414","CD16Mono","tfs_rec","Group","fishers.exact","FOS <- LILRB2",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"415","CD16Mono","tfs_rec","Group","fishers.exact","FOS <- LRP1",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"416","CD16Mono","tfs_rec","Group","fishers.exact","FOS <- PECAM1",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"417","CD16Mono","tfs_rec","Group","fishers.exact","FOS <- PILRA",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"418","CD16Mono","tfs_rec","Group","fishers.exact","FOS <- PLXNB2",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"419","CD16Mono","tfs_rec","Group","fishers.exact","FOS <- PLXNC1",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"420","CD16Mono","tfs_rec","Group","fishers.exact","FOS <- SORT1",0,0.00699300699300699,0.183967332903503,5,0,5,15,8,7
+"421","CD16Mono","tfs_rec","Group","fishers.exact","FOS <- TNFRSF1B",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"422","CD16Mono","tfs_rec","Group","fishers.exact","FOS <- Type_II_IFNR",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"423","CD16Mono","tfs_rec","Group","fishers.exact","FOS <- VSIR",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"424","CD16Mono","tfs_rec","Group","fishers.exact","FOXO3 <- APOBR",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"425","CD16Mono","tfs_rec","Group","fishers.exact","FOXO3 <- CD74",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"426","CD16Mono","tfs_rec","Group","fishers.exact","FOXO3 <- CD86",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"427","CD16Mono","tfs_rec","Group","fishers.exact","FOXO3 <- CSF1R",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"428","CD16Mono","tfs_rec","Group","fishers.exact","FOXO3 <- INSR",0,0.00699300699300699,0.183967332903503,5,0,5,15,8,7
+"429","CD16Mono","tfs_rec","Group","fishers.exact","FOXO3 <- LILRB2",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"430","CD16Mono","tfs_rec","Group","fishers.exact","FOXO3 <- LRP1",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"431","CD16Mono","tfs_rec","Group","fishers.exact","FOXO3 <- NOTCH2",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"432","CD16Mono","tfs_rec","Group","fishers.exact","FOXO3 <- PILRA",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"433","CD16Mono","tfs_rec","Group","fishers.exact","FOXO3 <- PLXNB2",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"434","CD16Mono","tfs_rec","Group","fishers.exact","FOXO3 <- PLXNC1",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"435","CD16Mono","tfs_rec","Group","fishers.exact","FOXO3 <- SORT1",0,0.00699300699300699,0.183967332903503,5,0,5,15,8,7
+"436","CD16Mono","tfs_rec","Group","fishers.exact","FOXO3 <- TNFRSF1B",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"437","CD16Mono","tfs_rec","Group","fishers.exact","FOXO3 <- Type_II_IFNR",0,0.00699300699300699,0.183967332903503,5,0,5,15,8,7
+"438","CD16Mono","tfs_rec","Group","fishers.exact","FOXO3 <- VSIR",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"439","CD16Mono","tfs_rec","Group","fishers.exact","JUNB <- CD36",0.0367044671727191,0.0101010101010101,0.183967332903503,7,1,6,15,8,7
+"440","CD16Mono","tfs_rec","Group","fishers.exact","JUNB <- CSF1R",0.0367044671727191,0.0101010101010101,0.183967332903503,7,1,6,15,8,7
+"441","CD16Mono","tfs_rec","Group","fishers.exact","JUNB <- FCGR2A",0,0.0256410256410257,0.304551588762115,4,0,4,15,8,7
+"442","CD16Mono","tfs_rec","Group","fishers.exact","JUNB <- INSR",0,0.0013986013986014,0.0704236939531058,6,0,6,15,8,7
+"443","CD16Mono","tfs_rec","Group","fishers.exact","JUNB <- LILRB2",0.0367044671727191,0.0101010101010101,0.183967332903503,7,1,6,15,8,7
+"444","CD16Mono","tfs_rec","Group","fishers.exact","JUNB <- LRP1",0.0367044671727191,0.0101010101010101,0.183967332903503,7,1,6,15,8,7
+"445","CD16Mono","tfs_rec","Group","fishers.exact","JUNB <- NOTCH2",0.0367044671727191,0.0101010101010101,0.183967332903503,7,1,6,15,8,7
+"446","CD16Mono","tfs_rec","Group","fishers.exact","JUNB <- PECAM1",0.0367044671727191,0.0101010101010101,0.183967332903503,7,1,6,15,8,7
+"447","CD16Mono","tfs_rec","Group","fishers.exact","JUNB <- PLAUR",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"448","CD16Mono","tfs_rec","Group","fishers.exact","JUNB <- PLXNC1",0.0367044671727191,0.0101010101010101,0.183967332903503,7,1,6,15,8,7
+"449","CD16Mono","tfs_rec","Group","fishers.exact","JUNB <- SORT1",0,0.0013986013986014,0.0704236939531058,6,0,6,15,8,7
+"450","CD16Mono","tfs_rec","Group","fishers.exact","JUNB <- TNFRSF1B",0.0367044671727191,0.0101010101010101,0.183967332903503,7,1,6,15,8,7
+"451","CD16Mono","tfs_rec","Group","fishers.exact","JUNB <- Type_II_IFNR",0,0.0013986013986014,0.0704236939531058,6,0,6,15,8,7
+"452","CD16Mono","tfs_rec","Group","fishers.exact","JUNB <- VSIR",0.0367044671727191,0.0101010101010101,0.183967332903503,7,1,6,15,8,7
+"453","CD16Mono","tfs_rec","Group","fishers.exact","KLF6 <- CD36",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"454","CD16Mono","tfs_rec","Group","fishers.exact","KLF6 <- INSR",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"455","CD16Mono","tfs_rec","Group","fishers.exact","KLF6 <- SORT1",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"456","CD16Mono","tfs_rec","Group","fishers.exact","KLF6 <- Type_II_IFNR",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"457","CD16Mono","tfs_rec","Group","fishers.exact","KLF7 <- INSR",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"458","CD16Mono","tfs_rec","Group","fishers.exact","PBX3 <- INSR",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"459","CD16Mono","tfs_rec","Group","fishers.exact","RCOR1 <- CD36",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"460","CD16Mono","tfs_rec","Group","fishers.exact","RCOR1 <- INSR",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"461","CD16Mono","tfs_rec","Group","fishers.exact","RCOR1 <- SORT1",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"462","CD16Mono","tfs_rec","Group","fishers.exact","RXRA <- INSR",0,0.0256410256410256,0.304551588762115,10,3,7,15,8,7
+"463","CD16Mono","tfs_rec","Group","fishers.exact","RXRA <- SORT1",0,0.0256410256410256,0.304551588762115,10,3,7,15,8,7
+"464","CD16Mono","tfs_rec","Group","fishers.exact","RXRA <- VSIR",0,0.0256410256410256,0.304551588762115,10,3,7,15,8,7
+"465","CD16Mono","tfs_rec","Group","fishers.exact","SP1 <- CD36",0.0367044671727191,0.0101010101010101,0.183967332903503,7,1,6,15,8,7
+"466","CD16Mono","tfs_rec","Group","fishers.exact","SP1 <- CD74",0,0.006993006993007,0.183967332903503,9,2,7,15,8,7
+"467","CD16Mono","tfs_rec","Group","fishers.exact","SP1 <- CD86",0.0367044671727191,0.0101010101010101,0.183967332903503,7,1,6,15,8,7
+"468","CD16Mono","tfs_rec","Group","fishers.exact","SP1 <- CSF1R",0.0367044671727191,0.0101010101010101,0.183967332903503,7,1,6,15,8,7
+"469","CD16Mono","tfs_rec","Group","fishers.exact","SP1 <- HRH2",0,0.0256410256410257,0.304551588762115,4,0,4,15,8,7
+"470","CD16Mono","tfs_rec","Group","fishers.exact","SP1 <- INSR",0,0.00699300699300699,0.183967332903503,5,0,5,15,8,7
+"471","CD16Mono","tfs_rec","Group","fishers.exact","SP1 <- LILRB2",0,0.00699300699300699,0.183967332903503,5,0,5,15,8,7
+"472","CD16Mono","tfs_rec","Group","fishers.exact","SP1 <- LRP1",0.071636216880102,0.0405594405594406,0.304551588762115,8,2,6,15,8,7
+"473","CD16Mono","tfs_rec","Group","fishers.exact","SP1 <- NOTCH2",0,0.006993006993007,0.183967332903503,9,2,7,15,8,7
+"474","CD16Mono","tfs_rec","Group","fishers.exact","SP1 <- PECAM1",0,0.006993006993007,0.183967332903503,9,2,7,15,8,7
+"475","CD16Mono","tfs_rec","Group","fishers.exact","SP1 <- PLXNB2",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"476","CD16Mono","tfs_rec","Group","fishers.exact","SP1 <- PLXNC1",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"477","CD16Mono","tfs_rec","Group","fishers.exact","SP1 <- SORT1",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"478","CD16Mono","tfs_rec","Group","fishers.exact","SP1 <- TNFRSF1B",0,0.006993006993007,0.183967332903503,9,2,7,15,8,7
+"479","CD16Mono","tfs_rec","Group","fishers.exact","SP1 <- VSIR",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"480","CD16Mono","tfs_rec","Group","fishers.exact","SP3 <- INSR",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"481","CD16Mono","tfs_rec","Group","fishers.exact","SP3 <- Type_II_IFNR",0.071636216880102,0.0405594405594406,0.304551588762115,8,2,6,15,8,7
+"482","CD16Mono","tfs_rec","Group","fishers.exact","SPI1 <- APOBR",0.0367044671727191,0.0101010101010101,0.183967332903503,7,1,6,15,8,7
+"483","CD16Mono","tfs_rec","Group","fishers.exact","SPI1 <- C5AR1",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"484","CD16Mono","tfs_rec","Group","fishers.exact","SPI1 <- CD36",0.0367044671727191,0.0101010101010101,0.183967332903503,7,1,6,15,8,7
+"485","CD16Mono","tfs_rec","Group","fishers.exact","SPI1 <- CD74",0,0.0013986013986014,0.0704236939531058,8,1,7,15,8,7
+"486","CD16Mono","tfs_rec","Group","fishers.exact","SPI1 <- CD86",0.0367044671727191,0.0101010101010101,0.183967332903503,7,1,6,15,8,7
+"487","CD16Mono","tfs_rec","Group","fishers.exact","SPI1 <- CSF1R",0,0.0013986013986014,0.0704236939531058,8,1,7,15,8,7
+"488","CD16Mono","tfs_rec","Group","fishers.exact","SPI1 <- FCGR2A",0,0.0256410256410257,0.304551588762115,4,0,4,15,8,7
+"489","CD16Mono","tfs_rec","Group","fishers.exact","SPI1 <- HRH2",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"490","CD16Mono","tfs_rec","Group","fishers.exact","SPI1 <- INSR",0,0.000155400155400156,0.0665112665112667,7,0,7,15,8,7
+"491","CD16Mono","tfs_rec","Group","fishers.exact","SPI1 <- LILRB1",0.0367044671727191,0.0101010101010101,0.183967332903503,7,1,6,15,8,7
+"492","CD16Mono","tfs_rec","Group","fishers.exact","SPI1 <- LILRB2",0,0.0013986013986014,0.0704236939531058,8,1,7,15,8,7
+"493","CD16Mono","tfs_rec","Group","fishers.exact","SPI1 <- LRP1",0,0.0013986013986014,0.0704236939531058,8,1,7,15,8,7
+"494","CD16Mono","tfs_rec","Group","fishers.exact","SPI1 <- NOTCH2",0,0.0013986013986014,0.0704236939531058,8,1,7,15,8,7
+"495","CD16Mono","tfs_rec","Group","fishers.exact","SPI1 <- PECAM1",0,0.0013986013986014,0.0704236939531058,8,1,7,15,8,7
+"496","CD16Mono","tfs_rec","Group","fishers.exact","SPI1 <- PLAUR",0.0367044671727191,0.0101010101010101,0.183967332903503,7,1,6,15,8,7
+"497","CD16Mono","tfs_rec","Group","fishers.exact","SPI1 <- PLXNB2",0,0.0013986013986014,0.0704236939531058,8,1,7,15,8,7
+"498","CD16Mono","tfs_rec","Group","fishers.exact","SPI1 <- PLXNC1",0,0.0013986013986014,0.0704236939531058,8,1,7,15,8,7
+"499","CD16Mono","tfs_rec","Group","fishers.exact","SPI1 <- SORT1",0,0.000155400155400156,0.0665112665112667,7,0,7,15,8,7
+"500","CD16Mono","tfs_rec","Group","fishers.exact","SPI1 <- TNFRSF1B",0,0.0013986013986014,0.0704236939531058,8,1,7,15,8,7
+"501","CD16Mono","tfs_rec","Group","fishers.exact","SPI1 <- VSIR",0,0.0013986013986014,0.0704236939531058,8,1,7,15,8,7
+"502","CD16Mono","tfs_rec","Group","fishers.exact","VDR <- CD36",0.071636216880102,0.0405594405594406,0.304551588762115,8,2,6,15,8,7
+"503","CD16Mono","tfs_rec","Group","fishers.exact","VDR <- INSR",0,0.0013986013986014,0.0704236939531058,6,0,6,15,8,7
+"504","CD16Mono","tfs_rec","Group","fishers.exact","VDR <- LILRB2",0,0.0256410256410256,0.304551588762115,10,3,7,15,8,7
+"505","CD16Mono","tfs_rec","Group","fishers.exact","VDR <- SORT1",0,0.0256410256410256,0.304551588762115,10,3,7,15,8,7
+"506","CD16Mono","tfs_rec","Group","fishers.exact","VDR <- Type_II_IFNR",0,0.0013986013986014,0.0704236939531058,8,1,7,15,8,7
+"507","CD16Mono","tfs_rec","Group","fishers.exact","VDR <- VSIR",0,0.0256410256410256,0.304551588762115,10,3,7,15,8,7
+"508","CD16Mono","tfs_rec","Group","fishers.exact","YBX1 <- INSR",0.0735612335000728,0.0405594405594406,0.304551588762115,6,1,5,15,8,7
+"509","HSPCs","tfs_rec","Group","fishers.exact","JUND <- CD74",0,0.00699300699300699,0.385780885780886,5,0,5,15,8,7
+"510","HSPCs","tfs_rec","Group","fishers.exact","JUND <- CSF3R",0,0.0013986013986014,0.231468531468532,6,0,6,15,8,7
+"511","HSPCs","tfs_rec","Group","fishers.exact","JUND <- INSR",0,0.0256410256410257,0.677485380116959,4,0,4,15,8,7
+"512","HSPCs","tfs_rec","Group","fishers.exact","JUND <- NOTCH2",0,0.0013986013986014,0.231468531468532,6,0,6,15,8,7
+"513","HSPCs","tfs_rec","Group","fishers.exact","JUND <- PECAM1",0,0.00699300699300699,0.385780885780886,5,0,5,15,8,7
+"514","HSPCs","tfs_rec","Group","fishers.exact","JUND <- PLXNC1",0,0.00699300699300699,0.385780885780886,5,0,5,15,8,7
+"515","HSPCs","tfs_rec","Group","fishers.exact","JUND <- VSIR",0,0.00699300699300699,0.385780885780886,5,0,5,15,8,7
+"516","HSPCs","tfs_rec","Group","fishers.exact","SP1 <- CD74",0.0735612335000728,0.0405594405594406,0.677485380116959,6,1,5,15,8,7
+"517","HSPCs","tfs_rec","Group","fishers.exact","SP1 <- CSF3R",0.0735612335000728,0.0405594405594406,0.677485380116959,6,1,5,15,8,7
+"518","HSPCs","tfs_rec","Group","fishers.exact","SP1 <- INSR",0,0.0256410256410257,0.677485380116959,4,0,4,15,8,7
+"519","HSPCs","tfs_rec","Group","fishers.exact","SP1 <- NOTCH2",0.0735612335000728,0.0405594405594406,0.677485380116959,6,1,5,15,8,7
+"520","HSPCs","tfs_rec","Group","fishers.exact","SP1 <- PECAM1",0.0735612335000728,0.0405594405594406,0.677485380116959,6,1,5,15,8,7
+"521","HSPCs","tfs_rec","Group","fishers.exact","SP1 <- PLXNC1",0,0.0256410256410257,0.677485380116959,4,0,4,15,8,7
+"522","HSPCs","tfs_rec","Group","fishers.exact","SP1 <- VSIR",0,0.0256410256410257,0.677485380116959,4,0,4,15,8,7
+"523","AtypicalMemoryB","tfs_rec","Group","fishers.exact","RCOR1 <- INSR",0,0.0256410256410257,0.898157475779853,4,0,4,15,8,7
+"524","AtypicalMemoryB","tfs_rec","Group","fishers.exact","RCOR1 <- SIRPA",0,0.0256410256410257,0.898157475779853,4,0,4,15,8,7
+"525","CD56dimNK","tfs","Group","fishers.exact","IRF4",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"526","CD26hiCD4TSbN","tfs","Group","fishers.exact","KLF7",0,0.0256410256410256,1,10,3,7,15,8,7
+"527","CD56brightNK","tfs","Group","fishers.exact","E2F3",0.0735612335000728,0.0405594405594406,0.973426573426574,6,1,5,15,8,7
+"528","CD56brightNK","tfs","Group","fishers.exact","ZNF682",13.5941167979328,0.0405594405594406,0.973426573426574,9,7,2,15,8,7
+"529","CD4TfhSbMp","tfs","Group","fishers.exact","ZFP64",13.959419460602,0.0405594405594406,1,7,6,1,15,8,7
+"530","CD8MAITlikeTc1DwM","tfs","Group","fishers.exact","ZFP64",0.0735612335000728,0.0405594405594406,0.68951048951049,6,1,5,15,8,7
+"531","SwitchedMemoryB","tfs","Group","fishers.exact","RELB",0,0.0256410256410256,0.923076923076923,10,3,7,15,8,7
+"532","CD4Tfh1SwM","tfs","Group","fishers.exact","ATF3",0,0.0256410256410257,0.269230769230769,4,0,4,15,8,7
+"533","CD4Tfh1SwM","tfs","Group","fishers.exact","RXRA",0,0.0256410256410257,0.269230769230769,4,0,4,15,8,7
+"534","CD8Tc1DwM","tfs","Group","fishers.exact","E2F2",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"535","CD5B","tfs","Group","fishers.exact","NFKB2",0.071636216880102,0.0405594405594406,1,8,2,6,15,8,7
+"536","CD161CD8NKTc1DwAt","tfs","Group","fishers.exact","GTF2B",0,0.0256410256410257,0.307692307692308,4,0,4,15,8,7
+"537","CD4Th17DwM","tfs","Group","fishers.exact","CHD2",0.0735612335000728,0.0405594405594406,0.425874125874126,6,1,5,15,8,7
+"538","CD4Th17DwM","tfs","Group","fishers.exact","MECP2",0.071636216880102,0.0405594405594406,0.425874125874126,8,2,6,15,8,7
+"539","CD4Th17DwM","tfs","Group","fishers.exact","NFKB1",0,0.00699300699300699,0.293706293706294,5,0,5,15,8,7
+"540","CD4Th17DwM","tfs","Group","fishers.exact","XBP1",0,0.0256410256410257,0.425874125874126,4,0,4,15,8,7
+"541","C1QhiCD16Mono","tfs","Group","fishers.exact","CEBPD",0.0735612335000728,0.0405594405594406,0.923076923076923,6,1,5,15,8,7
+"542","Neutrophils","tfs","Group","fishers.exact","MEIS1",0,0.00699300699300699,0.0489510489510489,5,0,5,15,8,7
+"543","ActivatedNaiveB","tfs","Group","fishers.exact","ERF",0.0735612335000728,0.0405594405594406,0.456293706293707,6,1,5,15,8,7
+"544","ActivatedNaiveB","tfs","Group","fishers.exact","NFKB2",0,0.006993006993007,0.314685314685315,9,2,7,15,8,7
+"545","ActivatedNaiveB","tfs","Group","fishers.exact","ZFP64",0,0.0256410256410256,0.456293706293707,10,3,7,15,8,7
+"546","ActivatedNaiveB","tfs","Group","fishers.exact","ZNF726",0.0735612335000728,0.0405594405594406,0.456293706293707,6,1,5,15,8,7
+"547","CD8NKTc1DwAp","tfs","Group","fishers.exact","GATA3",13.959419460602,0.0405594405594406,1,7,6,1,15,8,7
+"548","ISGCD14Mono","tfs","Group","fishers.exact","ELF1",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"549","CD14Mono","tfs","Group","fishers.exact","CEBPD",0.071636216880102,0.0405594405594406,0.312887112887113,8,2,6,15,8,7
+"550","CD14Mono","tfs","Group","fishers.exact","KLF12",Inf,0.0256410256410256,0.230769230769231,5,5,0,15,8,7
+"551","CD14Mono","tfs","Group","fishers.exact","KLF4",0,0.0256410256410256,0.230769230769231,10,3,7,15,8,7
+"552","CD14Mono","tfs","Group","fishers.exact","KLF9",Inf,0.0256410256410256,0.230769230769231,5,5,0,15,8,7
+"553","CD14Mono","tfs","Group","fishers.exact","MITF",0,0.0256410256410256,0.230769230769231,10,3,7,15,8,7
+"554","CD14Mono","tfs","Group","fishers.exact","TAF1",Inf,0.0256410256410256,0.230769230769231,5,5,0,15,8,7
+"555","CD14Mono","tfs","Group","fishers.exact","UBE2K",Inf,0.0256410256410256,0.230769230769231,5,5,0,15,8,7
+"556","DC2","tfs","Group","fishers.exact","CHD2",13.959419460602,0.0405594405594406,1,7,6,1,15,8,7
+"557","CD16Mono","tfs","Group","fishers.exact","ETV6",0.071636216880102,0.0405594405594406,0.371794871794872,8,2,6,15,8,7
+"558","CD16Mono","tfs","Group","fishers.exact","FOS",0.0735612335000728,0.0405594405594406,0.371794871794872,6,1,5,15,8,7
+"559","CD16Mono","tfs","Group","fishers.exact","FOXO3",0.0735612335000728,0.0405594405594406,0.371794871794872,6,1,5,15,8,7
+"560","CD16Mono","tfs","Group","fishers.exact","JUNB",0.0367044671727191,0.0101010101010101,0.185185185185185,7,1,6,15,8,7
+"561","CD16Mono","tfs","Group","fishers.exact","SP1",0,0.006993006993007,0.185185185185185,9,2,7,15,8,7
+"562","CD16Mono","tfs","Group","fishers.exact","SPI1",0,0.0013986013986014,0.076923076923077,8,1,7,15,8,7
+"563","HSPCs","tfs","Group","fishers.exact","JUND",0,0.0013986013986014,0.0398601398601399,6,0,6,15,8,7
+"564","HSPCs","tfs","Group","fishers.exact","SP1",0.0735612335000728,0.0405594405594406,0.548076923076923,6,1,5,15,8,7
+"565","HSPCs","tfs","Group","fishers.exact","ZNF20",0,0.0013986013986014,0.0398601398601399,6,0,6,15,8,7
+"566","CD26hiCD4TSbN","rec","Group","fishers.exact","CD44",0,0.0256410256410257,0.397435897435898,4,0,4,15,8,7
+"567","CD26hiCD4TSbN","rec","Group","fishers.exact","IL11_receptor",0,0.00699300699300699,0.216783216783217,5,0,5,15,8,7
+"568","CD26hiCD4TSbN","rec","Group","fishers.exact","PLXNC1",0.071636216880102,0.0405594405594406,0.419114219114219,8,2,6,15,8,7
+"569","DC3","rec","Group","fishers.exact","ICAM1",13.5941167979328,0.0405594405594406,1,9,7,2,15,8,7
+"570","CD4TSbN","rec","Group","fishers.exact","DPP4",0,0.0256410256410256,0.435897435897436,10,3,7,15,8,7
+"571","CD4TfhSbMp","rec","Group","fishers.exact","IL11_receptor",0,0.00699300699300699,0.216783216783217,5,0,5,15,8,7
+"572","SOD2hiCD14Mono","rec","Group","fishers.exact","ICAM1",Inf,0.00699300699300699,0.321678321678322,10,8,2,15,8,7
+"573","CD4Th2DwMp","rec","Group","fishers.exact","IL11_receptor",0,0.00699300699300699,0.216783216783217,5,0,5,15,8,7
+"574","CD4Th2DwMp","rec","Group","fishers.exact","IL6_receptor",0.071636216880102,0.0405594405594406,0.628671328671329,8,2,6,15,8,7
+"575","CD4Tfh1SwM","rec","Group","fishers.exact","CD36",0,0.0256410256410257,0.0794871794871795,4,0,4,15,8,7
+"576","CD4Tfh1SwM","rec","Group","fishers.exact","CD74",0,0.00699300699300699,0.0270979020979021,5,0,5,15,8,7
+"577","CD4Tfh1SwM","rec","Group","fishers.exact","CSF3R",0,0.00699300699300699,0.0270979020979021,5,0,5,15,8,7
+"578","CD4Tfh1SwM","rec","Group","fishers.exact","LRP1",0,0.00699300699300699,0.0270979020979021,5,0,5,15,8,7
+"579","CD4Tfh1SwM","rec","Group","fishers.exact","NOTCH2",0,0.00699300699300699,0.0270979020979021,5,0,5,15,8,7
+"580","CD4Tfh1SwM","rec","Group","fishers.exact","PECAM1",0,0.00699300699300699,0.0270979020979021,5,0,5,15,8,7
+"581","CD4Tfh1SwM","rec","Group","fishers.exact","PLAUR",0,0.0256410256410257,0.0794871794871795,4,0,4,15,8,7
+"582","CD4Tfh1SwM","rec","Group","fishers.exact","PLXNC1",0,0.00699300699300699,0.0270979020979021,5,0,5,15,8,7
+"583","CD4Tfh1SwM","rec","Group","fishers.exact","TNFRSF1B",0,0.00699300699300699,0.0270979020979021,5,0,5,15,8,7
+"584","CD4Tfh1SwM","rec","Group","fishers.exact","VSIR",0,0.00699300699300699,0.0270979020979021,5,0,5,15,8,7
+"585","CD8Tc1DwM","rec","Group","fishers.exact","IGF1R",0.0735612335000728,0.0405594405594406,0.730769230769231,6,1,5,15,8,7
+"586","IL1BhiCD14Mono","rec","Group","fishers.exact","ICAM1",Inf,0.00699300699300699,0.328671328671329,10,8,2,15,8,7
+"587","CD4Th17DwM","rec","Group","fishers.exact","IL6_receptor",0,0.0013986013986014,0.0433566433566434,6,0,6,15,8,7
+"588","CD4Th17DwM","rec","Group","fishers.exact","NOTCH2",0,0.0256410256410257,0.264957264957265,4,0,4,15,8,7
+"589","CD4Th17DwM","rec","Group","fishers.exact","VSIR",0,0.0256410256410257,0.264957264957265,4,0,4,15,8,7
+"590","CD4TregSwM","rec","Group","fishers.exact","SORL1",0.0735612335000728,0.0405594405594406,0.884615384615384,6,1,5,15,8,7
+"591","C1QhiCD16Mono","rec","Group","fishers.exact","ICAM1",27.2446401495036,0.0101010101010101,0.404040404040404,8,7,1,15,8,7
+"592","ActivatedNaiveB","rec","Group","fishers.exact","LILRB1",0.0735612335000728,0.0405594405594406,0.833333333333334,6,1,5,15,8,7
+"593","CD8NKTc1DwAp","rec","Group","fishers.exact","IL11_receptor",0.0735612335000728,0.0405594405594406,1,6,1,5,15,8,7
+"594","CD8NKTc1DwAp","rec","Group","fishers.exact","IL6_receptor",0.071636216880102,0.0405594405594406,1,8,2,6,15,8,7
+"595","ISGCD14Mono","rec","Group","fishers.exact","ICAM1",Inf,0.00699300699300699,0.321678321678322,10,8,2,15,8,7
+"596","CD14Mono","rec","Group","fishers.exact","ICAM1",13.959419460602,0.0405594405594406,1,7,6,1,15,8,7
+"597","CD16Mono","rec","Group","fishers.exact","APOBR",0,0.0256410256410256,1,10,3,7,15,8,7
+"598","CD26hiCD4TSbN","incoming_lig","Group","fishers.exact","FGF2",0,0.0256410256410257,0.316239316239316,4,0,4,15,8,7
+"599","CD26hiCD4TSbN","incoming_lig","Group","fishers.exact","HGF",0,0.0256410256410257,0.316239316239316,4,0,4,15,8,7
+"600","CD26hiCD4TSbN","incoming_lig","Group","fishers.exact","IL11",0,0.0256410256410257,0.316239316239316,4,0,4,15,8,7
+"601","CD26hiCD4TSbN","incoming_lig","Group","fishers.exact","SELE",0,0.0256410256410257,0.316239316239316,4,0,4,15,8,7
+"602","CD26hiCD4TSbN","incoming_lig","Group","fishers.exact","SEMA7A",0.071636216880102,0.0405594405594406,0.428771228771229,8,2,6,15,8,7
+"603","CD26hiCD4TSbN","incoming_lig","Group","fishers.exact","SIGLEC15",0,0.0256410256410257,0.316239316239316,4,0,4,15,8,7
+"604","CD26hiCD4TSbN","incoming_lig","Group","fishers.exact","TYROBP",0,0.0256410256410257,0.316239316239316,4,0,4,15,8,7
+"605","DC3","incoming_lig","Group","fishers.exact","AREG",13.5941167979328,0.0405594405594406,0.721958041958043,9,7,2,15,8,7
+"606","DC3","incoming_lig","Group","fishers.exact","integrin_aLb2_complex",13.5941167979328,0.0405594405594406,0.721958041958043,9,7,2,15,8,7
+"607","DC3","incoming_lig","Group","fishers.exact","integrin_aMb2_complex",13.5941167979328,0.0405594405594406,0.721958041958043,9,7,2,15,8,7
+"608","DC3","incoming_lig","Group","fishers.exact","integrin_aXb2_complex",13.5941167979328,0.0405594405594406,0.721958041958043,9,7,2,15,8,7
+"609","DC3","incoming_lig","Group","fishers.exact","SPN",13.5941167979328,0.0405594405594406,0.721958041958043,9,7,2,15,8,7
+"610","CD4TSbN","incoming_lig","Group","fishers.exact","PYY",0,0.0256410256410256,0.923853923853924,10,3,7,15,8,7
+"611","CD4TfhSbMp","incoming_lig","Group","fishers.exact","IL11",0,0.0256410256410257,1,4,0,4,15,8,7
+"612","SOD2hiCD14Mono","incoming_lig","Group","fishers.exact","AREG",Inf,0.00699300699300699,0.132867132867133,10,8,2,15,8,7
+"613","SOD2hiCD14Mono","incoming_lig","Group","fishers.exact","integrin_aLb2_complex",Inf,0.00699300699300699,0.132867132867133,10,8,2,15,8,7
+"614","SOD2hiCD14Mono","incoming_lig","Group","fishers.exact","integrin_aMb2_complex",Inf,0.00699300699300699,0.132867132867133,10,8,2,15,8,7
+"615","SOD2hiCD14Mono","incoming_lig","Group","fishers.exact","integrin_aXb2_complex",Inf,0.00699300699300699,0.132867132867133,10,8,2,15,8,7
+"616","SOD2hiCD14Mono","incoming_lig","Group","fishers.exact","SPN",Inf,0.00699300699300699,0.132867132867133,10,8,2,15,8,7
+"617","CD4Th2DwMp","incoming_lig","Group","fishers.exact","IL11",0,0.0256410256410257,1,4,0,4,15,8,7
+"618","CD4Tfh1SwM","incoming_lig","Group","fishers.exact","APP",0,0.00699300699300699,0.030969030969031,5,0,5,15,8,7
+"619","CD4Tfh1SwM","incoming_lig","Group","fishers.exact","BMP8B",0,0.0256410256410257,0.0794871794871795,4,0,4,15,8,7
+"620","CD4Tfh1SwM","incoming_lig","Group","fishers.exact","CCL4L2",0,0.0256410256410257,0.0794871794871795,4,0,4,15,8,7
+"621","CD4Tfh1SwM","incoming_lig","Group","fishers.exact","CNTN1",0,0.0256410256410257,0.0794871794871795,4,0,4,15,8,7
+"622","CD4Tfh1SwM","incoming_lig","Group","fishers.exact","COPA",0,0.00699300699300699,0.030969030969031,5,0,5,15,8,7
+"623","CD4Tfh1SwM","incoming_lig","Group","fishers.exact","DLL1",0,0.00699300699300699,0.030969030969031,5,0,5,15,8,7
+"624","CD4Tfh1SwM","incoming_lig","Group","fishers.exact","GRN",0,0.00699300699300699,0.030969030969031,5,0,5,15,8,7
+"625","CD4Tfh1SwM","incoming_lig","Group","fishers.exact","IL24",0,0.00699300699300699,0.030969030969031,5,0,5,15,8,7
+"626","CD4Tfh1SwM","incoming_lig","Group","fishers.exact","integrin_a4b1_complex",0,0.0256410256410257,0.0794871794871795,4,0,4,15,8,7
+"627","CD4Tfh1SwM","incoming_lig","Group","fishers.exact","integrin_aVb3_complex",0,0.0256410256410257,0.0794871794871795,4,0,4,15,8,7
+"628","CD4Tfh1SwM","incoming_lig","Group","fishers.exact","JAG1",0,0.00699300699300699,0.030969030969031,5,0,5,15,8,7
+"629","CD4Tfh1SwM","incoming_lig","Group","fishers.exact","JAG2",0,0.00699300699300699,0.030969030969031,5,0,5,15,8,7
+"630","CD4Tfh1SwM","incoming_lig","Group","fishers.exact","LGALS9",0,0.00699300699300699,0.030969030969031,5,0,5,15,8,7
+"631","CD4Tfh1SwM","incoming_lig","Group","fishers.exact","LTA",0,0.00699300699300699,0.030969030969031,5,0,5,15,8,7
+"632","CD4Tfh1SwM","incoming_lig","Group","fishers.exact","MDK",0,0.00699300699300699,0.030969030969031,5,0,5,15,8,7
+"633","CD4Tfh1SwM","incoming_lig","Group","fishers.exact","MIF",0,0.00699300699300699,0.030969030969031,5,0,5,15,8,7
+"634","CD4Tfh1SwM","incoming_lig","Group","fishers.exact","PDGFB",0,0.00699300699300699,0.030969030969031,5,0,5,15,8,7
+"635","CD4Tfh1SwM","incoming_lig","Group","fishers.exact","SEMA7A",0,0.00699300699300699,0.030969030969031,5,0,5,15,8,7
+"636","CD4Tfh1SwM","incoming_lig","Group","fishers.exact","THBS1",0,0.0256410256410257,0.0794871794871795,4,0,4,15,8,7
+"637","CD4Tfh1SwM","incoming_lig","Group","fishers.exact","TNF",0,0.00699300699300699,0.030969030969031,5,0,5,15,8,7
+"638","IL1BhiCD14Mono","incoming_lig","Group","fishers.exact","AREG",Inf,0.00699300699300699,0.134265734265734,10,8,2,15,8,7
+"639","IL1BhiCD14Mono","incoming_lig","Group","fishers.exact","integrin_aLb2_complex",Inf,0.00699300699300699,0.134265734265734,10,8,2,15,8,7
+"640","IL1BhiCD14Mono","incoming_lig","Group","fishers.exact","integrin_aMb2_complex",Inf,0.00699300699300699,0.134265734265734,10,8,2,15,8,7
+"641","IL1BhiCD14Mono","incoming_lig","Group","fishers.exact","integrin_aXb2_complex",Inf,0.00699300699300699,0.134265734265734,10,8,2,15,8,7
+"642","IL1BhiCD14Mono","incoming_lig","Group","fishers.exact","SPN",Inf,0.00699300699300699,0.134265734265734,10,8,2,15,8,7
+"643","CD4Th17DwM","incoming_lig","Group","fishers.exact","CCL4L2",0,0.0256410256410257,0.252747252747253,4,0,4,15,8,7
+"644","CD4Th17DwM","incoming_lig","Group","fishers.exact","CNTN1",0,0.0256410256410257,0.252747252747253,4,0,4,15,8,7
+"645","CD4Th17DwM","incoming_lig","Group","fishers.exact","DLL1",0,0.0256410256410257,0.252747252747253,4,0,4,15,8,7
+"646","CD4Th17DwM","incoming_lig","Group","fishers.exact","IL24",0,0.0256410256410257,0.252747252747253,4,0,4,15,8,7
+"647","CD4Th17DwM","incoming_lig","Group","fishers.exact","IL6",0,0.00699300699300699,0.252747252747253,5,0,5,15,8,7
+"648","CD4Th17DwM","incoming_lig","Group","fishers.exact","JAG1",0,0.0256410256410257,0.252747252747253,4,0,4,15,8,7
+"649","CD4Th17DwM","incoming_lig","Group","fishers.exact","JAG2",0,0.0256410256410257,0.252747252747253,4,0,4,15,8,7
+"650","CD4TregSwM","incoming_lig","Group","fishers.exact","APP",0.0735612335000728,0.0405594405594406,0.662470862470863,6,1,5,15,8,7
+"651","CD4TregSwM","incoming_lig","Group","fishers.exact","LGALS9",0.071636216880102,0.0405594405594406,0.662470862470863,8,2,6,15,8,7
+"652","CD4TregSwM","incoming_lig","Group","fishers.exact","MDK",0.0735612335000728,0.0405594405594406,0.662470862470863,6,1,5,15,8,7
+"653","C1QhiCD16Mono","incoming_lig","Group","fishers.exact","AREG",27.2446401495036,0.0101010101010101,0.165656565656566,8,7,1,15,8,7
+"654","C1QhiCD16Mono","incoming_lig","Group","fishers.exact","integrin_aLb2_complex",27.2446401495036,0.0101010101010101,0.165656565656566,8,7,1,15,8,7
+"655","C1QhiCD16Mono","incoming_lig","Group","fishers.exact","integrin_aMb2_complex",27.2446401495036,0.0101010101010101,0.165656565656566,8,7,1,15,8,7
+"656","C1QhiCD16Mono","incoming_lig","Group","fishers.exact","integrin_aXb2_complex",27.2446401495036,0.0101010101010101,0.165656565656566,8,7,1,15,8,7
+"657","C1QhiCD16Mono","incoming_lig","Group","fishers.exact","SPN",27.2446401495036,0.0101010101010101,0.165656565656566,8,7,1,15,8,7
+"658","ActivatedNaiveB","incoming_lig","Group","fishers.exact","HLA-F",0.0735612335000728,0.0405594405594406,0.8,6,1,5,15,8,7
+"659","ISGCD14Mono","incoming_lig","Group","fishers.exact","AREG",Inf,0.00699300699300699,0.134265734265734,10,8,2,15,8,7
+"660","ISGCD14Mono","incoming_lig","Group","fishers.exact","integrin_aLb2_complex",Inf,0.00699300699300699,0.134265734265734,10,8,2,15,8,7
+"661","ISGCD14Mono","incoming_lig","Group","fishers.exact","integrin_aMb2_complex",Inf,0.00699300699300699,0.134265734265734,10,8,2,15,8,7
+"662","ISGCD14Mono","incoming_lig","Group","fishers.exact","integrin_aXb2_complex",Inf,0.00699300699300699,0.134265734265734,10,8,2,15,8,7
+"663","ISGCD14Mono","incoming_lig","Group","fishers.exact","SPN",Inf,0.00699300699300699,0.134265734265734,10,8,2,15,8,7
+"664","CD14Mono","incoming_lig","Group","fishers.exact","AREG",13.959419460602,0.0405594405594406,1,7,6,1,15,8,7
+"665","CD14Mono","incoming_lig","Group","fishers.exact","integrin_aLb2_complex",13.959419460602,0.0405594405594406,1,7,6,1,15,8,7
+"666","CD14Mono","incoming_lig","Group","fishers.exact","integrin_aMb2_complex",13.959419460602,0.0405594405594406,1,7,6,1,15,8,7
+"667","CD14Mono","incoming_lig","Group","fishers.exact","integrin_aXb2_complex",13.959419460602,0.0405594405594406,1,7,6,1,15,8,7
+"668","CD14Mono","incoming_lig","Group","fishers.exact","SPN",13.959419460602,0.0405594405594406,1,7,6,1,15,8,7
