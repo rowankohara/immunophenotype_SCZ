@@ -27,12 +27,19 @@ Keywords: *schizophrenia*, *single cell*, *T cell*, *antigliadin antibody*, *RNA
 
 ## Plots
 1. [Figure 2A](plots/fig2A-NhoodGraph_milo_kelly_45.pdf)
+   - Graph-based representation of neighborhoods identified by Milo. Each node is a circle and depicts a neighborhood that is colored by their log fold change (if significant at FDR 30%***) comparing AGA+ SRD vs. AGA- participants (AGA- SRD plus AGA- HC). The size of each node depicts the neighborhood size (how many cells fall into that neighborhood) and edges depict the number of cells shared between adjacent neighborhoods. Non-differential abundance neighborhoods are colored white (FDR 30%). The layout of nodes corresponds to the position of the neighborhood index single cell in its respective UMAP embedding.
 2. [Figure 2B](plots/fig2b-beeswarm_milo_kelly_45.pdf)
+   - Beeswarm plot showing the distribution of log fold change in abundance between conditions in neighborhoods from different cell type clusters, with the most positive log fold change at the top of the plot and the most negative log fold change at the bottom of the plot. Positive log fold change indicates higher abundance in AGA+ SRD compared to AGA- participants, negative log fold change indicates lower abundance in AGA+ SRD compared to AGA- participants. Differential abundance neighborhoods are colored at FDR 30%.
 3. [Figure 2C](plots/fig2c-volcano_milo_kelly_45.pdf)
+   - Volcano plot showing each neighborhood’s respective log fold change and -log10(FDR) between AGA+ SRD compared to AGA- participants, with the color of each dot corresponding to a different immune cell subset. Solid line indicates FDR 15% and dashed line indicates FDR 30%.
 4. [Figure 2D-K](plots/fig2d-k-celltype_proportion_plots.pdf)
+   - Bar plots depicting pairwise comparisons using a binomial generalized linear model with a logit link, controlling for age and sex, of the cell type proportion (%) of each immune cell subset in AGA+ SRD (red), AGA- SRD (yellow), and HC (blue)
 5. [Figure 3A](plots/fig3a-volcano_dge.pdf)
+   - Volcano plot depicting the differential gene expression log fold change between AGA+ SRD and AGA- participants (AGA- SRD plus AGA- HC). Differentially expressed genes (DEGs) that are colored all have a log fold change magnitude of at least 1 and were nominally significant (p-value < 0.01). DEGs that passed multiple testing corrections are labeled.
 6. [Figure 3B](plots/fig3b-gsea_hallmark_all_celltypes.pdf)
+   - Dot plot of normalized enrichment score (NES) from gene set enrichment analysis (GSEA) using DEGs in AGA+ SRD compared to AGA- participants. The size of each dot corresponds to the -log10(FDR-adjusted p-value) of each Molecular Signature Database (MSigDB) Hallmark pathway for select immune cell types. The color of each dot corresponds to the NES of the pathway for that immune cell type, with red indicating positive enrichment in AGA+ SRD, and dark blue indicating negative enrichment in AGA+ SRD.
 7. [Figure 3C](plots/fig3c-kmeans10_centroids_heatmap_dge.pdf)
+   - Heatmap of K-means clustering of DEGs into immune transcriptional programs across immune cell types. The rows are annotated with the most overrepresented Gene Ontology biological process pathway for each module. The columns are annotated with immune cell types. Red  colors represent modules upregulated in that cell type in AGA+ SRD compared to AGA- participants. 
 
 ## Supplemental Data
 Also available an Excel spreadsheet with each data set as a separate tab
