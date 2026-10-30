@@ -13,6 +13,30 @@ These findings contribute to our current understanding of negative symptom-predo
 
 Keywords: *schizophrenia*, *single cell*, *T cell*, *antigliadin antibody*, *RNA sequencing*, *inflammation*.
 
-(Pre-print) [https://www.biorxiv.org/content/10.64898/2026.05.22.727194v1]
+(Pre-print)[https://www.biorxiv.org/content/10.64898/2026.05.22.727194v1]
 
 ## Scripts
+1. (01-qc_and_preprocessing.R)[scripts/01-qc_and_preprocessing.R]
+2. (03-differential_abundance_milo.R)[scripts/03-differential_abundance_milo.R]
+3. (04-differential_abundance_model.R)[scripts/04-differential_abundance_model.R]
+4. (05-differential_gene_expression.R)[scripts/05-differential_gene_expression.R]
+5. (06-gene_set_enrichment_analysis.R)[scripts/06-gene_set_enrichment_analysis.R]
+6. (07-kmeans_clustering_degs.R)[scripts/07-kmeans_clustering_degs.R]
+7. (08-differential_signaling_domino.R)[scripts/08-differential_signaling_domino.R]
+8. (08.1-pySCENIC.sh)[scripts/08.1-pySCENIC.sh]
+
+## Plots
+1. (Figure 2A)[plots/fig2A-NhoodGraph_milo_kelly_45.pdf]
+2. (Figure 2B)[plots/fig2b-beeswarm_milo_kelly_45.pdf]
+3. (Figure 2C)[plots/fig2c-volcano_milo_kelly_45.pdf]
+4. (Figure 2D-K)[plots/fig2d-k-celltype_proportion_plots.pdf]
+5. (Figure 3A)[plots/fig3a-volcano_dge.pdf]
+6. (Figure 3B)[plots/fig3b-gsea_hallmark_all_celltypes.pdf]
+7. (Figure 3C)[plots/fig3c-kmeans10_centroids_heatmap_dge.pdf]
+
+## Supplemental Data
+1. (Differentially Expressed Genes)[data/dge_pseudobulk_edgeR.txt]
+2. (Gene Set Enrichment Analysis of DEGs)[data/gsea_results_all_hallmark.csv]
+3. (K-Means Clustering of DEGs)[data/kmeans.k10.module_membership.txt]
+4. (Differential Signaling Linkages)[data/sig_diff_linkages_all.csv]
+5. (Incoming Ligand Senders)[data/incoming_ligand_senders.csv]
