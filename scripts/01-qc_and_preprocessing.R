@@ -1,8 +1,9 @@
 # Rowan K. O'Hara-Payne
 # 4/8/2025
-# conda activate /local/projects-t3/idea/amentlab_software/conda_envs/Seurat5
-# Doublet detection for the D Kelly immunophentype of schizophrenia and healthy controls
-# Base on cluster.R and biostatsquid code (https://biostatsquid.com/doubletfinder-tutorial/)
+# conda environment: Seurat5
+# Quality control and preprocessing of scRNA-seq data (Salem et al., 2026) of PBMCs, including doublet detection
+# Based on cluster.R and biostatsquid code (https://biostatsquid.com/doubletfinder-tutorial/)
+####################################################################################################################
 
 
 # Load libraries and data ----
@@ -26,6 +27,7 @@ obj[['percent.mt']] <- PercentageFeatureSet(obj, pattern = '^MT-')
 obj <- subset(obj, nCount_RNA < 10000 & nCount_RNA > 500 & percent.mt < 15)
 
 # remove participants with overall low quality cells
+# these participants had very few cells left after filtering
 obj <- subset(obj, sample %in% c('M094746_M_40yo_HC',
 				 'M095130_M_40yo_SCZ',
 				 'M098087_F_36yo_SCZ'),

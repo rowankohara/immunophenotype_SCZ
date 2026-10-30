@@ -1,8 +1,9 @@
 # Rowan O'Hara-Payne
 # 5/5/2025
-# conda activate /local/projects-t3/idea/amentlab_software/conda_envs/Seurat5
+# conda environment: Seurat5
 # Based on /local/projects/idea/sament2/dkelly_tcell/dge/edgeR.R 
-# Make pseudobulk, do differential gene expression analysis
+# Pseudobulk expression data, then do differential gene expression analysis using edgeR
+####################################################################################################################
 
 
 # Read in libraries and data ----
@@ -12,7 +13,6 @@ library(tidyverse)
 library(ggrepel)
 
 obj <- readRDS("kelly_postqc_clusters_meta.rds")
-
 
 
 # Make pseudobulk ----
@@ -50,60 +50,14 @@ sample = colnames(elist[[11]])
 MPRCID = gsub( '\\_(.*)' , '' , sample )
 MPRCID = gsub( '\\-(.*)' , '' , MPRCID )
 
-
+# read in meta data
 meta = read.csv('/local/projects/idea/sament2/dkelly_tcell/dge/sample_metadata.csv')
 rownames(meta) = meta$MPRCID
 meta = meta[ MPRCID , ]
 
-## Groups ---- 
-# Comparing AGA+ SRD vs AGA- SRD vs AGA- HC
-# SCZHi = AGA+ SRD
-# SCZLo = AGA- SRD
 
-design = model.matrix( ~ 0 + Group + Sex + Age , data = meta )
+## plots ----
 
-dgelist = list()
-
-types = names(elist)
-n = length(types)
-for( i in 1:n ) {
-  cat( types[i] , '\n' )
-  counts = elist[[i]]
-  y = DGEList( counts , group = meta$Group )
-  keep = filterByExpr( y , min.count = 3 , min.total.count = 15 )
-  y = y[ keep , ]
-  y = calcNormFactors(y)
-  y = estimateDisp( y , design )
-
-  fit = glmQLFit( y )
-  HvL = glmQLFTest( fit , contrast = c(0,1,-1,0,0) )
-  HvC = glmQLFTest( fit , contrast = c(-1,1,0,0,0) )
-  LvC = glmQLFTest( fit , contrast = c(-1,0,1,0,0) )
-  HvL = as.data.frame(topTags( HvL , n = Inf ))
-  HvL$Symbol = rownames(HvL)
-  HvL$Contrast = 'SCZHi vs. SCZLo'
-  HvC = as.data.frame(topTags( HvC , n = Inf ))
-  HvC$Symbol = rownames(HvC)
-  HvC$Contrast = 'SCZHi vs. HC'
-  LvC = as.data.frame(topTags( LvC , n = Inf ))
-  LvC$Symbol = rownames(LvC)
-  LvC$Contrast = 'SCZLo vs. HC'
-  res = rbind( HvL , HvC , LvC )
-  res = res[ order( res$PValue ) , ]
-  res$Celltype = types[i]
-  dgelist[[i]] = res
-}
-
-dge = do.call( rbind , dgelist )
-dge = dge[ order( dge$PValue ) , ]
-
-write.table( dge , quote=F , sep='\t' , row.names=F ,
-             file = 'dkelly_singlets.pseudobulk_edgeR.dge.txt' )
-
-
-# Make plots ----
-
-# volcano plots
 clusters_order <- c("3", "5", "4", "16", "6", "7", "31", "20", "13-0", "23", "8", "9", "17","22", "13-1","28", "2", "18", "12","24-1", "25", "0", "1", "10", "14", "27", "21-0", "21-1", "21-2", "26", "11", "15", "19", "24-0", "29", "30", "32")
 
 celltype_labels <- c(
@@ -195,206 +149,6 @@ dge <- dge %>%
 
 dge$Celltype <- factor(dge$Celltype, levels = clusters_order)
 
-df <- dge %>% filter(Contrast == "SCZHi vs. HC")
-pdf("plots/hi_v_hc_volcano_dge.pdf", width = 12, height = 8)
-p <- ggplot(df, aes(x = logFC, y = logP)) +
-            geom_point(color = "lightgray",
-                       size = 1) +
-            geom_point(data = df %>% filter(Sig != "NS"), 
-                       aes(color = Celltype),
-                       size = 1) +
-            geom_text_repel(data = df %>% filter(FDR < 0.05, abs(logFC) > 1),
-                            aes(label = Symbol),
-                            size = 4,
-                            color = "black",
-                            max.overlaps = 30) +
-            geom_hline(yintercept = -log10(0.01), linetype = "dashed") +
-            geom_vline(xintercept = 1, linetype = "dashed") +
-            geom_vline(xintercept = -1, linetype = "dashed") +
-            scale_color_manual(values = celltype_pal,
-                               labels = function(x) parse(text = celltype_labels[x]),
-                               name = "cell types") +
-            labs(title = parse(text = "Differential~Gene~Expression~Between~AGA^'+'~SRD~and~Controls"),
-                 x = "logFC",
-                 y = parse(text = "-log[10]*(PValue)")) +
-            theme_bw() +
-            theme(plot.title = element_text(size = 15,
-                                       hjust = 0.5),
-                  axis.title = element_text(size = 15),
-                  axis.text = element_text(size = 12),
-                  legend.text = element_text(size = 10))
-print(p)
-dev.off()
-
-
-df <- dge %>% filter(Contrast == "SCZHi vs. SCZLo")
-pdf("plots/hi_v_lo_volcano_dge.pdf", width = 12, height = 8)
-p <- ggplot(df, aes(x = logFC, y = logP)) +
-            geom_point(color = "lightgray",
-		       size = 1) +
-	    geom_point(data = df %>% filter(Sig != "NS"), 
-		       aes(color = Celltype),
-		       size = 1) +
-            geom_text_repel(data = df %>% filter(PValue < 0.001, abs(logFC) > 1),
-                            aes(label = Symbol),
-                            size = 4,
-			    color = "black",
-			    max.overlaps = 15) +
-            geom_hline(yintercept = -log10(0.01), linetype = "dashed") +
-            geom_vline(xintercept = 1, linetype = "dashed") +
-            geom_vline(xintercept = -1, linetype = "dashed") +
-            scale_color_manual(values = celltype_pal,
-			       labels = function(x) parse(text = celltype_labels[x]),
-			       name = "cell types") +
-            labs(title = parse(text = "Differential~Gene~Expression~Between~AGA^'+'~and~AGA^'-'~Schizophrenia"),
-		 x = "logFC",
-		 y = parse(text = "-log[10]*(PValue)")) +
-	    theme_bw() +
-	    theme(plot.title = element_text(size = 15,
-				       hjust = 0.5),
-		  axis.title = element_text(size = 15),
-		  axis.text = element_text(size = 12),
-		  legend.text = element_text(size = 10))
-print(p)
-dev.off()
-
-
-
-# per cell type
-pdf("plots/celltypes_hi_v_lo_volcano_dge.pdf", width = 12, height = 8)
-for (ct in unique(dge$Celltype)) {
-	p <- ggplot(dge %>% filter(Celltype == ct & Contrast == "SCZHi vs. SCZLo"), aes(x = as.numeric(logFC), y = -log10(as.numeric(PValue)), color = Sig)) +
-            geom_point() +
-            geom_text_repel(data = dge %>% filter(Celltype == ct & Contrast == "SCZHi vs. SCZLo" & PValue < 0.01 & abs(logFC) > 1),
-                            aes(label = Symbol),
-                            size = 4,
-                            color = "black",
-                            max.overlaps = 15) +
-            geom_hline(yintercept = -log10(0.01), linetype = "dashed") +
-            geom_vline(xintercept = 1, linetype = "dashed") +
-            geom_vline(xintercept = -1, linetype = "dashed") +
-            scale_color_manual(values = c("UP" = "red", "DOWN" = "blue", "NS" = "gray70"),
-                               guide = "none") +
-            labs(title = parse(text = paste0("Differential~Gene~Expression:~", celltype_labels[ct])),
-                 x = "logFC",
-                 y = parse(text = "-log[10]*(PValue)")) +
-            theme_bw() +
-            theme(plot.title = element_text(size = 15,
-                                       hjust = 0.5),
-                  axis.title = element_text(size = 15),
-                  axis.text = element_text(size = 12))
-	print(p)
-}
-dev.off()
-
- 
-
-## Condition ----
-
-
-meta <- meta %>% mutate(Condition = if_else(Group == "HC", "Control", "SCZ"))
-meta$Condition <- factor(meta$Condition, levels = c("Control", "SCZ"))
-
-design = model.matrix( ~ Condition + Sex + Age , data = meta )
-
-dgelist = list()
-
-types = names(elist)
-n = length(types)
-for( i in 1:n ) {
-  cat( types[i] , '\n' )
-  counts = elist[[i]]
-  y = DGEList( counts , group = meta$Condition )
-  keep = filterByExpr( y , min.count = 3 , min.total.count = 15 )
-  y = y[ keep , ]
-  y = calcNormFactors(y)
-  y = estimateDisp( y , design )
-
-  fit = glmQLFit( y )
-  res = glmQLFTest( fit , coef = "ConditionSCZ" )
-  res = as.data.frame(topTags( res , n = Inf ))
-  res$Symbol = rownames(res)
-  res$Contrast = 'SCZ vs. HC'
-  res = res[ order( res$PValue ) , ]
-  res$Celltype = types[i]
-  dgelist[[i]] = res
-}
-
-dge = do.call( rbind , dgelist )
-dge = dge[ order( dge$PValue ) , ]
-
-write.table( dge , quote=F , sep='\t' , row.names=F ,
-             file = 'dkelly_Conditon.pseudobulk_edgeR.dge.txt' )
-
-dge$logP = -log10(dge$PValue)
-
-
-dge <- dge %>%
-       mutate(Sig = if_else(PValue < 0.01 & logFC > 1, "UP",
-                            if_else(PValue < 0.01 & logFC < -1, "DOWN", "NS")))
-
-dge$Celltype <- factor(dge$Celltype, levels = clusters_order)
-
-pdf("plots/scz_v_hc_volcano_dge.pdf", width = 12, height = 8)
-p <- ggplot(dge, aes(x = logFC, y = logP)) +
-            geom_point(color = "lightgray",
-                       size = 1) +
-            geom_point(data = dge %>% filter(Sig != "NS"),
-                       aes(color = Celltype),
-                       size = 1) +
-            geom_text_repel(data = dge %>% filter(FDR < 0.05, abs(logFC) > 1),
-                            aes(label = Symbol),
-                            size = 4,
-                            color = "black",
-                            max.overlaps = 30) +
-            geom_hline(yintercept = -log10(0.01), linetype = "dashed") +
-            geom_vline(xintercept = 1, linetype = "dashed") +
-            geom_vline(xintercept = -1, linetype = "dashed") +
-            scale_color_manual(values = celltype_pal,
-                               labels = function(x) parse(text = celltype_labels[x]),
-                               name = "cell types") +
-            labs(title = parse(text = "Differential~Gene~Expression~Between~Schizophrenia~and~Controls"),
-                 x = "logFC",
-                 y = parse(text = "-log[10]*(PValue)")) +
-            theme_bw() +
-            theme(plot.title = element_text(size = 15,
-                                       hjust = 0.5),
-                  axis.title = element_text(size = 15),
-                  axis.text = element_text(size = 12),
-                  legend.text = element_text(size = 10))
-print(p)
-dev.off()
-
-# per cell type
-pdf("plots/celltypes_scz_v_hc_volcano_dge.pdf", width = 12, height = 8)
-for (ct in unique(dge$Celltype)) {
-        p <- ggplot(dge %>% filter(Celltype == ct), aes(x = logFC, y = -log10(PValue), color = Sig)) +
-            geom_point() +
-            geom_text_repel(data = dge %>% filter(Celltype == ct & PValue < 0.01 & abs(logFC) > 1),
-                            aes(label = Symbol),
-                            size = 4,
-                            color = "black",
-                            max.overlaps = 15) +
-            geom_hline(yintercept = -log10(0.01), linetype = "dashed") +
-            geom_vline(xintercept = 1, linetype = "dashed") +
-            geom_vline(xintercept = -1, linetype = "dashed") +
-            scale_color_manual(values = c("UP" = "red", "DOWN" = "blue", "NS" = "gray70"),
-                               guide = "none") +
-            labs(title = parse(text = paste0("Differential~Gene~Expression:~", celltype_labels[ct])),
-                 x = "logFC",
-                 y = parse(text = "-log[10]*(PValue)")) +
-            theme_bw() +
-            theme(plot.title = element_text(size = 15,
-                                       hjust = 0.5),
-                  axis.title = element_text(size = 15),
-                  axis.text = element_text(size = 12))
-        print(p)
-}
-dev.off()
-
-
-## Class ----
-
 meta <- meta %>% mutate(Class = if_else(Group == "SCZ High", "AGA+", "AGA-"))
 meta$Class <- factor(meta$Class, levels = c("AGA-", "AGA+"))
 
@@ -402,7 +156,7 @@ design = model.matrix( ~ Class + Sex + Age , data = meta )
 
 dgelist = list()
 
-# pseudobulk and contrast by AGA status
+# dge using AGA status contrast
 types = names(elist)
 n = length(types)
 for( i in 1:n ) {
@@ -427,6 +181,7 @@ for( i in 1:n ) {
 dge = do.call( rbind , dgelist )
 dge = dge[ order( dge$PValue ) , ]
 
+### Supplemental Data Table: DGE ----
 write.table( dge , quote=F , sep='\t' , row.names=F ,
              file = 'dkelly_Class.pseudobulk_edgeR.dge.txt' )
 
@@ -439,40 +194,48 @@ dge <- dge %>%
 
 dge$Celltype <- factor(dge$Celltype, levels = clusters_order)
 
-# FIGURE 3A
+
+### Fig 3A ----
 pdf("plots/AGA_v_AGA_volcano_dge.pdf", width = 12, height = 8)
-p <- ggplot(dge, aes(x = logFC, y = logP)) +
-            geom_point(color = "lightgray",
-                       size = 1.5) +
-            geom_point(data = dge %>% filter(Sig != "NS"),
-                       aes(color = Celltype),
-                       size = 1.5) +
-            geom_text_repel(data = dge %>% filter(FDR < 0.05, abs(logFC) > 1),
-                            aes(label = Symbol),
-                            size = 4,
-                            color = "black",
-                            max.overlaps = 30) +
-            geom_hline(yintercept = -log10(0.01), linetype = "dashed", linewidth = 0.75) +
-            geom_vline(xintercept = 1, linetype = "dashed", linewidth = 0.75) +
-            geom_vline(xintercept = -1, linetype = "dashed", linewidth = 0.75) +
-            scale_color_manual(values = celltype_pal,
-                               labels = function(x) parse(text = celltype_labels[x]),
-                               name = "cell types") +
-            labs(title = parse(text = "Differential~Gene~Expression~Between~AGA^'+'~and~AGA^'-'"),
-                 x = "logFC",
-                 y = parse(text = "-log[10]*(PValue)")) +
-            theme_classic() +
-	    scale_y_continuous(limits = c(0, NA),
-			       expand = expansion(mult = c(0, 0.05))) +
-            theme(plot.title = element_text(size = 17,
-                                       hjust = 0.5),
-                  axis.title = element_text(size = 17),
-                  axis.text = element_text(size = 15),
-                  legend.text = element_text(size = 10),
-		  axis.line = element_line(linewidth = 1.25, color = "black"),
-		  axis.ticks = element_line(linewidth = 1.25))
-print(p)
+ggplot(dge, aes(x = logFC, y = logP)) +
+  geom_point(color = "lightgray",
+             size = 1.5) +
+  geom_point(data = dge %>% filter(Sig != "NS"),
+             aes(color = Celltype),
+             size = 1.5) +
+  geom_text_repel(data = dge %>% filter(FDR < 0.05, abs(logFC) > 1),
+                  aes(label = Symbol),
+                  size = 4,
+                  color = "black",
+                  max.overlaps = 30) +
+  geom_hline(yintercept = -log10(0.01), 
+             linetype = "dashed", 
+             linewidth = 0.75) +
+  geom_vline(xintercept = 1,
+             linetype = "dashed",
+             linewidth = 0.75) +
+  geom_vline(xintercept = -1,
+             linetype = "dashed", 
+             linewidth = 0.75) +
+  scale_color_manual(values = celltype_pal,
+                     labels = function(x) parse(text = celltype_labels[x]),
+                     name = "cell types") +
+  labs(title = parse(text = "Differential~Gene~Expression~Between~AGA^'+'~and~AGA^'-'"),
+       x = "logFC",
+       y = parse(text = "-log[10]*(PValue)")) +
+  theme_classic() +
+  scale_y_continuous(limits = c(0, NA),
+                     expand = expansion(mult = c(0, 0.05))) +
+  theme(plot.title = element_text(size = 17,
+                                  hjust = 0.5),
+        axis.title = element_text(size = 17),
+        axis.text = element_text(size = 15),
+        legend.text = element_text(size = 10),
+		    axis.line = element_line(linewidth = 1.25, 
+		                             color = "black"),
+		    axis.ticks = element_line(linewidth = 1.25))
 dev.off()
+
 
 # per cell type
 pdf("plots/celltypes_AGA_v_AGA_volcano_dge.pdf", width = 12, height = 8)
@@ -484,9 +247,15 @@ for (ct in unique(dge$Celltype)) {
                             size = 4,
                             color = "black",
                             max.overlaps = 15) +
-            geom_hline(yintercept = -log10(0.01), linetype = "dashed", linewidth = 1) +
-            geom_vline(xintercept = 1, linetype = "dashed", linewidth = 1) +
-            geom_vline(xintercept = -1, linetype = "dashed", linewidth = 1) +
+            geom_hline(yintercept = -log10(0.01), 
+                       linetype = "dashed", 
+                       linewidth = 1) +
+            geom_vline(xintercept = 1, 
+                       linetype = "dashed", 
+                       linewidth = 1) +
+            geom_vline(xintercept = -1, 
+                       linetype = "dashed", 
+                       linewidth = 1) +
             scale_color_manual(values = c("UP" = "red", "DOWN" = "blue", "NS" = "gray70"),
                                guide = "none") +
             labs(title = parse(text = celltype_labels[ct]),

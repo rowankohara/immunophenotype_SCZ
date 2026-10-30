@@ -1,9 +1,13 @@
 # Rowan O'Hara-Payne
 # 06/17/2026
-# Script to prep data for dominoSignal
+# Cell-cell communication analysis and differential signaling using dominoSignal (PMID: 41746282)
+# used the available vignettes: https://fertiglab.github.io/dominoSignal/articles/dominoSignal.html
+####################################################################################################################
 
 
 # Downsample Cells for PySCENIC ----
+# running pySCENIC is the first step of this workflow
+# I needed to downsample my cells to get it to complete a run
 
 library(Seurat)
 library(tidyverse)
@@ -11,7 +15,7 @@ library(tidyverse)
 obj <- readRDS("kelly_postqc_clusters_meta.rds")
 
 celltype_col <- "seurat_clusters"
-condition_col <- "Group"
+condition_col <- "Class"
 
 set.seed(123)
 
@@ -97,7 +101,6 @@ download.file(url = cellphone_url, destfile = cellphone_tar)
 # move contents of the compressed file to a new directory
 untar(tarfile = cellphone_tar, exdir = "cellphone")
 cellphone_data <- "/local/projects/idea/rohara/immunophenotype_SCZ/cellphone/cellphonedb-data-4.0.0/data"
-
 
 
 # Load all input files ----
@@ -248,61 +251,10 @@ pdf("plots/domino_feature_heatmap.pdf", width = 10, height = 10)
 feat_heatmap(pbmc_dom, norm = TRUE, bool = FALSE, use_raster = FALSE, cols = celltype_pal, row_names_gp = grid::gpar(fontsize = 4))
 dev.off()
 
-pdf("plots/domino_signaling_diagram.pdf", width = 10, height = 10)
-par(mar = c(6, 6, 6, 6), xpd = NA)
-signaling_network(pbmc_dom, cols = celltype_pal, edge_weight = 0.5, max_thresh = 3)
-signaling_network(pbmc_dom, cols = celltype_pal, showOutgoingSignalingClusts = c("CD4Th17DwM"), edge_weight = 0.5, max_thresh = 3, layout = "fr")
-signaling_network(pbmc_dom, cols = celltype_pal, showOutgoingSignalingClusts = c("CD4Th17DwM"), edge_weight = 0.5, max_thresh = 3)
-signaling_network(pbmc_dom, cols = celltype_pal, showIncomingSignalingClusts = c("CD4Th17DwM"), edge_weight = 0.5, max_thresh = 3, layout = "fr")
-signaling_network(pbmc_dom, cols = celltype_pal, showIncomingSignalingClusts = c("CD4Th17DwM"), edge_weight = 0.5, max_thresh = 3)
-dev.off()
-
-pdf("plots/domino_gene_network_th17.pdf", width = 10, height = 10)
-gene_network(pbmc_dom, clust = "CD4Th17DwM", layout = "fr")
-gene_network(pbmc_dom, clust = "CD4Th17DwM", OutgoingSignalingClust = "DC2", layout = "fr")
-gene_network(pbmc_dom, clust = "CD4Th17DwM", OutgoingSignalingClust = "pDC", layout = "fr")
-gene_network(pbmc_dom, clust = "CD4Th17DwM", OutgoingSignalingClust = "CD5B", layout = "fr")
-gene_network(pbmc_dom, clust = "CD4Th17DwM", OutgoingSignalingClust = "ActivatedNaiveB", layout = "fr")
-gene_network(pbmc_dom, clust = "CD4Th17DwM", OutgoingSignalingClust = "SwitchedMemoryB", layout = "fr")
-dev.off()
-
-pdf("plots/domino_gene_network_from_th17.pdf", width = 10, height = 10)
-gene_network(pbmc_dom, clust = "AtypicalMemoryB", OutgoingSignalingClust = "CD4Th17DwM", layout = "fr")
-gene_network(pbmc_dom, clust = "ActivatedNaiveB", OutgoingSignalingClust = "CD4Th17DwM", layout = "fr")
-gene_network(pbmc_dom, clust = "SwitchedMemoryB", OutgoingSignalingClust = "CD4Th17DwM", layout = "fr")
-gene_network(pbmc_dom, clust = "DC2", OutgoingSignalingClust = "CD4Th17DwM", layout = "fr")
-gene_network(pbmc_dom, clust = "pDC", OutgoingSignalingClust = "CD4Th17DwM", layout = "fr")
-gene_network(pbmc_dom, clust = "IL1BhiCD14Mono", OutgoingSignalingClust = "CD4Th17DwM", layout = "fr")
-gene_network(pbmc_dom, clust = "SOD2hiCD14Mono", OutgoingSignalingClust = "CD4Th17DwM", layout = "fr")
-gene_network(pbmc_dom, clust = "CD16Mono", OutgoingSignalingClust = "CD4Th17DwM", layout = "fr")
-dev.off()
-
 pdf("plots/domino_incoming_signaling_heatmap.pdf", width = 10, height = 12)
-incoming_signaling_heatmap(pbmc_dom, rec_clust = "CD4Th17DwM", max_thresh = 2.5, use_raster = FALSE)
-dev.off()
-
-pdf("plots/domino_circos_IL6R.pdf", width = 16, height = 12)
-circos_ligand_receptor(pbmc_dom, receptor = "IL6_receptor", cell_colors = celltype_pal)
-dev.off()
-
-pdf("plots/domino_circos_TNFRSF1B.pdf", width = 16, height = 12)
-circos_ligand_receptor(pbmc_dom, receptor = "TNFRSF1B", cell_colors = celltype_pal)
-dev.off()
-
-pdf("plots/domino_circos_VSIR.pdf", width = 16, height = 12)
-circos_ligand_receptor(pbmc_dom, receptor = "VSIR", cell_colors = celltype_pal)
-dev.off()
-
-pdf("plots/domino_circos_IL7R.pdf", width = 16, height = 12)
-circos_ligand_receptor(pbmc_dom, receptor = "IL7_receptor", cell_colors = celltype_pal)
-dev.off()
-
-pdf("plots/domino_circos_CD74.pdf", width = 16, height = 12)
-circos_ligand_receptor(pbmc_dom, receptor = "CD74", cell_colors = celltype_pal)
-dev.off()
-
-pdf("plots/domino_circos_IL11R.pdf", width = 16, height = 12)
-circos_ligand_receptor(pbmc_dom, receptor = "IL11_receptor", cell_colors = celltype_pal)
+for (type in celltypes) {
+  incoming_signaling_heatmap(pbmc_dom, rec_clust = type, max_thresh = 2.5, use_raster = FALSE)
+}
 dev.off()
 
 pdf("plots/domino_corr_heatmap.pdf", width = 14, height = 12)
@@ -328,38 +280,36 @@ for (i in 1:15) {
 meta <- meta[, c(17, (1:ncol(meta))[-17])]
 samples <- meta$sample
 
+# need to run per sample
 domino_list <- lapply(samples, function(s) {
+  sub <- subset(obj, sample == s)
+  pbmc <- as.SingleCellExperiment(sub)
+  counts <- SummarizedExperiment::assay(pbmc, "counts")
+  logcounts <- SummarizedExperiment::assay(pbmc, "logcounts")
+  logcounts <- logcounts[rowSums(logcounts) > 0, ]
+  z_scores <- t(scale(t(logcounts)))
+  clusters <- factor(pbmc$seurat_clusters)
+  names(clusters) = colnames(pbmc)
 
-    sub <- subset(obj, sample == s)
-    pbmc <- as.SingleCellExperiment(sub)
-    counts <- SummarizedExperiment::assay(pbmc, "counts")
-    logcounts <- SummarizedExperiment::assay(pbmc, "logcounts")
-    logcounts <- logcounts[rowSums(logcounts) > 0, ]
-    z_scores <- t(scale(t(logcounts)))
-    clusters <- factor(pbmc$seurat_clusters)
-    names(clusters) = colnames(pbmc)
-
-    pbmc_dom <- create_domino(rl_map = rl_map, 
-		  features = auc_in[, colnames(pbmc)], 
-		  counts = counts, 
-		  z_scores = z_scores,
-		  clusters = clusters, 
-		  tf_targets = regulon_list, 
-		  use_clusters = TRUE, 
-		  use_complexes = TRUE,
-		  remove_rec_dropout = FALSE)
-    pbmc_dom <- build_domino(dom = pbmc_dom, 
-		 min_tf_pval = 0.001, 
-		 max_tf_per_clust = 25,
-		 max_rec_per_tf = 25, 
-		 rec_tf_cor_threshold = 0.25, 
-		 min_rec_percentage = 0.1)
-
-    pbmc_dom
+  pbmc_dom <- create_domino(rl_map = rl_map, 
+                            features = auc_in[, colnames(pbmc)], 
+                            counts = counts, 
+                            z_scores = z_scores,
+                            clusters = clusters, 
+                            tf_targets = regulon_list, 
+                            use_clusters = TRUE, 
+                            use_complexes = TRUE,
+                            remove_rec_dropout = FALSE)
+  pbmc_dom <- build_domino(dom = pbmc_dom, 
+                           min_tf_pval = 0.001, 
+                           max_tf_per_clust = 25,
+                           max_rec_per_tf = 25, 
+                           rec_tf_cor_threshold = 0.25, 
+                           min_rec_percentage = 0.1)
+  pbmc_dom
 })
 
 names(domino_list) <- samples
-
 
 dom_summary <- summarize_linkages(domino_list, meta, subject_names = NULL)
 
@@ -375,7 +325,7 @@ for (type in celltypes) {
     test_differential_linkages(
       dom_summary,
       type,
-      "Group",
+      "Class",
       linkage = "rec_lig",
       subject_names = samples,
       test_name = "fishers.exact"
@@ -392,110 +342,8 @@ for (type in celltypes) {
   }
 }
 
-diff_linkages <- do.call(rbind, results_list)
-rownames(diff_linkages) <- NULL
-
-
-th17_signaling_diff <- test_differential_linkages(
-  dom_summary,
-  "13-0",
-  "Group",
-  linkage = "rec_lig",
-  subject_names = samples,
-  test_name = "fishers.exact"
-)
-
-
-pdf("plots/th17_signaling_diff_rec_lig.pdf", width = 10, height = 20)
-plot_differential_linkages(
-  th17_signaling_diff,
-  "p.value",
-  stat_range = c(0, 1),
-  stat_ranking = "ascending",
-  group_palette = NULL
-)
-dev.off()
-
-
-th17_signaling_diff <- test_differential_linkages(
-  dom_summary,
-  "13-0",
-  "Group",
-  linkage = "tfs_rec",
-  subject_names = samples,
-  test_name = "fishers.exact"
-)
-
-pdf("plots/th17_signaling_diff_tfs_rec.pdf", width = 15, height = 50)
-plot_differential_linkages(
-  th17_signaling_diff,
-  "p.value",
-  stat_range = c(0, 1),
-  stat_ranking = "ascending",
-  group_palette = NULL
-)
-dev.off()
-
-
-th17_signaling_diff <- test_differential_linkages(
-  dom_summary,
-  "13-0",
-  "Group",
-  linkage = "tfs",
-  subject_names = samples,
-  test_name = "fishers.exact"
-)
-
-pdf("plots/th17_signaling_diff_tfs.pdf", width = 10, height = 15)
-plot_differential_linkages(
-  th17_signaling_diff,
-  "p.value",
-  stat_range = c(0, 1),
-  stat_ranking = "ascending",
-  group_palette = NULL
-)
-dev.off()
-
-
-th17_signaling_diff <- test_differential_linkages(
-  dom_summary,
-  "13-0",
-  "Group",
-  linkage = "rec",
-  subject_names = samples,
-  test_name = "fishers.exact"
-)
-
-pdf("plots/th17_signaling_diff_rec.pdf", width = 10, height = 10)
-plot_differential_linkages(
-  th17_signaling_diff,
-  "p.value",
-  stat_range = c(0, 1),
-  stat_ranking = "ascending",
-  group_palette = NULL
-)
-dev.off()
-
-
-th17_signaling_diff <- test_differential_linkages(
-  dom_summary,
-  "13-0",
-  "Group",
-  linkage = "incoming_lig",
-  subject_names = samples,
-  test_name = "fishers.exact"
-)
-
-pdf("plots/th17_signaling_diff_incoming_lig.pdf", width = 10, height = 20)
-plot_differential_linkages(
-  th17_signaling_diff,
-  "p.value",
-  stat_range = c(0, 1),
-  stat_ranking = "ascending",
-  group_palette = NULL
-)
-dev.off()
-
+diff_link <- do.call(rbind, results_list)
+rownames(diff_link) <- NULL
 
 
 # Summary plots -----
@@ -518,10 +366,10 @@ get_top_n_senders <- function(dom, receiver, receptor, ligand, n = 3) {
   
   scores <- mat[ligand, ]
   
-  # Remove zero scores
+  # remove zero scores
   scores <- scores[scores > 0]
   
-  # Sort and take top n
+  # sort and take top n
   scores <- sort(scores, decreasing = TRUE)
   scores <- head(scores, n)
   
@@ -544,6 +392,9 @@ sig_diff <- diff_link[diff_link$p.value < 0.05, ]
 sig_diff$receptor <- sub(" <- .*", "", sig_diff$feature)
 sig_diff$ligand <- sub(".* <- ", "", sig_diff$feature)
 
+### Supplemental Data Table: differential_signaling ----
+write.csv(sig_diff, "sig_diff_linkages_all.csv")
+
 
 top_senders_list <- vector("list", nrow(sig_diff))
 
@@ -564,7 +415,7 @@ for (i in seq_len(nrow(sig_diff))) {
 
   if (!is.null(senders)) {
 
-    # Add differential signaling statistics
+    # add differential signaling statistics
     result_info <- sig_diff[rep(i, nrow(senders)), ]
 
     top_senders_list[[i]] <- cbind(
@@ -577,4 +428,5 @@ for (i in seq_len(nrow(sig_diff))) {
 top_senders <- do.call(rbind, top_senders_list)
 rownames(top_senders) <- NULL
 
+### Supplemental Data Table: incoming_ligand_senders ----
 write.csv(top_senders, "incoming_ligand_senders.csv")

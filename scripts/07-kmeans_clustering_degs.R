@@ -1,7 +1,8 @@
 # Rowan K. O'Hara-Payne
 # 5/5/2025 
-# conda activate /autofs/projects-t3/idea/rowan.ohara/software/conda_pkg/rnaseq
+# conda enviroment: rnaseq
 # Kmeans clustering of the differentially expressed genes
+####################################################################################################################
 
 
 # Read in libraries and data ----
@@ -12,21 +13,8 @@ library(pheatmap)
 library(clusterProfiler)
 library(org.Hs.eg.db)
 
-# read in pseudobulk data
-elist <- readRDS('dkelly_singlets.pseudobulk.rds')
-str(elist)  # list of cell types with 
-celltypes <- names(elist)
-explist <- vector("list", length(celltypes))
-names(explist) <- celltypes
-explist <- lapply(elist, function(mat) {
-  df <- as.data.frame(mat)
-  df
-})
-
 # read in differential gene expression data
-dge <- read.table('dkelly_singlets.pseudobulk_edgeR.dge.txt', sep='\t')
-names(dge) <- dge[1,]
-dge <- dge[-1,]
+dge <- read.table("dkelly_Class.pseudobulk_edgeR.dge.txt", sep="\t", header = TRUE)
 
 # read in meta data
 sample <- colnames(elist[[11]])
@@ -35,110 +23,6 @@ MPRCID <- gsub( '\\-(.*)' , '' , MPRCID )
 meta <- read.csv('/local/projects/idea/sament2/dkelly_tcell/dge/sample_metadata.csv')
 rownames(meta) <- meta$MPRCID
 meta <- meta[ MPRCID , ]
-
-
-# K-means Clustering: logFC differences between contrasts ----
-
-# store results
-all_modules <- list()
-
-# loop over cell types
-celltypes <- unique(dge$Celltype)
-for (ct in celltypes) {
-	
-	message("Processing ", ct, "...")
-
-	# filter DGE for this cell type
-	dge_ct <- dge %>% filter(Celltype == ct)
-
-	# reshape to wide format: one row per gene, one column per contrast
-	logfc_mat <- dge_ct %>%
-  	select(Symbol, Contrast, logFC) %>%
-  	pivot_wider(names_from = Contrast, values_from = logFC) %>%
-  	column_to_rownames("Symbol")
-
-	# calculate variance across contrasts and filter
-	gene_vars <- apply(logfc_mat, 1, function(x) var(x, na.rm = TRUE))
-	logfc_mat_var <- logfc_mat[order(gene_vars, decreasing = TRUE), ]
-	logfc_mat_var <- logfc_mat_var[1:4000, ]  # choose between 3000–5000
-
-	# use kNN imputation
-	logfc_mat_imputed <- impute.knn(as.matrix(logfc_mat_var))$data
-
-
-	# elbow plot to choose K
-	set.seed(123)
-  	wss <- numeric()
-  	k_range <- 25:50
-
-  	for (k in k_range) {
-    		km <- kmeans(logfc_mat_imputed, centers = k, nstart = 10)
-    		wss[k - min(k_range) + 1] <- km$tot.withinss
-  	}
-
-	elbow_file <- paste0("plots/kmeans_elbow_", gsub(" ", "_", ct), ".pdf")
-  	pdf(elbow_file)
-  	plot(k_range, wss, type = "b", pch = 19, frame = FALSE,
-       		xlab = "Number of Clusters K",
-       		ylab = "Total Within-Cluster Sum of Squares (WSS)",
-       		main = paste("Elbow Plot for", ct))
-  	dev.off()
-	
-	# automatically select optimal K using elbow method (second derivative)
-  	diff1 <- diff(wss)
-  	diff2 <- diff(diff1)
-  	elbow_k_index <- which.max(-diff2) + 1  # +1 to shift from diff index to k_range index
-  	k_opt <- k_range[elbow_k_index]
-
-  	message("Selected K for ", ct, ": ", k_opt)
-  	
-	# run K-means clustering with selected K
-  	km <- kmeans(logfc_mat_imputed, centers = k_opt, nstart = 25)
-
-  	modules <- data.frame(
-    		gene = rownames(logfc_mat_imputed),
-    		module = km$cluster,
-    		celltype = ct
-  	)
-  	all_modules[[ct]] <- modules
-
-  	# compute module centroids
-  	module_labels <- km$cluster
-  	names(module_labels) <- rownames(logfc_mat_imputed)
-
-  	module_centroids <- as.data.frame(logfc_mat_imputed) %>%
-    		mutate(Module = factor(module_labels)) %>%
-    		group_by(Module) %>%
-    	summarise(across(everything(), mean)) %>%
-    	column_to_rownames("Module")
-
-  	# hierarchical clustering of modules
-  	dist_mat <- dist(module_centroids)
-  	hc_modules <- hclust(dist_mat, method = "ward.D2")
-  	ordered_modules <- hc_modules$labels[hc_modules$order]
-
-  	# heatmap of module centroids
-  	heatmap_file <- paste0("plots/kmeans_heatmap_", gsub(" ", "_", ct), ".pdf")
-  	pdf(heatmap_file)
-  	pheatmap(as.matrix(module_centroids),
-        	cluster_rows = hc_modules,
-        	cluster_cols = FALSE,
-        	show_rownames = TRUE,
-        	show_colnames = TRUE,
-        	main = paste("Hierarchical Clustering of K-means Modules (", ct, ")"),
-        	color = colorRampPalette(c("blue", "white", "red"))(100))
-  	dev.off()
-}
-
-# combine all modules and write to file
-modules_df <- do.call(rbind, all_modules)
-write.csv(modules_df, "gene_modules_all_celltypes.csv", row.names = FALSE)
-
-
-# K means modules ----
-dge <- read.table("dkelly_Class.pseudobulk_edgeR.dge.txt", sep = "\t", header = TRUE)
-
-clusters_order <- c("3", "5", "4", "16", "6", "7", "31", "20", "13-0", "23", "8", "9", "17","22", "13-1","28", "2", "18", "12","24-1", "25", "0", "1", "10", "14", "27", "21-0", "21-1", "21-2", "26", "11", "15", "19", "24-0", "29", "30", "32")
 
 celltype_labels <- c(
   "3"    = "CD26^'hi'*CD4^'+'*TS['B']*N",
@@ -220,15 +104,17 @@ celltype_pal <- c(
   "32"   = "mediumpurple3"
 )
 
+clusters_order <- c("3", "5", "4", "16", "6", "7", "31", "20", "13-0", "23", "8", "9", "17","22", "13-1","28", "2", "18", "12","24-1", "25", "0", "1", "10", "14", "27", "21-0", "21-1", "21-2", "26", "11", "15", "19", "24-0", "29", "30", "32")
 
 
+# K-means modules ----
 sig.genes <- unique(dge$Symbol[dge$PValue < 0.01])
 effects <- clusters_order[clusters_order %in% unique(dge$Celltype)]
 
 nGene <- length(sig.genes)
 nEffects <- length(effects)
 
-logfc <- matrix( 0 , ncol = nEffects , nrow = nGene )
+logfc <- matrix(0, ncol = nEffects, nrow = nGene)
 colnames(logfc) <- effects
 rownames(logfc) <- sig.genes
 
@@ -237,16 +123,17 @@ for( i in 1:nEffects ) {
   logfc[ dge.i$Symbol , i ] = dge.i$logFC
 }
 
-cl <- kmeans( logfc , centers = 10 , iter.max = 10000 , nstart = 10 )
+cl <- kmeans(logfc, centers = 10, iter.max = 10000, nstart = 10)
 clust <- cl$cluster
 centroids <- cl$centers
-
 
 # get the module gene lists for GO analysis
 clusters <- split(
     rownames(logfc),
     clust     
 )
+
+# find enrichment of gene ontology pathways for each module
 enrich_list <- lapply(clusters, function(gene_set) {
 
     enrichGO(
@@ -257,6 +144,8 @@ enrich_list <- lapply(clusters, function(gene_set) {
         universe      = dge$Symbol
     )
 })
+
+# grab pathway names
 top_terms <- sapply(enrich_list, function(x) {
 
     if (nrow(x@result) == 0) {
@@ -265,10 +154,14 @@ top_terms <- sapply(enrich_list, function(x) {
 
     x@result$Description[1]
 })
+
+# create row annotations
 row_annot <- data.frame(
     pathway = top_terms
 )
 rownames(row_annot) <- names(top_terms)
+
+# color palettes
 pathway_pal <- c("blood vessel morphogenesis" = "#E41A1C",
 		 "post-transcriptional regulation of gene expression" = "#377EB8",
 		 "cellular lipid catabolic process" = "#4DAF4A",
@@ -279,11 +172,14 @@ pathway_pal <- c("blood vessel morphogenesis" = "#E41A1C",
 		 "cytoplasmic translation" = "#F781BF",
 		 "positive regulation of type I interferon-mediated signaling pathway" = "#999999",
 		 "growth hormone receptor signaling pathway via JAK-STAT" = "#FB8072")
-
 palette <- colorRampPalette(
     c("#2166AC", "white", "#B2182B")
 )(99)
 breaks <- seq(-0.5, 0.5, length.out = 101)
+ann_colors <- list(
+  celltype = celltype_pal,
+  pathway = pathway_pal
+)
 
 x <- centroids
 x[ x > 0.5 ] <- 0.5
@@ -291,18 +187,15 @@ x[ x < -0.5 ] <- -0.5
 
 labs <- parse(text = celltype_labels[colnames(x)])
 
-
+# create column annotations
 ann_col <- data.frame(
   celltype = colnames(x)
 )
 rownames(ann_col) <- colnames(x)
-ann_colors <- list(
-  celltype = celltype_pal,
-  pathway = pathway_pal
-)
 
-# FIGURE 3C
-pdf('plots/dge.sig-genes.kmeans10.centroids.heatmap.pdf', width = 10, height = 6)
+
+### Fig 3C ----
+pdf("plots/dge.sig-genes.kmeans10.centroids.heatmap.pdf", width = 10, height = 6)
 pheatmap(
   x,
   color = palette,
@@ -322,8 +215,8 @@ dev.off()
 MM = cor( t(logfc) , t(centroids) )
 
 
-# SUPPLEMENTAL FIGURE
-pdf('plots/dge.sig-genes.kmeans10.top10.heatmap.pdf', width = 10, height = 6)
+### Supplemental Figure 6 ----
+pdf("plots/dge.sig-genes.kmeans10.top10.heatmap.pdf", width = 10, height = 6)
 for( i in 1:10 ) {
   pattern = i
   sorted = MM[ order( MM[,pattern] , decreasing =T ) , ]
@@ -356,78 +249,8 @@ df <- data.frame(
   MM ,
   logfc )
 
+### Supplemental Data Table: Kmeans_Clustering ----
 write.table( df , quote=F , sep='\t' , row.names=F ,
              file = 'kmeans.k10.module_membership.txt' )
 
 saveRDS( cl , file = 'kmeans.k10.rds' )
-
-
-celltype_map <- c(
-  "X0"    = "0",
-  "X1"    = "1",
-  "X2"    = "2",
-  "X3"    = "3",
-  "X4"    = "4",
-  "X5"    = "5",
-  "X6"    = "6",
-  "X7"    = "7",
-  "X8"    = "8",
-  "X9"    = "9",
-  "X10"   = "10",
-  "X11"   = "11",
-  "X12"   = "12",
-  "X13.0" = "13-0",
-  "X13.1" = "13-1",
-  "X14"   = "14",
-  "X15"   = "15",
-  "X16"   = "16",
-  "X17"   = "17",
-  "X18"   = "18",
-  "X19"   = "19",
-  "X20"   = "20",
-  "X21.0" = "21-0",
-  "X21.1" = "21-1",
-  "X21.2" = "21-2",
-  "X22"   = "22",
-  "X23"   = "23",
-  "X24.0" = "24-0",
-  "X24.1" = "24-1",
-  "X25"   = "25",
-  "X26"   = "26",
-  "X27"   = "27",
-  "X28"   = "28",
-  "X29"   = "29",
-  "X30"   = "30",
-  "X31"   = "31",
-  "X32"   = "32"
-)
-r <- cor(df[, 13:37])
-
-x <- r
-x[x > 0.5] <- 0.5
-x[x < -0.5] <- -0.5
-
-celltypes <- celltype_map[colnames(x)]
-
-ann_col <- data.frame(celltype = celltypes)
-rownames(ann_col) <- colnames(x)
-
-pdf('plots/corplot.pdf')
-
-pheatmap(
-  x,
-  color = palette,
-  breaks = breaks,
-  cluster_cols = TRUE,
-  scale = "none",
-  annotation_row = ann_col,
-  annotation_col = ann_col,
-  annotation_colors = list(celltype = celltype_pal),
-  labels_col = labs,
-  labels_row = labs,
-  annotation_legend = FALSE
-)
-
-dev.off()
-
-
