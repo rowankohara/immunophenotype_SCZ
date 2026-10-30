@@ -35,8 +35,15 @@ Keywords: *schizophrenia*, *single cell*, *T cell*, *antigliadin antibody*, *RNA
 7. [Figure 3C](plots/fig3c-kmeans10_centroids_heatmap_dge.pdf)
 
 ## Supplemental Data
+Also available an Excel spreadsheet with each data set as a separate tab
+
 1. [Differentially Expressed Genes](data/dge_pseudobulk_edgeR.txt)
+   Differential gene expression analysis results with p-value < 0.01
 2. [Gene Set Enrichment Analysis of DEGs](data/gsea_results_all_hallmark.csv)
+   Gene Set Enrichment Analysis results with p-value < 0.05
 3. [K-Means Clustering of DEGs](data/kmeans.k10.module_membership.txt)
+   K means clustering analysis results for each gene, including the each cluster's and cell type's expression of the gene
 4. [Differential Signaling Linkages](data/sig_diff_linkages_all.csv)
+   Differential Signaling analysis results from DominoSignal with p < 0.05
 5. [Incoming Ligand Senders](data/incoming_ligand_senders.csv)
+    Top three cell types expressing each ligand in a receptor-ligand pair
