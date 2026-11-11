@@ -178,3 +178,45 @@ FeaturePlot(singlets, features = 'nCount_RNA' )
 FeaturePlot(singlets, features = 'percent.mt' )
 dev.off()
 
+
+# LISI ----
+
+library(lisi)
+library(patchwork)
+
+obj <- readRDS("kelly_postqc_clusters_meta.rds")
+umap <- Embeddings(obj, reduction = "umap")
+metadata <- obj@meta.data
+
+lisi_scores <- compute_lisi(
+  X = umap,
+  meta_data = metadata,
+  label_colnames = c("sample", "seurat_clusters")
+)
+
+colnames(lisi_scores) <- c("iLISI", "cLISI")
+
+lisi_scores <- cbind(cell_id = rownames(lisi_scores), lisi_scores)
+
+obj <- AddMetaData(
+  obj,
+  metadata = lisi_scores[match(colnames(obj), lisi_scores$cell_id), -1]
+)
+
+
+### Supplemental Fig 1 ----
+pdf("plots/LISI_results_kelly.pdf", width = 20, height = 12)
+p1 <- FeaturePlot(obj, features = "iLISI") +
+        #labs(title = "iLISI") +
+        theme(plot.title = element_text(size = 40)) +
+        theme_void()
+p2 <- FeaturePlot(obj, features = "cLISI") +
+        #labs(title = "cLISI") +
+        theme(plot.title = element_text(size = 40)) +
+        theme_void()
+print(p1 | p2)
+dev.off()
+
+
+
+
