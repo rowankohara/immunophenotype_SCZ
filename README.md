@@ -1,4 +1,4 @@
-# Molecular adaptations of activated T-cells in an inflammation-associated schizophrenia subgroup
+# Molecular adaptations of peripheral immune cells in an inflammation-associated schizophrenia subgroup
 **Deepak Salem, Rowan K. O’Hara-Payne, Sarah M. Clark, Marcia Cortes-Gutierrez, Nevil J. Singh, Daniel J. Roche, Deanna L. Kelly, Seth A. Ament**
 
 Thirty-five percent of people with schizophrenia-related disorders (SRD) form a high-inflammation subgroup defined by elevated anti-gliadin antibodies (AGA+) and inflammatory proteins and associated with an increased severity of negative symptoms. 
