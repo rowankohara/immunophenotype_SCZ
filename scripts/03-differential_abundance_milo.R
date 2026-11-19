@@ -380,13 +380,36 @@ ggplot(annot_df, aes(clusters_fraction)) +
 dev.off()
 
 ### Supplemental Fig 5 ----
+annot_df_base <- as.data.frame(annot_df)
+max_logFC <- max(abs(annot_df_base$logFC), na.rm = TRUE)
+
+# order the clusters by their median log fold change
+cluster_order <- annot_df_base %>%
+  group_by(clusters) %>%
+  summarize(med_logFC = median(logFC, na.rm = TRUE), .groups = "drop") %>%
+  arrange(med_logFC) %>%
+  pull(clusters)
+annot_df_base$clusters <- factor(annot_df_base$clusters, levels = cluster_order)
+
 pdf("plots/DA_celltype_frac_neighborhoods_kornberg_200.pdf")
-plotDAbeeswarm(annot_df, group.by = "clusters", alpha=0.30) + 
+plotDAbeeswarm(annot_df_base, group.by = "clusters", alpha=0.30) + 
   labs(x = "Cell Type",
-       y = "logFC",
-       caption = "k = 200, d = 20, SpatialFDR < 0.30") +
-  theme(axis.text = element_text(size = 12),
-        axis.title = element_text(size = 14))
+       y = "logFC") +
+  scale_color_gradient2(
+    low = "#2166AC",
+    mid = "white",
+    high = "#B2182B",
+    midpoint = 0
+  ) +
+  geom_hline(
+    yintercept = 0,
+    linetype = "dashed",
+    color = "black",
+    linewidth = 0.6
+  ) +
+  coord_flip(ylim = c(-max_logFC, max_logFC)) +
+  theme(axis.text = element_text(size = 12, color = "black"),
+        axis.title = element_text(size = 14, color = "black"))
 dev.off()
 
 pdf("plots/DA_results_milo_kornberg_200.pdf")
