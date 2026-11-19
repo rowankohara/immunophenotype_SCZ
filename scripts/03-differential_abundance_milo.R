@@ -244,40 +244,57 @@ obj_milo_HvSC <- buildNhoodGraph(obj_milo_HvSC)
 
 ### Fig 2A ----
 # plot neighborhood graph colored by the increase or decrease of abundance
-pdf("plots/NhoodGraph_milo_kelly_HvSC.pdf", width = 12, height = 8)
+pdf("plots/NhoodGraph_milo_kelly.pdf", width = 12, height = 8)
 plotNhoodGraphDA(obj_milo_HvSC, contrastHvSC, alpha=0.30) +  # alpha = spatial FDR
   labs(caption = "k = 45, d = 20, SpatialFDR < 0.30")
 dev.off()
 
 # annotate the neighborhoods based on our cell type annotations
 annot_df <- annotateNhoods(obj_milo_HvSC, contrastHvSC, "seurat_clusters")
-write_csv(annot_df, "milo_kelly_results_summary_HvSC.csv")
+write_csv(annot_df, "milo_kelly_results_summary.csv")
 
 # neighborhoods needed to be at least 70% of a single cell type to be labeled as such, otherwise labeled as "Mixed"
 annot_df$seurat_clusters <- ifelse(annot_df$seurat_clusters_fraction < 0.7, "Mixed", annot_df$seurat_clusters)
 
+# make into data frame and get the absolute value of the maximum logFC for coordinates
+annot_df_base <- as.data.frame(annot_df)
+max_logFC <- max(abs(annot_df_base$logFC), na.rm = TRUE)
+
 # order the clusters by their median log fold change
-cluster_order <- annot_df %>%
+cluster_order <- annot_df_base %>%
   group_by(seurat_clusters) %>%
   summarize(med_logFC = median(logFC, na.rm = TRUE), .groups = "drop") %>%
   arrange(med_logFC) %>%
   pull(seurat_clusters)
-annot_df$seurat_clusters <- factor(annot_df$seurat_clusters, levels = cluster_order)
+annot_df_base$seurat_clusters <- factor(annot_df_base$seurat_clusters, levels = cluster_order)
 
-pdf("plots/DA_kelly_frac_neighborhoods_hist_45_HvSC.pdf")
-ggplot(annot_df, aes(seurat_clusters_fraction)) +
+pdf("plots/DA_kelly_frac_neighborhoods_hist_45.pdf")
+ggplot(annot_df_base, aes(seurat_clusters_fraction)) +
   geom_histogram(bins=50)
 dev.off()
 
 ### Fig 2B ----
 # plot the beeswarm, ordered by the median log fold change
-pdf("plots/DA_kelly_frac_neighborhoods_45_HvSC.pdf", width = 12, height = 8)
-plotDAbeeswarm(annot_df, group.by = "seurat_clusters", alpha=0.30) +
+pdf("plots/DA_kelly_frac_neighborhoods_45.pdf", width = 12, height = 8)
+plotDAbeeswarm(annot_df_base, group.by = "seurat_clusters", alpha=0.30) +
   labs(x = "Cell Type",
        y = "logFC") +
   scale_x_discrete(labels = function(x) parse(text = celltype_labels[x])) +
-  theme(axis.text = element_text(size = 12),
-        axis.title = element_text(size = 14))
+  scale_color_gradient2(
+    low = "#2166AC",
+    mid = "white",
+    high = "#B2182B",
+    midpoint = 0
+  ) +
+  geom_hline(
+    yintercept = 0,
+    linetype = "dashed",
+    color = "black",
+    linewidth = 0.6
+  ) +
+  coord_flip(ylim = c(-max_logFC, max_logFC)) +
+  theme(axis.text = element_text(size = 12, color = "black"),
+        axis.title = element_text(size = 14, color = "black"))
 dev.off()
 
 annot_df$seurat_clusters <- factor(
