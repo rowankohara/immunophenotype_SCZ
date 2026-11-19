@@ -15,6 +15,7 @@ library(org.Hs.eg.db)
 
 # read in differential gene expression data
 dge <- read.table("dkelly_Class.pseudobulk_edgeR.dge.txt", sep="\t", header = TRUE)
+elist <- readRDS("dkelly_singlets.pseudobulk.rds")
 
 # read in meta data
 sample <- colnames(elist[[11]])
